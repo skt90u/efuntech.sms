@@ -1,0 +1,3 @@
+[submodule "reference/source/oneapi-dot-net"]
+	path = reference/source/oneapi-dot-net
+	url = https://github.com/infobip/oneapi-dot-net

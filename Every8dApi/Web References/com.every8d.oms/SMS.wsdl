@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+      <s:element name="getConnection">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getConnectionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getConnectionResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="closeConnection">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sessionKey" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="closeConnectionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="closeConnectionResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="sendSMS">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sessionKey" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="subject" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="content" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="mobile" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sendTime" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="sendSMSResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sendSMSResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="sendParamSMS">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sessionKey" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="subject" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="contentXML" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sendTime" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="sendParamSMSResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sendParamSMSResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="eraseBooking">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sessionKey" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="batchID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="eraseBookingResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="eraseBookingResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getDeliveryStatus">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sessionKey" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="batchID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pageNo" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getDeliveryStatusResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getDeliveryStatusResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getCredit">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sessionKey" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getCreditResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getCreditResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getFreePhoneCallinLog">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sessionKey" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="activityID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="beginDate" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="endDate" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pageNo" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getFreePhoneCallinLogResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getFreePhoneCallinLogResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="getConnectionSoapIn">
+    <wsdl:part name="parameters" element="tns:getConnection" />
+  </wsdl:message>
+  <wsdl:message name="getConnectionSoapOut">
+    <wsdl:part name="parameters" element="tns:getConnectionResponse" />
+  </wsdl:message>
+  <wsdl:message name="closeConnectionSoapIn">
+    <wsdl:part name="parameters" element="tns:closeConnection" />
+  </wsdl:message>
+  <wsdl:message name="closeConnectionSoapOut">
+    <wsdl:part name="parameters" element="tns:closeConnectionResponse" />
+  </wsdl:message>
+  <wsdl:message name="sendSMSSoapIn">
+    <wsdl:part name="parameters" element="tns:sendSMS" />
+  </wsdl:message>
+  <wsdl:message name="sendSMSSoapOut">
+    <wsdl:part name="parameters" element="tns:sendSMSResponse" />
+  </wsdl:message>
+  <wsdl:message name="sendParamSMSSoapIn">
+    <wsdl:part name="parameters" element="tns:sendParamSMS" />
+  </wsdl:message>
+  <wsdl:message name="sendParamSMSSoapOut">
+    <wsdl:part name="parameters" element="tns:sendParamSMSResponse" />
+  </wsdl:message>
+  <wsdl:message name="eraseBookingSoapIn">
+    <wsdl:part name="parameters" element="tns:eraseBooking" />
+  </wsdl:message>
+  <wsdl:message name="eraseBookingSoapOut">
+    <wsdl:part name="parameters" element="tns:eraseBookingResponse" />
+  </wsdl:message>
+  <wsdl:message name="getDeliveryStatusSoapIn">
+    <wsdl:part name="parameters" element="tns:getDeliveryStatus" />
+  </wsdl:message>
+  <wsdl:message name="getDeliveryStatusSoapOut">
+    <wsdl:part name="parameters" element="tns:getDeliveryStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="getCreditSoapIn">
+    <wsdl:part name="parameters" element="tns:getCredit" />
+  </wsdl:message>
+  <wsdl:message name="getCreditSoapOut">
+    <wsdl:part name="parameters" element="tns:getCreditResponse" />
+  </wsdl:message>
+  <wsdl:message name="getFreePhoneCallinLogSoapIn">
+    <wsdl:part name="parameters" element="tns:getFreePhoneCallinLog" />
+  </wsdl:message>
+  <wsdl:message name="getFreePhoneCallinLogSoapOut">
+    <wsdl:part name="parameters" element="tns:getFreePhoneCallinLogResponse" />
+  </wsdl:message>
+  <wsdl:portType name="SMSSoap">
+    <wsdl:operation name="getConnection">
+      <wsdl:input message="tns:getConnectionSoapIn" />
+      <wsdl:output message="tns:getConnectionSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="closeConnection">
+      <wsdl:input message="tns:closeConnectionSoapIn" />
+      <wsdl:output message="tns:closeConnectionSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="sendSMS">
+      <wsdl:input message="tns:sendSMSSoapIn" />
+      <wsdl:output message="tns:sendSMSSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="sendParamSMS">
+      <wsdl:input message="tns:sendParamSMSSoapIn" />
+      <wsdl:output message="tns:sendParamSMSSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="eraseBooking">
+      <wsdl:input message="tns:eraseBookingSoapIn" />
+      <wsdl:output message="tns:eraseBookingSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getDeliveryStatus">
+      <wsdl:input message="tns:getDeliveryStatusSoapIn" />
+      <wsdl:output message="tns:getDeliveryStatusSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getCredit">
+      <wsdl:input message="tns:getCreditSoapIn" />
+      <wsdl:output message="tns:getCreditSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getFreePhoneCallinLog">
+      <wsdl:input message="tns:getFreePhoneCallinLogSoapIn" />
+      <wsdl:output message="tns:getFreePhoneCallinLogSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="SMSSoap" type="tns:SMSSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="getConnection">
+      <soap:operation soapAction="http://tempuri.org/getConnection" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="closeConnection">
+      <soap:operation soapAction="http://tempuri.org/closeConnection" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="sendSMS">
+      <soap:operation soapAction="http://tempuri.org/sendSMS" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="sendParamSMS">
+      <soap:operation soapAction="http://tempuri.org/sendParamSMS" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="eraseBooking">
+      <soap:operation soapAction="http://tempuri.org/eraseBooking" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getDeliveryStatus">
+      <soap:operation soapAction="http://tempuri.org/getDeliveryStatus" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getCredit">
+      <soap:operation soapAction="http://tempuri.org/getCredit" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getFreePhoneCallinLog">
+      <soap:operation soapAction="http://tempuri.org/getFreePhoneCallinLog" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="SMSSoap12" type="tns:SMSSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="getConnection">
+      <soap12:operation soapAction="http://tempuri.org/getConnection" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="closeConnection">
+      <soap12:operation soapAction="http://tempuri.org/closeConnection" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="sendSMS">
+      <soap12:operation soapAction="http://tempuri.org/sendSMS" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="sendParamSMS">
+      <soap12:operation soapAction="http://tempuri.org/sendParamSMS" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="eraseBooking">
+      <soap12:operation soapAction="http://tempuri.org/eraseBooking" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getDeliveryStatus">
+      <soap12:operation soapAction="http://tempuri.org/getDeliveryStatus" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getCredit">
+      <soap12:operation soapAction="http://tempuri.org/getCredit" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getFreePhoneCallinLog">
+      <soap12:operation soapAction="http://tempuri.org/getFreePhoneCallinLog" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="SMS">
+    <wsdl:port name="SMSSoap" binding="tns:SMSSoap">
+      <soap:address location="https://oms.every8d.com/API21/SOAP/SMS.asmx" />
+    </wsdl:port>
+    <wsdl:port name="SMSSoap12" binding="tns:SMSSoap12">
+      <soap12:address location="https://oms.every8d.com/API21/SOAP/SMS.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

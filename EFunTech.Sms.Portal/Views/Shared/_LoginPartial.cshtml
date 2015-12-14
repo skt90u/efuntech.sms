@@ -1,0 +1,37 @@
+﻿@using Microsoft.AspNet.Identity
+@using EFunTech.Sms.Portal.Identity
+@using EFunTech.Sms.Portal.Models
+
+@{
+    ViewBag.UserName = Request.IsAuthenticated ? User.Identity.GetUserName() : string.Empty;
+    ViewBag.SmsBalance = Request.IsAuthenticated ? User.Identity.GetSmsBalance() : string.Empty;
+
+    var menuItems = ViewBag.MenuItems as List<MenuItemModel>;
+    var isAuthenticated = menuItems != null && menuItems.Count > 0;
+}
+
+@*@if (Request.IsAuthenticated)*@
+@if (isAuthenticated)
+{
+    using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+    {
+    @Html.AntiForgeryToken()
+
+    <span class="font-red">Hi @ViewBag.UserName</span> 
+    <span>點數：</span>
+    <span class="font-red" id="SmsBalance">@ViewBag.SmsBalance</span>
+    <span> </span>
+    <a href="javascript:window.open('http://www.google.com', '_blank')" >(儲值)</a>
+    <span> </span>
+    <a href="javascript:window.open('http://www.google.com', '_blank')" class="a">我要儲值</a>
+    <span> | </span>
+    <a href="javascript:document.getElementById('logoutForm').submit()" class="a">登出</a>
+    }
+}
+@*else
+{
+    <ul class="nav navbar-nav navbar-right">
+        <li style="display:none">@Html.ActionLink("註冊", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>
+        <li style="display:none">@Html.ActionLink("登入", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
+    </ul>
+}*@

@@ -1,0 +1,122 @@
+﻿@using EFunTech.Sms.Portal.Models
+@using EFunTech.Sms.Portal.Controllers
+
+@model LoginViewModel
+
+@{
+    List<SystemAnnouncementModel> systemAnnouncements = ((AccountController)this.ViewContext.Controller).GetSystemAnnouncements();
+}
+
+@using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" })) 
+{ 
+@Html.AntiForgeryToken()
+    
+<table width="1100" border="0" align="center" cellpadding="0" cellspacing="0">
+   <tbody>
+      <tr>
+         <td width="527" valign="top">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+               <tbody>
+                   <tr>
+                       <td class="top3-header" valign="middle"><img align="bottom" class="icon_login icon"><span class="font-h3">使用者登錄</span></td>
+                   </tr>
+                  <tr>
+                      <td height="320" valign="top" class="box1_bg">
+                          <br>
+                          <table width="90%" border="0" align="center" cellpadding="10" cellspacing="0">
+                              <tbody>
+                                  <tr>
+                                      <td valign="top">
+                                          @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                                          <span class="font-h1"><img class="hangouts" align="right">帳號</span>
+                                          @Html.TextBoxFor(m => m.UserName, new { size = 35, placeholder = "請輸入帳號" })
+                                          @*@Html.ValidationMessageFor(m => m.UserName, "", new { @class = "text-danger" })*@
+                                          <br>
+
+                                          <span class="font-h1">密碼</span>
+                                          @Html.PasswordFor(m => m.Password, new { size = 35, placeholder = "請輸入密碼" })
+                                          @*@Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })*@
+                                          <br>
+
+                                          <span>　　　@Html.CheckBoxFor(m => m.RememberMe)@Html.LabelFor(m => m.RememberMe)</span>
+                                          <a class="a" href="/Account/ForgotPassword">忘記密碼<br><br></a>
+                                          <input type="submit" class="btn_next" value="" />
+                                      </td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                          <p>&nbsp;</p>
+                      </td>
+                  </tr>
+                  <tr>
+                      <td><img class="down1"></td>
+                  </tr>
+               </tbody>
+            </table>
+         </td>
+         <td valign="top">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+               <tbody>
+                  <tr>
+                      <td width="590" height="78" class="top4"><img class="icon_news icon"><span class="font-h3">系統公告/最新消息</span></td>
+                  </tr>
+                  <tr>
+                      <td valign="middle" class="box2_bg">
+                          <br>
+
+                          <div class="nano"><div class="nano-content">
+
+                              @foreach (var systemAnnouncement in systemAnnouncements)
+                              {
+                                  <table width="83%" border="0" align="center" cellpadding="0" cellspacing="0">
+                                      <tbody>
+                                          <tr>
+                                              <td>
+                                                  <span class="font-green2">@systemAnnouncement.PublishDateString </span><br>
+                                                  @systemAnnouncement.Announcement
+                                              </td>
+                                          </tr>
+                                          <tr>
+                                              <td height="20" class="bg_line2">&nbsp;</td>
+                                          </tr>
+                                      </tbody>
+                                  </table>                              
+                              }
+
+                          </div></div><!-- <div class="nano"><div class="nano-content"> -->
+                      </td>
+                  </tr>
+                  <tr>
+                      <td><img class="down2"></td>
+                  </tr>
+               </tbody>
+            </table>
+         </td>
+      </tr>
+   </tbody>
+</table>
+   
+ 
+}    
+
+@section styles {
+    <style>
+        .nano { 
+            height: 300px; 
+        }
+        .nano .nano-content {
+          padding: 0px;
+        }
+    </style>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $(function () {
+            $(".nano").nanoScroller();
+        });
+    </script>
+}

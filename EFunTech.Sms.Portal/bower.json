@@ -1,0 +1,49 @@
+{
+  "name": "EFunTech.Sms.Portal",
+  "version": "0.0.0",
+  "authors": [
+    "skt90u <skt90u@gmail.com>"
+  ],
+  "moduleType": [
+    "amd"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "Scripts/bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-bootstrap": "~0.13.2",
+    "angular-animate": "~1.4.3",
+    "angular-ui-grid": "~3.0.1",
+    "bootstrap": "~3.3.5",
+    "angular-schema-form": "~0.8.4",
+    "font-awesome": "~4.4.0",
+    "angular-upload": "~1.0.12",
+    "angular-file-upload": "~2.1.1",
+    "angular-uploadcare": "~0.2.0",
+    "ngUpload": "~0.5.17",
+    "AngularJS-Toaster": "~0.4.15",
+    "jQuery.AjaxFileUpload": "~1.0.0",
+    "jquery-legacy": "jquery#1",
+    "jquery-modern": "jquery#~2.1.4",
+    "angular-underscore": "~0.5.0",
+    "underscore": "~1.8.3",
+    "angular-material": "~0.10.1",
+    "angular-block-ui": "~0.2.0",
+    "angular-dialog-service": "~5.2.8",
+    "angular-motion": "~0.4.2",
+    "angular-strap": "~2.3.1",
+    "angular-file-saver": "~0.4.0",
+    "moment": "~2.10.6",
+    "moment-timezone": "~0.4.0",
+    "jquery.validate": "~1.13.0",
+    "libphonenumber": "~0.9.3",
+    "phoneformat.js": "~1.0.3",
+    "angular-schema-form-datepicker": "~0.4.0"
+  }
+}

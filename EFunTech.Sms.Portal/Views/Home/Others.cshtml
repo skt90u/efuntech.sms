@@ -1,0 +1,253 @@
+﻿@section scripts {
+    @Scripts.Render("~/bundles/Others")
+}
+
+@section styles {
+
+    <style>
+        .panel  .search-area {
+            padding:0px;
+            margin:0px;
+        }
+    </style>
+
+    <style>
+        div[ng-controller=ContactGroup] .panel-heading h3 {
+            padding-top: 7.5px;
+        }
+
+        div[ng-controller=ContactGroup] .search-area {
+            margin: 0px;
+        }
+
+        div[ng-controller=ContactGroup] .row .panel-body {
+            padding: 0px;
+        }
+    </style>
+
+    <style>
+        div[ng-controller=ShareContact] .panel-heading h3 {
+            padding-top: 7.5px;
+        }
+
+        div[ng-controller=ShareContact] .search-area {
+            margin: 0px;
+        }
+
+        div[ng-controller=ShareContact] .row .panel-body {
+            padding: 0px;
+        }
+    </style>
+}
+
+<div class="box-heading-top5">
+    <img class="icon_people icon"><span class="font-h3">其他功能</span>
+</div>
+<div class="box-content-top5">
+    <div ng-controller="DebugManager">
+        <tabset justified="false" ng-cloak>
+            <tab heading="系統公告" ng-click="onSelect('SystemAnnouncement')">
+                <tab-heading><div><img class="announcement absmiddle" />系統公告</div></tab-heading>
+                <div ng-controller="SystemAnnouncement">
+                    <div class="search-area">
+                        <div class="row" ng-if="false">
+                            <label class="col-sm-2 control-label mb-10 wid-auto pt-00">
+                                公告日期：
+                            </label>
+                            <div class="col-sm-4 mb-10">
+                                <span>
+                                    <input type="text"
+                                            ng-model="Criteria.StartDate"
+                                            datepicker-popup="yyyy/MM/dd"
+                                            show-button-bar="false"
+                                            is-open="Criteria.StartDateOpend"
+                                            ng-click="Criteria.StartDateOpend=true" />
+                                    <img class="table_48" ng-click="Criteria.StartDateOpend=true" />
+                                </span>
+                                ~
+                                <span>
+                                    <input type="text"
+                                            ng-model="Criteria.EndDate"
+                                            datepicker-popup="yyyy/MM/dd"
+                                            show-button-bar="false"
+                                            is-open="Criteria.EndDateOpend"
+                                            ng-click="Criteria.EndDateOpend=true" />
+                                    <img class="table_48" ng-click="Criteria.EndDateOpend=true" />
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-2 control-label mb-10 wid-auto pt-00">
+                                <div class="input-group add-on">
+                                    <input type="text" class="form-control" ng-model="Criteria.SearchText" placeholder="關鍵字搜尋" />
+                                    <div class="input-group-btn">
+                                        <button class="btn btn-default" ng-click="search()"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button class="btn btn-info" ng-click="editRow(null)">新增</button>
+                                        <button class="btn btn-danger" ng-click="deleteSelection()">刪除</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="grid"
+                         ui-grid="gridOptions"
+                         ui-grid-selection
+                         ui-grid-pagination
+                         ui-grid-resize-columns
+                         ui-grid-move-columns
+                         ui-grid-pinning
+                         ui-grid-exporter
+                         ui-grid-auto-resize>
+                        <div class="watermark" ng-show="!gridOptions.data.length">查無資料</div>
+                    </div>
+                </div>
+            </tab>
+
+            <tab heading="偵錯紀錄" ng-click="onSelect('LogItem')">
+                <tab-heading><div><img class="bug absmiddle" />偵錯紀錄</div></tab-heading>
+                <div ng-controller="LogItem">
+                    <div class="search-area">
+                        <div class="row">
+                            <label class="col-sm-2 control-label mb-10 wid-auto pt-00">
+                                建立時間：
+                            </label>
+                            <div class="col-sm-4 mb-10">
+                                <span>
+                                    <input type="text"
+                                            ng-model="Criteria.StartDate"
+                                            datepicker-popup="yyyy/MM/dd"
+                                            show-button-bar="false"
+                                            is-open="Criteria.StartDateOpend"
+                                            ng-click="Criteria.StartDateOpend=true" />
+                                    <img class="table_48" ng-click="Criteria.StartDateOpend=true" />
+                                </span>
+                                ~
+                                <span>
+                                    <input type="text"
+                                            ng-model="Criteria.EndDate"
+                                            datepicker-popup="yyyy/MM/dd"
+                                            show-button-bar="false"
+                                            is-open="Criteria.EndDateOpend"
+                                            ng-click="Criteria.EndDateOpend=true" />
+                                    <img class="table_48" ng-click="Criteria.EndDateOpend=true" />
+                                </span>
+                            </div>
+
+                            <label class="col-sm-2 control-label mb-10 wid-auto pt-00">
+                                偵錯類型：
+                            </label>
+                            <div class="col-sm-4 mb-10">
+                                <select ng-options="key for (key, value) in LogLevelOptions"
+                                        ng-model="Criteria.LogLevel"></select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-2 control-label mb-10 wid-auto pt-00">
+                                <div class="input-group add-on">
+                                    <input type="text" class="form-control" ng-model="Criteria.SearchText" placeholder="關鍵字搜尋" />
+                                    <div class="input-group-btn">
+                                        <button class="btn btn-default" ng-click="search()"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button class="btn btn-danger" ng-click="deleteSelection()">刪除</button>
+                                        <button class="btn btn-warning" ng-click="export()">匯出</button>
+                                        <button class="btn btn-info" ng-click="selectColumns()">檢視</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="grid"
+                         ui-grid="gridOptions"
+                         ui-grid-selection
+                         ui-grid-pagination
+                         ui-grid-resize-columns
+                         ui-grid-move-columns
+                         ui-grid-pinning
+                         ui-grid-exporter
+                         ui-grid-auto-resize>
+                        <div class="watermark" ng-show="!gridOptions.data.length">查無資料</div>
+                    </div>
+                </div>
+            </tab>
+            <tab heading="接收簡訊發送結果序列" ng-click="onSelect('DeliveryReportQueue')">
+                <tab-heading><div><img class="list absmiddle" />接收簡訊發送結果序列</div></tab-heading>
+                <div ng-controller="DeliveryReportQueue">
+                    <div class="search-area">
+                        <div class="row">
+                            <label class="col-sm-2 control-label mb-10 wid-auto pt-00">
+                                建立時間：
+                            </label>
+                            <div class="col-sm-4 mb-10">
+                                <span>
+                                    <input type="text"
+                                           ng-model="Criteria.StartDate"
+                                           datepicker-popup="yyyy/MM/dd"
+                                           show-button-bar="false"
+                                           is-open="Criteria.StartDateOpend"
+                                           ng-click="Criteria.StartDateOpend=true" />
+                                    <img class="table_48" ng-click="Criteria.StartDateOpend=true" />
+                                </span>
+                                ~
+                                <span>
+                                    <input type="text"
+                                           ng-model="Criteria.EndDate"
+                                           datepicker-popup="yyyy/MM/dd"
+                                           show-button-bar="false"
+                                           is-open="Criteria.EndDateOpend"
+                                           ng-click="Criteria.EndDateOpend=true" />
+                                    <img class="table_48" ng-click="Criteria.EndDateOpend=true" />
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-2 control-label mb-10 wid-auto pt-00">
+                                <div class="input-group add-on">
+                                    <input type="text" class="form-control" ng-model="Criteria.SearchText" placeholder="關鍵字搜尋" />
+                                    <div class="input-group-btn">
+                                        <button class="btn btn-default" ng-click="search()"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button class="btn btn-warning" ng-click="export()">匯出</button>
+                                        <button class="btn btn-info" ng-click="selectColumns()">檢視</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="grid"
+                         ui-grid="gridOptions"
+                         ui-grid-selection
+                         ui-grid-pagination
+                         ui-grid-resize-columns
+                         ui-grid-move-columns
+                         ui-grid-pinning
+                         ui-grid-exporter
+                         ui-grid-auto-resize>
+                        <div class="watermark" ng-show="!gridOptions.data.length">查無資料</div>
+                    </div>
+                </div>
+            </tab>
+            <tab heading="Elmah">
+                <tab-heading><div><img class="elmah absmiddle" />Elmah</div></tab-heading>
+                <iframe src="elmah.axd" style="width:100%; height:600px"></iframe>
+            </tab>
+            <tab heading="Hangfire">
+                <tab-heading><div><img class="scheduler absmiddle" />Hangfire</div></tab-heading>
+                <iframe src="ds" style="width:100%; height:600px"></iframe>
+            </tab>
+            <tab heading="Changelog">
+                <tab-heading><div><img class="changelog absmiddle" />Changelog</div></tab-heading>
+                <iframe src="docs/#!changelog.md" style="width:100%; height:600px"></iframe>
+            </tab>
+        </tabset>
+    </div>
+</div>
+
+

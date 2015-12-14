@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Gurock.SmartInspect.DebugTrace</name>
+    </assembly>
+    <members>
+        <member name="T:Gurock.SmartInspect.DebugTrace.SmartInspectTraceListener">
+             <summary>
+               Directs tracing or debugging output to a SmartInspect session.
+             </summary>
+             
+        </member>
+        <member name="M:Gurock.SmartInspect.DebugTrace.SmartInspectTraceListener.#ctor">
+            <summary>
+              Overloaded. Creates and initializes a new SmartInspectTraceListener
+              instance with SiAuto.Main as session.
+            </summary>
+        </member>
+        <member name="M:Gurock.SmartInspect.DebugTrace.SmartInspectTraceListener.#ctor(System.String)">
+            <summary>
+              Overloaded. Creates and initializes a new SmartInspectTraceListener
+              instance using a new session with SiAuto.Si as parent.
+            </summary>
+            <param name="sessionName">The name for the new session.</param>
+            
+        </member>
+        <member name="M:Gurock.SmartInspect.DebugTrace.SmartInspectTraceListener.#ctor(Gurock.SmartInspect.Session)">
+            <summary>
+              Overloaded. Creates and initializes a new SmartInspectTraceListener
+              instance with an existing session.
+            </summary>
+            <param name="session">The session to use.</param>
+        </member>
+        <member name="M:Gurock.SmartInspect.DebugTrace.SmartInspectTraceListener.Fail(System.String)">
+            <summary>
+              Overloaded. Overridden. Sends a simple error message.
+            </summary>
+            <param name="message">The message to send.</param>
+            
+        </member>
+        <member name="M:Gurock.SmartInspect.DebugTrace.SmartInspectTraceListener.Fail(System.String,System.String)">
+            <summary>
+              Overloaded. Overridden. Sends a detailed error message.
+            </summary>
+            <param name="message">The message to send.</param>
+            <param name="detailMessage">The details.</param>
+            
+        </member>
+        <member name="M:Gurock.SmartInspect.DebugTrace.SmartInspectTraceListener.WriteIndent">
+            <summary>
+              Overridden. Does nothing. 
+            </summary>
+            
+        </member>
+        <member name="M:Gurock.SmartInspect.DebugTrace.SmartInspectTraceListener.Write(System.String)">
+            <summary>
+              Overridden. Sends an info message.
+            </summary>
+            <param name="message">The message to send.</param>
+            
+        </member>
+        <member name="M:Gurock.SmartInspect.DebugTrace.SmartInspectTraceListener.WriteLine(System.String)">
+            <summary>
+              Overridden. Sends an info message.
+            </summary>
+            <param name="message">The message to send.</param>
+            
+        </member>
+        <member name="P:Gurock.SmartInspect.DebugTrace.SmartInspectTraceListener.Name">
+            <summary>
+              Overridden. Represents the name of this SmartInspectTraceListener
+              instance.
+            </summary>
+            
+        </member>
+        <member name="P:Gurock.SmartInspect.DebugTrace.SmartInspectTraceListener.Session">
+            <summary>
+              Returns the underlying session.
+            </summary>
+            
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{669CAE04-4608-4A36-AFC1-0871319C299A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>EFunTech.Sms.Simulation</RootNamespace>
+    <AssemblyName>EFunTech.Sms.Simulation</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Azure|AnyCPU'">
+    <OutputPath>bin\Azure\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'LocalDb|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\LocalDb\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Localhost|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Localhost\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AzureDebug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\AzureDebug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AutoPoco">
+      <HintPath>..\packages\AutoPocoBeta.1.2.0\lib\AutoPoco.dll</HintPath>
+    </Reference>
+    <Reference Include="AutoPoco.Extensions">
+      <HintPath>..\packages\AutoPoco.Extensions.1.0.0.0\lib\AutoPoco.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.Core">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.1.0\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.Owin">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Owin.2.1.0\lib\net45\Microsoft.AspNet.Identity.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.EntityFramework">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.EntityFramework.2.1.0\lib\net45\Microsoft.AspNet.Identity.EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="PhoneNumbers">
+      <HintPath>..\packages\libphonenumber-csharp.7.0.9\lib\PhoneNumbers.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Comparision\SharedGroupContactCompare.cs" />
+    <Compile Include="Comparision\ContactGroupCompare.cs" />
+    <Compile Include="DataSources\E164MobileDataSource.cs" />
+    <Compile Include="DataSources\GuidDataSource.cs" />
+    <Compile Include="DataSources\SubjectDataSource.cs" />
+    <Compile Include="DataSources\ContentDataSource.cs" />
+    <Compile Include="DataSources\MobileDataSource.cs" />
+    <Compile Include="DataSources\RemarkDataSource.cs" />
+    <Compile Include="DataSources\PhoneAreaDataSource.cs" />
+    <Compile Include="DataSources\PhoneDataSource.cs" />
+    <Compile Include="DataSources\PhoneExtDataSource.cs" />
+    <Compile Include="DataSources\DescriptionDataSource.cs" />
+    <Compile Include="DataSources\MsnDataSource.cs" />
+    <Compile Include="DataSources\BirthdaySource.cs" />
+    <Compile Include="DataSources\GenderSource.cs" />
+    <Compile Include="DataSources\ContactGroupNameSource.cs" />
+    <Compile Include="Helpers\EnumerableExtension.cs" />
+    <Compile Include="Helpers\SampleData.Helper.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SampleData_SendMessageHistories.cs" />
+    <Compile Include="SampleData_MenuItem.cs" />
+    <Compile Include="SampleData_WebAuthorization.cs" />
+    <Compile Include="SampleData_GroupContact.cs" />
+    <Compile Include="SampleData_Department.cs" />
+    <Compile Include="SampleData_TradeDetail.cs" />
+    <Compile Include="SampleData_SharedGroupContact.cs" />
+    <Compile Include="SampleData_CreditWarning.cs" />
+    <Compile Include="SampleData_LogItem.cs" />
+    <Compile Include="SampleData_ReplyCc.cs" />
+    <Compile Include="SampleData_SendMessageQueue.cs" />
+    <Compile Include="SampleData_SendMessageRule.cs" />
+    <Compile Include="SampleData_UploadedFile.cs" />
+    <Compile Include="SampleData_ApplicationUser.cs" />
+    <Compile Include="SampleData_Signature.cs" />
+    <Compile Include="SampleData_Group.cs" />
+    <Compile Include="SampleData_Contact.cs" />
+    <Compile Include="SampleData_Blacklist.cs" />
+    <Compile Include="SampleData_CommonMessage.cs" />
+    <Compile Include="SampleData.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EFunTech.Sms.Schema\EFunTech.Sms.Schema.csproj">
+      <Project>{ed0c9495-66f7-4e2c-9ed8-7f530b769a8b}</Project>
+      <Name>EFunTech.Sms.Schema</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

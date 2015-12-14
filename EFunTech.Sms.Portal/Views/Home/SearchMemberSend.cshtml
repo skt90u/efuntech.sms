@@ -1,0 +1,277 @@
+﻿@section scripts {
+    @Scripts.Render("~/bundles/SearchMemberSend")
+}
+
+@section styles {
+    <style>
+        .form-horizontal .control-label {
+            padding-top: 0px;
+            font-weight: bold;
+            width: auto;
+        }
+
+        .SMS_left {
+            padding-left: 20px;
+            padding-bottom: 15px;
+            border: #CCC solid 1px;
+        }
+
+        .bottomdottedline {
+            border-bottom: #666 1px dotted;
+        }
+
+        .minH {
+            min-height: 30px;
+        }
+
+        .minW {
+            min-width: 100px;
+        }
+    </style>
+}
+
+<div ng-controller="SearchMemberSend">
+    <tabset justified="false" ng-cloak>
+        <tab heading="查詢發送紀錄" ng-click="onSelect('MemberSendMessage')">
+            @*<tab-heading><div><img class="icon_log absmiddle" />查詢發送紀錄</div></tab-heading>*@
+            <div ng-controller="MemberSendMessage">
+                <div ng-show="ShowStatistic">
+                    <div class="search-area">
+                        <div class="row">
+                            <div class="col-md-10">
+                                <form class="form-horizontal" role="form">
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">
+                                            <input type="checkbox" disabled="disabled" checked="checked">
+                                            依發送時間查詢：
+                                        </label>
+                                        <div class="col-sm-9">
+                                            <span>
+                                                <input type="text"
+                                                       ng-model="StartDate"
+                                                       datepicker-popup="yyyy/MM/dd"
+                                                       show-button-bar="false"
+                                                       is-open="StartDateOpend"
+                                                       ng-click="StartDateOpend=true" />
+                                                <img class="table_48" ng-click="StartDateOpend=true" />
+                                            </span>
+                                            ~
+                                            <span>
+                                                <input type="text"
+                                                       ng-model="EndDate"
+                                                       datepicker-popup="yyyy/MM/dd"
+                                                       show-button-bar="false"
+                                                       is-open="EndDateOpend"
+                                                       ng-click="EndDateOpend=true" />
+                                                <img class="table_48" ng-click="EndDateOpend=true" />
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">
+                                            <input type="checkbox" ng-model="EnableMobile" ng-click="ToggleMobile()">
+                                            依接收門號查詢：
+                                        </label>
+                                        <div class="col-sm-9">
+                                            <span ng-show="EnableMobile">
+                                                <input type="text" size="30" maxlength="20" border="0" ng-model="Mobile">
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">
+                                            <input type="checkbox" ng-model="EnableReceiptStatus" ng-click="ToggleReceiptStatus()">
+                                            依接收狀態查詢：
+                                        </label>
+                                        <div class="col-sm-9">
+                                            <span ng-show="EnableReceiptStatus">
+                                                <label ng-repeat="ReceiptStatusOption in ReceiptStatusOptions">
+                                                    <input type="checkbox"
+                                                           value="{{ReceiptStatusOption.value}}"
+                                                           ng-checked="ReceiptStatusOptionSelection.indexOf(ReceiptStatusOption) > -1"
+                                                           ng-click="ClickReceiptStatusOption(ReceiptStatusOption)">
+                                                    {{ReceiptStatusOption.text}}
+                                                </label>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                </form>
+                            </div>
+                            <div class="col-md-2 clearfix">
+                                <div class="btn-group pull-right" role="group">
+                                    <button class="btn btn-primary" ng-click="search()">搜尋</button>
+                                    <button class="btn btn-warning" ng-click="exportStatistic()">匯出</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid"
+                         ui-grid="MemberSendMessageStatisticManager.gridOptions"
+                         ui-grid-pagination
+                         ui-grid-resize-columns
+                         ui-grid-move-columns
+                         ui-grid-pinning
+                         ui-grid-exporter
+                         ui-grid-auto-resize>
+                        <div class="watermark" ng-show="!MemberSendMessageStatisticManager.gridOptions.data.length">查無資料</div>
+                    </div>
+                </div>
+                <div ng-show="!ShowStatistic">
+                    <div class="search-area">
+                        <div class="row">
+                            <div class="col-md-12 clearfix">
+                                <div class="btn-group pull-right" role="group">
+                                    <button class="btn btn-primary" ng-click="hideHistory()">上一頁</button>
+                                    <button class="btn btn-warning" ng-click="exportHistory()">匯出</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row pt-20">
+                        <div class="col-md-12">
+                            <div class="panel panel-warning">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">
+                                        收訊分析
+                                    </h3>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="col-md-6">
+                                        <ol>
+                                            <li>
+                                                <label>發送類型：</label>
+                                                <span>
+                                                    <img class="smsMessage" ng-show="CurrentRowEntity.SendMessageType === 0" />
+                                                    <img class="appMessage" ng-show="CurrentRowEntity.SendMessageType === 1" />
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <label>發送時間：</label>
+                                                <span>{{CurrentRowEntity.SendTime | UtcToLocalTimeFilter: "YYYY/MM/DD HH:mm:ss"}}</span>
+                                            </li>
+                                            <li>
+                                                <label>簡訊類別描述：</label>
+                                                <span>{{CurrentRowEntity.SendTitle}}</span>
+                                            </li>
+                                            <li>
+                                                <label>發送內容：</label>
+                                                <span>{{CurrentRowEntity.SendBody}}</span>
+                                            </li>
+                                        </ol>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <ol start="5">
+                                            <li>
+                                                <label>發送通數：</label>
+                                                <span>{{CurrentRowEntity.TotalReceiverCount}}</span>
+                                            </li>
+                                            <li>
+                                                <label>成功接收：</label>
+                                                <span>{{CurrentRowEntity.TotalSuccess}}</span>
+                                            </li>
+                                            <li>
+                                                <label>傳送中：</label>
+                                                <span>{{CurrentRowEntity.TotalSending}}</span>
+                                            </li>
+                                            <li>
+                                                <!--<label>逾期收訊：</label>-->
+                                                <label>傳送失敗：</label>
+                                                <span>{{CurrentRowEntity.TotalTimeout}}</span>
+                                            </li>
+                                            <li>
+                                                <label>發送扣點：</label>
+                                                <span>{{CurrentRowEntity.TotalMessageCost}}</span>
+                                            </li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="grid"
+                                 ui-grid="MemberSendMessageHistoryManager.gridOptions"
+                                 ui-grid-pagination
+                                 ui-grid-resize-columns
+                                 ui-grid-move-columns
+                                 ui-grid-pinning
+                                 ui-grid-exporter
+                                 ui-grid-auto-resize>
+                                <div class="watermark" ng-show="!MemberSendMessageHistoryManager.gridOptions.data.length">查無資料</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <!--<tab heading="點數購買與匯轉明細" ng-click="onSelect('TradeDetail')">-->
+        <tab heading="查詢點數明細" ng-click="onSelect('TradeDetail')">
+            @*<tab-heading><div><img class="icon_money absmiddle" />點數購買與匯轉明細</div></tab-heading>*@
+            <div ng-controller="TradeDetail">
+                <div class="search-area">
+                    <div class="row">
+                        <div class="col-md-10">
+                            <form class="form-horizontal" role="form">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">
+                                        發送時間：
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <span>
+                                            <input type="text"
+                                                   ng-model="StartDate"
+                                                   datepicker-popup="yyyy/MM/dd"
+                                                   show-button-bar="false"
+                                                   is-open="StartDateOpend"
+                                                   ng-click="StartDateOpend=true" />
+                                            <img class="table_48" ng-click="StartDateOpend=true" />
+                                        </span>
+                                        ~
+                                        <span>
+                                            <input type="text"
+                                                   ng-model="EndDate"
+                                                   datepicker-popup="yyyy/MM/dd"
+                                                   show-button-bar="false"
+                                                   is-open="EndDateOpend"
+                                                   ng-click="EndDateOpend=true" />
+                                            <img class="table_48" ng-click="EndDateOpend=true" />
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">
+                                        @*額度類別：*@
+                                        類別：
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <select ng-model="TradeType"
+                                                ng-options="option.value as option.text for option in TradeTypes"></select>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-2 clearfix">
+                            <div class="btn-group pull-right" role="group">
+                                <button class="btn btn-primary" ng-click="search()">搜尋</button>
+                                <button class="btn btn-warning" ng-click="export()">匯出</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid"
+                     ui-grid="gridOptions"
+                     ui-grid-pagination
+                     ui-grid-resize-columns
+                     ui-grid-move-columns
+                     ui-grid-pinning
+                     ui-grid-exporter
+                     ui-grid-auto-resize>
+                    <div class="watermark" ng-show="!gridOptions.data.length">查無資料</div>
+                </div>
+            </div>
+        </tab>
+    </tabset>
+</div>
+

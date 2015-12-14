@@ -1,0 +1,95 @@
+﻿@section scripts {
+    @Scripts.Render("~/bundles/SectorStatistics")
+}
+
+@section styles {
+    
+}
+
+<div ng-controller="SectorStatistics">
+    <div class="search-area">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <form class="form-horizontal" role="form">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label mb-10 wid-auto pt-00">
+                                        查詢條件：
+                                    </label>
+                                    <div class="col-sm-9 mb-10">
+                                        <span>
+                                            <select ng-model="Criteria.SearchType"
+                                                    ng-options="option.value as option.text for option in SearchTypes"
+                                                    ng-change="OnChangeSearchType(Criteria.SearchType)"></select>
+                                            <button ng-show="Criteria.SearchType == SearchTypeOptions.Member" ng-click="PickupMember()">選擇成員</button>
+                                            <span ng-show="Criteria.SearchType == SearchTypeOptions.Member" style="color:Red; font-size:12px;">{{ selectedDepartmentUsers | SelectedMembersFilter}}</span>
+                                        </span>
+                                    </div>
+                                    <label class="col-sm-3 control-label mb-10 wid-auto pt-00">
+                                        發送時間：
+                                    </label>
+                                    <div class="col-sm-9 mb-10">
+                                        <span>
+                                            <input type="text"
+                                                   ng-model="Criteria.StartDate"
+                                                   datepicker-popup="yyyy/MM/dd"
+                                                   show-button-bar="false"
+                                                   is-open="Criteria.StartDateOpend"
+                                                   ng-click="Criteria.StartDateOpend=true" />
+                                            <img class="table_48" ng-click="Criteria.StartDateOpend=true" />
+                                        </span>
+                                        ~
+                                        <span>
+                                            <input type="text"
+                                                   ng-model="Criteria.EndDate"
+                                                   datepicker-popup="yyyy/MM/dd"
+                                                   show-button-bar="false"
+                                                   is-open="Criteria.EndDateOpend"
+                                                   ng-click="Criteria.EndDateOpend=true" />
+                                            <img class="table_48" ng-click="Criteria.EndDateOpend=true" />
+                                        </span>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-4 clearfix">
+                            <div class="btn-group pull-right" role="group">
+                                <button class="btn btn-primary" ng-click="search()">搜尋</button>
+                                <button ng-if="ShowStatistic" class="btn btn-danger" ng-click="export1()">匯出部門通數統計</button>
+                                <button ng-if="ShowStatistic" class="btn btn-warning" ng-click="export2()">匯出部門發送紀錄</button>
+                                <button ng-if="!ShowStatistic" class="btn btn-warning" ng-click="export3()">匯出個人發送紀錄</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    </div>
+    <div ng-show="ShowStatistic">
+        <div class="grid"
+             ui-grid="SectorSendMessageStatisticManager.gridOptions"
+             ui-grid-pagination
+             ui-grid-resize-columns
+             ui-grid-move-columns
+             ui-grid-pinning
+             ui-grid-exporter
+             ui-grid-auto-resize>
+            <div class="watermark" ng-show="!SectorSendMessageStatisticManager.gridOptions.data.length">查無資料</div>
+        </div>
+    </div>
+    <div ng-show="!ShowStatistic">
+        <div class="grid"
+             ui-grid="SectorSendMessageHistoryManager.gridOptions"
+             ui-grid-pagination
+             ui-grid-resize-columns
+             ui-grid-move-columns
+             ui-grid-pinning
+             ui-grid-exporter
+             ui-grid-auto-resize>
+            <div class="watermark" ng-show="!SectorSendMessageStatisticManager.gridOptions.data.length">查無資料</div>
+        </div>
+    </div>
+    
+</div>
+

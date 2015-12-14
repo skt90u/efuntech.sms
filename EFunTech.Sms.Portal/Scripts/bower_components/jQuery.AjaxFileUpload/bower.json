@@ -1,0 +1,23 @@
+{
+  "name": "jQuery.AjaxFileUpload.js",
+  "main": "jQuery.AjaxFileUpload.js",
+  "version": "1.0.0",
+  "homepage": "https://github.com/LarvataTW/jQuery.AjaxFileUpload.js",
+  "authors": [
+    "Jordan Feldstein"
+  ],
+  "description": "jQuery plugin to magically make file inputs upload via ajax",
+  "keywords": [
+    "jquery",
+    "ajax",
+    "upload"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

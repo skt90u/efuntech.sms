@@ -1,0 +1,61 @@
+﻿@section scripts {
+    @Scripts.Render("~/bundles/RecurringSMS")
+}
+
+@section styles {
+    
+}
+
+<div ng-controller="RecurringSMS">
+    <tabset justified="false" ng-cloak>
+        <tab heading="預約簡訊" ng-click="onSelect('SendDeliverRule')">
+            <div ng-controller="SendDeliverRule">
+                <div class="search-area">
+                    <div class="input-group add-on">
+                        <input type="text" class="form-control" ng-model="searchText" placeholder="關鍵字搜尋" />
+                        <div class="input-group-btn">
+							<button class="btn btn-default" ng-click="search()"><i class="glyphicon glyphicon-search"></i></button>
+							<button class="btn btn-danger" ng-click="deleteSelection()">刪除</button>
+                        </div>
+                    </div>
+                </div>	
+                <div class="grid"
+                     ui-grid="gridOptions"
+                     ui-grid-selection
+                     ui-grid-pagination
+                     ui-grid-resize-columns
+                     ui-grid-move-columns
+                     ui-grid-pinning
+                     ui-grid-exporter
+                     ui-grid-auto-resize>
+                    <div class="watermark" ng-show="!gridOptions.data.length">查無資料</div>
+                </div>
+            </div>
+        </tab>
+        <tab heading="週期簡訊" ng-click="onSelect('SendCycleRule')">
+            <div ng-controller="SendCycleRule">
+                <div class="search-area">
+                    <div class="input-group add-on">
+                        <input type="text" class="form-control" ng-model="searchText" placeholder="關鍵字搜尋" />
+                        <div class="input-group-btn">
+							<button class="btn btn-default" ng-click="search()"><i class="glyphicon glyphicon-search"></i></button>
+							<button class="btn btn-danger" ng-click="deleteSelection()">刪除</button>
+                        </div>
+                    </div>
+                </div>	
+                <div class="grid"
+                     ui-grid="gridOptions"
+                     ui-grid-selection
+                     ui-grid-pagination
+                     ui-grid-resize-columns
+                     ui-grid-move-columns
+                     ui-grid-pinning
+                     ui-grid-exporter
+                     ui-grid-auto-resize>
+                    <div class="watermark" ng-show="!gridOptions.data.length">查無資料</div>
+                </div>
+            </div>
+        </tab>
+    </tabset>
+</div>
+

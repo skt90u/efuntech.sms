@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Gurock.SmartInspect.LinqToSql</name>
+    </assembly>
+    <members>
+        <member name="T:Gurock.SmartInspect.LinqToSql.SmartInspectLinqToSqlAdapter">
+            <summary>
+             Acts as an adapter class for the Linq to Sql logging output and
+             provides a mechanism to automatically log SQL statements generated 
+             by Linq to Sql.
+            </summary>
+            
+        </member>
+        <member name="M:Gurock.SmartInspect.LinqToSql.SmartInspectLinqToSqlAdapter.#ctor">
+            <summary>
+              Overloaded. Creates and initializes a new
+              SmartInspectLinqToSqlAdapter instance with the default session
+              SiAuto.Main.
+            </summary>
+        </member>
+        <member name="M:Gurock.SmartInspect.LinqToSql.SmartInspectLinqToSqlAdapter.#ctor(System.String)">
+            <summary>
+              Overloaded. Creates and initializes a new
+              SmartInspectLinqToSqlAdapter instance with a new SmartInspect
+              session.
+            </summary>
+            <param name="sessionName">
+              The name for the new session. The parent for the created
+              session is set to SiAuto.Si.
+            </param>
+        </member>
+        <member name="M:Gurock.SmartInspect.LinqToSql.SmartInspectLinqToSqlAdapter.#ctor(Gurock.SmartInspect.Session)">
+            <summary>
+              Overloaded. Creates and initializes a new
+              SmartInspectLinqToSqlAdapter instance with an existing
+              SmartInspect session.
+            </summary>
+            <param name="session">The existing session to use.</param>
+        </member>
+        <member name="M:Gurock.SmartInspect.LinqToSql.SmartInspectLinqToSqlAdapter.Write(System.String)">
+            <summary>
+              Overriden. Writes the passed value to the underlying buffer and
+              issues a Session.LogSql log call if the current Linq to Sql
+              statement has been completed.
+            </summary>
+            <param name="value">The string value to write.</param>
+        </member>
+        <member name="M:Gurock.SmartInspect.LinqToSql.SmartInspectLinqToSqlAdapter.WriteLine(System.String)">
+            <summary>
+              Overriden. Writes the passed value to the underlying buffer and
+              issues a Session.LogSql log call if the current Linq to Sql
+              statement has been completed.
+            </summary>
+            <param name="value">The string value to write.</param>
+        </member>
+        <member name="P:Gurock.SmartInspect.LinqToSql.SmartInspectLinqToSqlAdapter.TitlePrefix">
+            <summary>
+              Specifies the string to prepend to the title of the generated
+              logging statements. Can be null.
+            </summary>
+        </member>
+        <member name="P:Gurock.SmartInspect.LinqToSql.SmartInspectLinqToSqlAdapter.TitleLimit">
+            <summary>
+             Specifies the maximum lenght of the titles of the generated
+             logging statements. Set to 0 to always display the entire SQL
+             statement in the log entry title.
+            </summary>
+        </member>
+        <member name="P:Gurock.SmartInspect.LinqToSql.SmartInspectLinqToSqlAdapter.Session">
+            <summary>
+              Returns the underlying SmartInspect session.
+            </summary>
+            
+        </member>
+        <member name="P:Gurock.SmartInspect.LinqToSql.SmartInspectLinqToSqlAdapter.Encoding">
+            <summary>
+              Overriden. Returns the encoding of this class. This property
+              is required by the abstract base TextWriter class but is not
+              directly used  by the SmartInspectLinqToSqlAdapter.
+            </summary>
+        </member>
+    </members>
+</doc>

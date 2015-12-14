@@ -1,0 +1,40 @@
+﻿@using EFunTech.Sms.Portal.Models
+
+@{
+    ViewBag.Title = "Home Page";
+
+    List<MenuItemModel> menuItems = ViewBag.MenuItems as List<MenuItemModel> ?? new List<MenuItemModel>();
+}
+
+
+    <table width="1115" border="0" align="center" cellpadding="0" cellspacing="0">
+      <tbody><tr>
+                 <td height="80" class="menu-bg">
+                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                         <tbody>
+                             <tr>
+                                 <td style="padding-top:20px; padding-left:20px">
+                                     @foreach (var menuItem in menuItems)
+                                     {
+                                        <a href="@menuItem.MapRouteUrl" class="@(menuItem.MapRouteUrl.Contains(Convert.ToString(ViewContext.RouteData.Values["Action"])) ? "menu-active" : "menu")">@menuItem.Name</a>
+                                     }
+
+                                     @*
+             <a href="/SendMessage" class="menu">簡訊發送</a>
+            <a href="/SendParamMessage" class="menu">參數簡訊發送</a>
+            <a href="/SearchMemberSend" class="menu">發送查詢</a>　
+            <a href="/ContactManager" class="menu">聯絡人管理</a>　
+            <a href="/SMS_Setting" class="menu">系統設定</a>　
+            <a href="/RecurringSMS" class="menu">預約/週期簡訊維護</a>　
+            <a href="/DepartmentManager" class="menu">子帳號管理</a>　
+            <a href="/DepartmentPointManager" class="menu">子帳號點數管理</a>
+            <a href="/SectorStatistics" class="menu">報表管理</a>
+                                     *@
+                                 </td>
+                                 <td width="115" align="center"><a href="/docs" class="font-black">API文件</a></td>
+                             </tr>
+                         </tbody>
+                     </table>
+                 </td>
+      </tr></tbody>
+    </table>

@@ -1,0 +1,123 @@
+﻿@using Microsoft.AspNet.Identity;
+@using Microsoft.AspNet.Identity.Owin;
+@using Microsoft.AspNet.Identity.EntityFramework;
+
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class=" ie ie6 lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class=" ie ie7 lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 8]> <html class="i e ie8 lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 9]> <html class=" ie ie9 lt-ie9"> <![endif]-->
+<!--[if gt IE 9]> <html class=" ie"> <![endif]-->
+<!--[if !IE]><!-->
+<html class="">
+<!--<![endif]-->
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta http-equiv="content-language" content="en" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <meta name="hostname" content="@Request.Url.Host">
+    <meta name="user-login" content="@User.Identity.GetUserName()">
+
+    <meta name="KeyWords" content="資餘科技,簡訊發送平台">
+    <meta name="description" content="資餘科技 - 簡訊發送平台">
+    <title>資餘科技 - 簡訊發送平台</title>
+
+    <link rel="shortcut icon" href="~/favicon.ico?v=3" type="image/x-icon" />
+    
+    @Styles.Render("~/Content/css")
+    @*ui-grid.min.css 進行壓所會出問題，因此直接使用*@
+    <link href="~/Scripts/bower_components/angular-ui-grid/ui-grid.min.css" rel="stylesheet" />
+    @*一定放在所有CSS之後*@
+    <link href="~/Content/in.css" rel="stylesheet" />
+    <link href="~/Content/Site.css" rel="stylesheet" />
+    
+    <style>
+        /*.ui-grid-icon-ok:before {
+            content: '\c362' !important;
+        }*/
+    </style>
+    
+    @RenderSection("styles", required: false) 
+
+    @*IE Conditional comment *@
+    @*https://en.wikipedia.org/wiki/Conditional_comment*@
+    <!--[if lt IE 9]>
+    <![endif]-->
+
+  
+</head>
+<body ng-cloak>
+    <toaster-container></toaster-container>
+
+
+    <header>
+        <table width="1115" border="0" align="center" cellpadding="0" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td>
+                        <a href="/Home"><img class="logo"></a>
+                    </td>
+                    <td width="500" align="right" valign="bottom">
+                        @Html.Partial("_LoginPartial")
+                </tr>
+            </tbody>
+        </table>
+    </header>
+
+    @Html.Partial("_Menu")
+
+    <div class="container body-content">
+        @RenderBody()
+
+        <div ng-controller="Scheduler" style="display:none"></div>
+
+        <footer style="margin-top:30px;">
+            <table width="1117" border="0" align="center" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td width="22"><img class="box3_left" /></td>
+                    <td bgcolor="#eaeaea">
+                        <table width="93%" border="0" align="center" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td width="135"><img class="logo_down" alt="" /></td>
+                                @*<td>
+                                    專屬簡訊儲值帳號<br />
+                                    808玉山銀行台北分行<br />
+                                    轉入帳號：9900123412341234
+                                    <a href="#" class="font-h2">如何使用專屬簡訊儲值帳號</a>
+                                </td>
+                                <td width="470">
+                                    市內客服電話請撥：0800-618688 ∣ 手機客服電話請撥 02-8913-1559轉166<br />
+                                    新北市新店區北新路三段207-3號11樓(台北矽谷大樓)<br />
+                                    Copyright © 2015 資餘科技股份有限公司版權所有，轉載必究
+                                </td>*@
+                                <td>
+                                </td>
+                                <td width="470">
+                                    <br />
+                                    <br />
+                                    Copyright © 2015 資餘科技股份有限公司版權所有，轉載必究
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td width="28"><img class="box3_right" /></td>
+                </tr>
+            </table>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/js")
+    @RenderSection("scripts", required: false) @*controllers*@
+    <script>
+        angular.bootstrap(document, ['app']);
+    </script>
+
+    <script src="~/Scripts/bower_components/nanoScrollerJS/javascripts/main.js"></script>
+
+</body>
+</html>
+

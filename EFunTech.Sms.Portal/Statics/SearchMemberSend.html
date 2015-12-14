@@ -1,0 +1,526 @@
+﻿
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta http-equiv="content-language" content="en" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+
+    <meta name="KeyWords" content="資餘科技,簡訊發送平台">
+    <meta name="description" content="資餘科技 - 簡訊發送平台">
+    <title>資餘科技 - 簡訊發送平台</title>
+
+    <link href="/Scripts/bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="/Scripts/bower_components/bootstrap/dist/css/bootstrap-theme.css" rel="stylesheet" />
+    <link href="/Scripts/bower_components/font-awesome/css/font-awesome.css" rel="stylesheet" />
+    <link href="/Scripts/bower_components/AngularJS-Toaster/toaster.css" rel="stylesheet" />
+    <link href="/Scripts/bower_components/angular-material/angular-material.css" rel="stylesheet" />
+    <link href="/Scripts/bower_components/angular-block-ui/dist/angular-block-ui.css" rel="stylesheet" />
+    <link href="/Scripts/bower_components/angular-dialog-service/dist/dialogs.css" rel="stylesheet" />
+    <link href="/Content/spinkit.css" rel="stylesheet" />
+    <link href="/Content/animate.css" rel="stylesheet" />
+
+
+    <link href="/Scripts/bower_components/angular-ui-grid/ui-grid.min.css" rel="stylesheet" />
+
+    <link href="/Content/in.css" rel="stylesheet" />
+    <link href="/Content/Site.css" rel="stylesheet" />
+</head>
+<body ng-cloak>
+    <toaster-container></toaster-container>
+
+
+    <header>
+        <table width="1115" border="0" align="center" cellpadding="0" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td>
+                        <a href="/Home"><img class="logo"></a>
+                    </td>
+                    <td width="500" align="right" valign="bottom">
+
+
+                        <form action="/Account/LogOff" class="navbar-right" id="logoutForm" method="post">
+                            <input name="__RequestVerificationToken" type="hidden" value="t-U_xAxhL2o7_kX-Xe9miS5icOY1C_iokKHyush0TjVFPAlCGqcF7SkJUCcesJW4EcGgVssIKAlVEJJZBBA5W0xMZdIfWnk7uX-XrFzrvAwBlGoR5uTNl72biOPCfB96FyvUzOtBIdue81Ys_IZYsg2" />    <span class="font-red">Hi Administrator</span>
+                            <span>點數：</span>
+                            <span class="font-red" id="SmsBalance">999999999996.0</span>
+                            <span> </span>
+                            <a href="javascript:window.open('http://www.google.com', '_blank')">(儲值)</a>
+                            <span> </span>
+                            <a href="javascript:window.open('http://www.google.com', '_blank')" class="a">我要儲值</a>
+                            <span> | </span>
+                            <a href="javascript:document.getElementById('logoutForm').submit()" class="a">登出</a>
+                        </form>
+                </tr>
+            </tbody>
+        </table>
+    </header>
+
+
+
+
+
+    <table width="1115" border="0" align="center" cellpadding="0" cellspacing="0">
+        <tbody>
+            <tr>
+                <td height="80" class="menu-bg">
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                        <tbody>
+                            <tr>
+                                <td style="padding-top:20px; padding-left:20px">
+                                    <a href="/SendMessage" class="menu">簡訊發送</a>
+                                    <a href="/SendParamMessage" class="menu">參數簡訊發送</a>
+                                    <a href="/SearchMemberSend" class="menu-active">發送查詢</a>
+                                    <a href="/ContactManager" class="menu">聯絡人管理</a>
+                                    <a href="/SMS_Setting" class="menu">系統設定</a>
+                                    <a href="/RecurringSMS" class="menu">預約/週期簡訊維護</a>
+                                    <a href="/DepartmentManager" class="menu">子帳號管理</a>
+                                    <a href="/DepartmentPointManager" class="menu">子帳號點數管理</a>
+                                    <a href="/SectorStatistics" class="menu">報表管理</a>
+
+
+                                </td>
+                                <td width="115" align="center"><a href="#" class="font-black">其他功能</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="container body-content">
+
+
+        <style>
+                    .form-horizontal .control-label {
+                        padding-top: 0px;
+                        font-weight: bold;
+                        width: auto;
+                    }
+
+                    /*.col-sm-1,
+            .col-sm-2,
+            .col-sm-3,
+            .col-sm-4,
+            .col-sm-5,
+            .col-sm-6,
+            .col-sm-7,
+            .col-sm-8,
+            .col-sm-9,
+            .col-sm-10,
+            .col-sm-11,
+            .col-sm-12
+            {
+            }*/
+
+                    .SMS_left {
+                        padding-left: 20px;
+                        padding-bottom: 15px;
+                        border: #CCC solid 1px;
+                    }
+
+                    /*
+            .SMS_right {
+                border: #CCC 1px solid;
+                padding-top: 20px;
+                padding-right: 30px;
+                padding-bottom: 15px;
+                background-color: #FEFEEF;
+            }*/
+
+                    .bottomdottedline {
+                        border-bottom: #666 1px dotted;
+                    }
+
+                    .minH {
+                        min-height: 30px;
+                    }
+
+                    .minW {
+                        min-width: 100px;
+                    }
+        </style>
+
+        <div ng-controller="SearchMemberSend">
+            <tabset justified="false" ng-cloak>
+                <tab heading="查詢發送紀錄" ng-click="onSelect('MemberSendMessage')">
+                    <div ng-controller="MemberSendMessage">
+                        <div ng-show="ShowStatistic">
+                            <div class="search-area">
+                                <div class="row">
+                                    <div class="col-md-10">
+                                        <form class="form-horizontal" role="form">
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label">
+                                                    <input type="checkbox" disabled="disabled" checked="checked">
+                                                    依發送時間查詢：
+                                                </label>
+                                                <div class="col-sm-9">
+                                                    <span>
+                                                        <input type="text"
+                                                               ng-model="StartDate"
+                                                               datepicker-popup="yyyy/MM/dd"
+                                                               show-button-bar="false"
+                                                               is-open="StartDateOpend"
+                                                               ng-click="StartDateOpend=true" />
+                                                        <img class="table_48" ng-click="StartDateOpend=true" />
+                                                    </span>
+                                                    ~
+                                                    <span>
+                                                        <input type="text"
+                                                               ng-model="EndDate"
+                                                               datepicker-popup="yyyy/MM/dd"
+                                                               show-button-bar="false"
+                                                               is-open="EndDateOpend"
+                                                               ng-click="EndDateOpend=true" />
+                                                        <img class="table_48" ng-click="EndDateOpend=true" />
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label">
+                                                    <input type="checkbox" ng-model="EnableMobile" ng-click="ToggleMobile()">
+                                                    依接收門號查詢：
+                                                </label>
+                                                <div class="col-sm-9">
+                                                    <span ng-show="EnableMobile">
+                                                        <input type="text" size="30" maxlength="20" border="0" ng-model="Mobile">
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label">
+                                                    <input type="checkbox" ng-model="EnableReceiptStatus" ng-click="ToggleReceiptStatus()">
+                                                    依接收狀態查詢：
+                                                </label>
+                                                <div class="col-sm-9">
+                                                    <span ng-show="EnableReceiptStatus">
+                                                        <label ng-repeat="ReceiptStatusOption in ReceiptStatusOptions">
+                                                            <input type="checkbox"
+                                                                   value="{{ReceiptStatusOption.value}}"
+                                                                   ng-checked="ReceiptStatusOptionSelection.indexOf(ReceiptStatusOption) > -1"
+                                                                   ng-click="ClickReceiptStatusOption(ReceiptStatusOption)">
+                                                            {{ReceiptStatusOption.text}}
+                                                        </label>
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                        </form>
+                                    </div>
+                                    <div class="col-md-2 clearfix">
+                                        <div class="btn-group pull-right" role="group">
+                                            <button class="btn btn-primary" ng-click="search()">搜尋</button>
+                                            <button class="btn btn-warning" ng-click="exportStatistic()">匯出</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid"
+                                 ui-grid="MemberSendMessageStatisticManager.gridOptions"
+                                 ui-grid-pagination
+                                 ui-grid-resize-columns
+                                 ui-grid-move-columns
+                                 ui-grid-pinning
+                                 ui-grid-exporter
+                                 ui-grid-auto-resize>
+                                <div class="watermark" ng-show="!MemberSendMessageStatisticManager.gridOptions.data.length">查無資料</div>
+                            </div>
+                        </div>
+                        <div ng-show="!ShowStatistic">
+                            <div class="row">
+                                <div class="col-md-12 clearfix">
+                                    <div class="btn-group pull-right" role="group">
+                                        <button class="btn btn-primary" ng-click="hideHistory()">上一頁</button>
+                                        <button class="btn btn-warning" ng-click="exportHistory()">匯出</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row pt-20">
+                                <div class="col-md-12">
+                                    <div class="panel panel-warning">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">
+                                                收訊分析
+                                            </h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class="col-md-6">
+                                                <ol>
+                                                    <li>
+                                                        <label>發送類型：</label>
+                                                        <span>
+                                                            <img class="smsMessage" ng-show="CurrentRowEntity.SendMessageType === 0" />
+                                                            <img class="appMessage" ng-show="CurrentRowEntity.SendMessageType === 1" />
+                                                        </span>
+                                                    </li>
+                                                    <li>
+                                                        <label>發送時間：</label>
+                                                        <span>{{CurrentRowEntity.SendTime | UtcToLocalTimeFilter: "YYYY/MM/DD HH:mm:ss"}}</span>
+                                                    </li>
+                                                    <li>
+                                                        <label>簡訊類別描述：</label>
+                                                        <span>{{CurrentRowEntity.SendTitle}}</span>
+                                                    </li>
+                                                    <li>
+                                                        <label>發送內容：</label>
+                                                        <span>{{CurrentRowEntity.SendBody}}</span>
+                                                    </li>
+                                                </ol>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <ol start="5">
+                                                    <li>
+                                                        <label>發送通數：</label>
+                                                        <span>{{CurrentRowEntity.TotalReceiverCount}}</span>
+                                                    </li>
+                                                    <li>
+                                                        <label>成功接收：</label>
+                                                        <span>{{CurrentRowEntity.TotalSuccess}}</span>
+                                                    </li>
+                                                    <li>
+                                                        <label>傳送中：</label>
+                                                        <span>{{CurrentRowEntity.TotalSending}}</span>
+                                                    </li>
+                                                    <li>
+                                                        <!--<label>逾期收訊：</label>-->
+                                                        <label>傳送失敗：</label>
+                                                        <span>{{CurrentRowEntity.TotalTimeout}}</span>
+                                                    </li>
+                                                    <li>
+                                                        <label>發送扣點：</label>
+                                                        <span>{{CurrentRowEntity.TotalMessageCost}}</span>
+                                                    </li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="grid"
+                                         ui-grid="MemberSendMessageHistoryManager.gridOptions"
+                                         ui-grid-pagination
+                                         ui-grid-resize-columns
+                                         ui-grid-move-columns
+                                         ui-grid-pinning
+                                         ui-grid-exporter
+                                         ui-grid-auto-resize>
+                                        <div class="watermark" ng-show="!MemberSendMessageHistoryManager.gridOptions.data.length">查無資料</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </tab>
+                <!--<tab heading="點數購買與匯轉明細" ng-click="onSelect('TradeDetail')">-->
+                <tab heading="查詢點數明細" ng-click="onSelect('TradeDetail')">
+                    <div ng-controller="TradeDetail">
+                        <div class="search-area">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="col-md-10">
+                                                <form class="form-horizontal" role="form">
+                                                    <div class="form-group">
+                                                        <label class="col-sm-2 control-label">
+                                                            發送時間：
+                                                        </label>
+                                                        <div class="col-sm-10">
+                                                            <span>
+                                                                <input type="text"
+                                                                       ng-model="StartDate"
+                                                                       datepicker-popup="yyyy/MM/dd"
+                                                                       show-button-bar="false"
+                                                                       is-open="StartDateOpend"
+                                                                       ng-click="StartDateOpend=true" />
+                                                                <img class="table_48" ng-click="StartDateOpend=true" />
+                                                            </span>
+                                                            ~
+                                                            <span>
+                                                                <input type="text"
+                                                                       ng-model="EndDate"
+                                                                       datepicker-popup="yyyy/MM/dd"
+                                                                       show-button-bar="false"
+                                                                       is-open="EndDateOpend"
+                                                                       ng-click="EndDateOpend=true" />
+                                                                <img class="table_48" ng-click="EndDateOpend=true" />
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-sm-2 control-label">
+                                                            額度類別：
+                                                        </label>
+                                                        <div class="col-sm-10">
+                                                            <select ng-model="TradeType"
+                                                                    ng-options="option.value as option.text for option in TradeTypes"></select>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="col-md-2 clearfix">
+                                                <div class="btn-group pull-right" role="group">
+                                                    <button class="btn btn-primary" ng-click="search()">搜尋</button>
+                                                    <button class="btn btn-warning" ng-click="export()">匯出</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid"
+                             ui-grid="gridOptions"
+                             ui-grid-pagination
+                             ui-grid-resize-columns
+                             ui-grid-move-columns
+                             ui-grid-pinning
+                             ui-grid-exporter
+                             ui-grid-auto-resize>
+                            <div class="watermark" ng-show="!gridOptions.data.length">查無資料</div>
+                        </div>
+                    </div>
+                </tab>
+            </tabset>
+        </div>
+
+
+
+        <footer style="margin-top:30px;">
+            <table width="1117" border="0" align="center" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td width="22"><img class="box3_left" /></td>
+                    <td bgcolor="#eaeaea">
+                        <table width="93%" border="0" align="center" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td width="135"><img class="logo_down" alt="" /></td>
+                                <td>
+                                    專屬簡訊儲值帳號<br />
+                                    808玉山銀行台北分行<br />
+                                    轉入帳號：9900123412341234
+                                    <a href="#" class="font-h2">如何使用專屬簡訊儲值帳號</a>
+                                </td>
+                                <td width="470">
+                                    市內客服電話請撥：0800-618688 ∣ 手機客服電話請撥 02-8913-1559轉166<br />
+                                    新北市新店區北新路三段207-3號11樓(台北矽谷大樓)<br />
+                                    Copyright c 2015 餘資科技股份有限公司版權所有，轉載必究
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td width="28"><img class="box3_right" /></td>
+                </tr>
+            </table>
+        </footer>
+    </div>
+
+    <script src="/Scripts/bower_components/jquery-legacy/dist/jquery.js"></script>
+    <script src="/Scripts/bower_components/underscore/underscore.js"></script>
+    <script src="/Scripts/bower_components/moment/moment.js"></script>
+    <script src="/Scripts/bower_components/moment-timezone/builds/moment-timezone-with-data.js"></script>
+    <script src="/Scripts/bower_components/angular/angular.js"></script>
+    <script src="/Scripts/bower_components/angular-i18n/angular-locale_zh-tw.js"></script>
+    <script src="/Scripts/bower_components/angular-animate/angular-animate.js"></script>
+    <script src="/Scripts/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="/Scripts/bower_components/angular-ui-grid/ui-grid.js"></script>
+    <script src="/Scripts/bower_components/angular-underscore/angular-underscore.js"></script>
+    <script src="/Scripts/bower_components/tv4/tv4.js"></script>
+    <script src="/Scripts/bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="/Scripts/bower_components/objectpath/lib/ObjectPath.js"></script>
+    <script src="/Scripts/bower_components/angular-schema-form/dist/schema-form.js"></script>
+    <script src="/Scripts/bower_components/angular-schema-form/dist/bootstrap-decorator.js"></script>
+    <script src="/Scripts/bower_components/AngularJS-Toaster/toaster.js"></script>
+    <script src="/Scripts/bower_components/angular-block-ui/dist/angular-block-ui.js"></script>
+    <script src="/Scripts/bower_components/angular-translate/angular-translate.js"></script>
+    <script src="/Scripts/bower_components/angular-dialog-service/dist/dialogs-default-translations.js"></script>
+    <script src="/Scripts/bower_components/angular-dialog-service/dist/dialogs.js"></script>
+    <script src="/Scripts/Application/app.js"></script>
+    <script src="/Scripts/Application/Constants/Converter.js"></script>
+    <script src="/Scripts/Application/Constants/Enum.js"></script>
+    <script src="/Scripts/Application/Configs/configBlockUI.js"></script>
+    <script src="/Scripts/Application/Configs/configDialogs.js"></script>
+    <script src="/Scripts/Application/Filters/EnumFilter.js"></script>
+    <script src="/Scripts/Application/Filters/SelectedMembersFilter.js"></script>
+    <script src="/Scripts/Application/Filters/UtcToLocalTimeFilter.js"></script>
+    <script src="/Scripts/Application/Directives/Chips.js"></script>
+    <script src="/Scripts/Application/Services/CommonContactManager.js"></script>
+    <script src="/Scripts/Application/Services/CommonMessageManager.js"></script>
+    <script src="/Scripts/Application/Services/CompanyDeaprtmentManager.js"></script>
+    <script src="/Scripts/Application/Services/ContactOfGroupManager.js"></script>
+    <script src="/Scripts/Application/Services/CurrentUserManager.js"></script>
+    <script src="/Scripts/Application/Services/FileUploadManager.js"></script>
+    <script src="/Scripts/Application/Services/ManualInputManager.js"></script>
+    <script src="/Scripts/Application/Services/MemberSendMessageHistoryManager.js"></script>
+    <script src="/Scripts/Application/Services/MemberSendMessageStatisticManager.js"></script>
+    <script src="/Scripts/Application/Services/SectorSendMessageHistoryManager.js"></script>
+    <script src="/Scripts/Application/Services/SectorSendMessageStatisticManager.js"></script>
+    <script src="/Scripts/Application/Services/SendMessageHistoryManager.js"></script>
+    <script src="/Scripts/Application/Services/SignatureManager.js"></script>
+    <script src="/Scripts/Application/Factories/CrudApi.js"></script>
+    <script src="/Scripts/Application/Factories/DateUtil.js"></script>
+    <script src="/Scripts/Application/Factories/FileManagerApi.js"></script>
+    <script src="/Scripts/Application/Factories/GlobalSettings.js"></script>
+    <script src="/Scripts/Application/Factories/LookupApi.js"></script>
+    <script src="/Scripts/Application/Factories/MessageCostInfo.js"></script>
+    <script src="/Scripts/Application/Factories/NumberUtil.js"></script>
+    <script src="/Scripts/Application/Factories/RegularExpressionHelper.js"></script>
+    <script src="/Scripts/Application/Factories/SchemaFormCache.js"></script>
+    <script src="/Scripts/Application/Factories/SchemaFormFactory.js"></script>
+    <script src="/Scripts/Application/Factories/SchemaFormHelper.js"></script>
+    <script src="/Scripts/Application/Factories/SelectUtil.js"></script>
+    <script src="/Scripts/Application/Factories/TimezoneDetect.js"></script>
+    <script src="/Scripts/Application/Factories/ValidationApi.js"></script>
+    <script src="/Scripts/Application/Factories/WebApi.js"></script>
+    <script src="/Scripts/Application/Runs/SchemaForm/BlackListModel.js"></script>
+    <script src="/Scripts/Application/Runs/SchemaForm/CommonMessageModel.js"></script>
+    <script src="/Scripts/Application/Runs/SchemaForm/ContactModel.js"></script>
+    <script src="/Scripts/Application/Runs/SchemaForm/DepartmentManagerModel.js"></script>
+    <script src="/Scripts/Application/Runs/SchemaForm/DepartmentModel.js"></script>
+    <script src="/Scripts/Application/Runs/SchemaForm/DepartmentPointManagerManuallyModel.js"></script>
+    <script src="/Scripts/Application/Runs/SchemaForm/DepartmentPointManagerPeriodModel.js"></script>
+    <script src="/Scripts/Application/Runs/SchemaForm/GroupModel.js"></script>
+    <script src="/Scripts/Application/Runs/SchemaForm/SendMessageQueueModel.js"></script>
+    <script src="/Scripts/Application/Runs/SchemaForm/SignatureModel.js"></script>
+    <script src="/Scripts/Application/Runs/SchemaForm/SMS_SettingModel.js"></script>
+    <script src="/Scripts/Application/Runs/SchemaForm/TradeDetailModel.js"></script>
+    <script src="/Scripts/Application/Runs/SchemaForm/UploadedMessageReceiverModel.js"></script>
+    <script src="/Scripts/Application/Runs/Template/columnEditor.js"></script>
+    <script src="/Scripts/Application/Runs/Template/editRow.js"></script>
+    <script src="/Scripts/Application/Runs/Template/gridModal.js"></script>
+    <script src="/Scripts/Application/Runs/Template/memberSelector.js"></script>
+    <script src="/Scripts/Application/Runs/Template/sendRuleModal.js"></script>
+    <script src="/Scripts/Application/Runs/Template/sendTime.js"></script>
+    <script src="/Scripts/Application/Runs/Configs/HttpHeader.js"></script>
+    <script src="/Scripts/Application/Controllers/Common/ColumnEditorCtrl.js"></script>
+    <script src="/Scripts/Application/Controllers/Common/FileUploadCtrl.js"></script>
+    <script src="/Scripts/Application/Controllers/Common/FormModalCtrl.js"></script>
+    <script src="/Scripts/Application/Controllers/Common/GridModalCtrl.js"></script>
+    <script src="/Scripts/Application/Controllers/Common/MemberSelectorCtrl.js"></script>
+    <script src="/Scripts/Application/Controllers/Common/SendRuleModalCtrl.js"></script>
+    <script src="/Scripts/Application/Controllers/Common/SendTimeModalCtrl.js"></script>
+
+
+    <script src="/Scripts/Application/Controllers/SearchMemberSend/MemberSendMessage.js"></script>
+    <script src="/Scripts/Application/Controllers/SearchMemberSend/SearchMemberSend.js"></script>
+    <script src="/Scripts/Application/Controllers/SearchMemberSend/TradeDetail.js"></script>
+
+
+    <script>
+        angular.bootstrap(document, ['app']);
+    </script>
+    <script type='text/javascript' src='/Glimpse.axd?n=glimpse_insight&amp;hash=c7c5c85b'></script>
+    <script type='text/javascript' src='/Glimpse.axd?n=glimpse_client&amp;hash=c7c5c85b'></script>
+    <script type='text/javascript' src='/Glimpse.axd?n=glimpse_metadata&amp;hash=c7c5c85b&amp;callback=glimpse.data.initMetadata'></script>
+    <script type='text/javascript' src='/Glimpse.axd?n=glimpse_request&amp;requestId=e97c5d64-151e-4e4e-b70a-6183b9aa95b2&amp;hash=c7c5c85b&amp;callback=glimpse.data.initData'></script>
+</body>
+</html>
