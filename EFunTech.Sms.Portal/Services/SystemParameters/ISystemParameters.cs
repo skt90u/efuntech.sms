@@ -1,7 +1,6 @@
 ﻿
 using EFunTech.Sms.Schema;
 
-using JUtilSharp.BootStrapper;
 using JUtilSharp.Database;
 using Microsoft.Practices.Unity;
 using System;

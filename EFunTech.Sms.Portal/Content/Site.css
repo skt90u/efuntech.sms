@@ -976,14 +976,69 @@ img.Gear {
 }
 
 /* line 730, ../sass/site.sass */
-.preloader {
+.splash {
+  display: none;
+}
+
+/* line 733, ../sass/site.sass */
+[ng-cloak].splash {
+  display: block !important;
+}
+
+/* line 736, ../sass/site.sass */
+.splash .preloader {
   position: absolute;
   top: 50%;
   left: 50%;
   margin: -15px 0 0 -25px;
 }
 
-/* line 736, ../sass/site.sass */
-.preloader > .preloader__dot {
-  background-color: #fff;
+/* line 746, ../sass/site.sass */
+.preloader {
+  padding: 3px 0 0;
+  text-align: center;
+}
+
+/* line 750, ../sass/site.sass */
+.preloader__dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 2px;
+  border-radius: 50%;
+  background: #FFAE00;
+  opacity: 0;
+  -webkit-animation: preloader 0.5s linear infinite alternate;
+  animation: preloader 0.5s linear infinite alternate;
+}
+/* line 761, ../sass/site.sass */
+.preloader__dot:nth-of-type(2) {
+  -webkit-animation-delay: 0.07s;
+  animation-delay: 0.07s;
+}
+/* line 765, ../sass/site.sass */
+.preloader__dot:nth-of-type(3) {
+  -webkit-animation-delay: 0.13s;
+  animation-delay: 0.13s;
+}
+/* line 769, ../sass/site.sass */
+.preloader__dot:nth-of-type(4) {
+  -webkit-animation-delay: 0.2s;
+  animation-delay: 0.2s;
+}
+/* line 773, ../sass/site.sass */
+.preloader__dot:nth-of-type(5) {
+  -webkit-animation-delay: 0.27s;
+  animation-delay: 0.27s;
+}
+
+@-webkit-keyframes preloader {
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes preloader {
+  100% {
+    opacity: 1;
+  }
 }

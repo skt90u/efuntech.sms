@@ -724,14 +724,60 @@ img.Gear
     background: #111
 
 ////////////////////////////////////////
-// preloader
+// splash
 ////////////////////////////////////////      
 
-.preloader
+.splash
+    display: none
+
+[ng-cloak].splash
+    display: block !important
+
+.splash .preloader
     position: absolute
     top: 50%
     left: 50%
     margin: -15px 0 0 -25px
 
-.preloader > .preloader__dot
-    background-color: #fff
+////////////////////////////////////////
+// preloader
+////////////////////////////////////////      
+
+.preloader
+    padding: 3px 0 0
+    text-align: center
+
+.preloader__dot
+    display: inline-block
+    width: 6px
+    height: 6px
+    margin: 2px
+    border-radius: 50%
+    background: #FFAE00
+    opacity: 0
+    -webkit-animation: preloader .5s linear infinite alternate
+    animation: preloader .5s linear infinite alternate
+
+    &:nth-of-type(2)
+        -webkit-animation-delay: .07s
+        animation-delay: .07s
+
+    &:nth-of-type(3)
+        -webkit-animation-delay: .13s
+        animation-delay: .13s
+
+    &:nth-of-type(4)
+        -webkit-animation-delay: .2s
+        animation-delay: .2s
+
+    &:nth-of-type(5)
+        -webkit-animation-delay: .27s
+        animation-delay: .27s        
+
+@-webkit-keyframes preloader
+    100%
+        opacity: 1
+
+@keyframes preloader
+    100%
+        opacity: 1

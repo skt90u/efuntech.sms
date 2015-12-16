@@ -50,74 +50,91 @@
 
   
 </head>
-<body ng-cloak>
-    <toaster-container></toaster-container>
+<body>
+    <div class="splash" ng-cloak="">
+        <div class="preloader">
+            <span class="preloader__dot"></span> 
+            <span class="preloader__dot"></span> 
+            <span class="preloader__dot"></span> 
+            <span class="preloader__dot"></span> 
+            <span class="preloader__dot"></span>
+        </div>
+    </div>
 
+    <div ng-cloak="">
+        <toaster-container></toaster-container>
 
-    <header>
-        <table width="1115" border="0" align="center" cellpadding="0" cellspacing="0">
-            <tbody>
-                <tr>
-                    <td>
-                        <a href="/Home"><img class="logo"></a>
-                    </td>
-                    <td width="500" align="right" valign="bottom">
-                        @Html.Partial("_LoginPartial")
-                </tr>
-            </tbody>
-        </table>
-    </header>
-
-    @Html.Partial("_Menu")
-
-    <div class="container body-content">
-        @RenderBody()
-
-        <div ng-controller="Scheduler" style="display:none"></div>
-
-        <footer style="margin-top:30px;">
-            <table width="1117" border="0" align="center" cellpadding="0" cellspacing="0">
-                <tr>
-                    <td width="22"><img class="box3_left" /></td>
-                    <td bgcolor="#eaeaea">
-                        <table width="93%" border="0" align="center" cellpadding="0" cellspacing="0">
-                            <tr>
-                                <td width="135"><img class="logo_down" alt="" /></td>
-                                @*<td>
-                                    專屬簡訊儲值帳號<br />
-                                    808玉山銀行台北分行<br />
-                                    轉入帳號：9900123412341234
-                                    <a href="#" class="font-h2">如何使用專屬簡訊儲值帳號</a>
-                                </td>
-                                <td width="470">
-                                    市內客服電話請撥：0800-618688 ∣ 手機客服電話請撥 02-8913-1559轉166<br />
-                                    新北市新店區北新路三段207-3號11樓(台北矽谷大樓)<br />
-                                    Copyright © 2015 資餘科技股份有限公司版權所有，轉載必究
-                                </td>*@
-                                <td>
-                                </td>
-                                <td width="470">
-                                    <br />
-                                    <br />
-                                    Copyright © 2015 資餘科技股份有限公司版權所有，轉載必究
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                    <td width="28"><img class="box3_right" /></td>
-                </tr>
+        <header>
+            <table width="1115" border="0" align="center" cellpadding="0" cellspacing="0">
+                <tbody>
+                    <tr>
+                        <td>
+                            <a href="/Home"><img class="logo"></a>
+                        </td>
+                        <td width="500" align="right" valign="bottom">
+                            @Html.Partial("_LoginPartial")
+                    </tr>
+                </tbody>
             </table>
-        </footer>
+        </header>
+
+        @Html.Partial("_Menu")
+
+        <div class="container body-content">
+            @RenderBody()
+
+            <div ng-controller="Scheduler" style="display:none"></div>
+
+            <footer style="margin-top:30px;">
+                <table width="1117" border="0" align="center" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td width="22"><img class="box3_left" /></td>
+                        <td bgcolor="#eaeaea">
+                            <table width="93%" border="0" align="center" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td width="135"><img class="logo_down" alt="" /></td>
+                                    @*<td>
+                                        專屬簡訊儲值帳號<br />
+                                        808玉山銀行台北分行<br />
+                                        轉入帳號：9900123412341234
+                                        <a href="#" class="font-h2">如何使用專屬簡訊儲值帳號</a>
+                                    </td>
+                                    <td width="470">
+                                        市內客服電話請撥：0800-618688 ∣ 手機客服電話請撥 02-8913-1559轉166<br />
+                                        新北市新店區北新路三段207-3號11樓(台北矽谷大樓)<br />
+                                        Copyright © 2015 資餘科技股份有限公司版權所有，轉載必究
+                                    </td>*@
+                                    <td>
+                                    </td>
+                                    <td width="470">
+                                        <br />
+                                        <br />
+                                        Copyright © 2015 資餘科技股份有限公司版權所有，轉載必究
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td width="28"><img class="box3_right" /></td>
+                    </tr>
+                </table>
+            </footer>
+        </div>
+
     </div>
 
     @Scripts.Render("~/bundles/js")
     @RenderSection("scripts", required: false) @*controllers*@
     <script>
         angular.bootstrap(document, ['app']);
+
+        // 測試 splash
+        //window.onload = function () {
+        //    window.setTimeout(function () {
+        //        angular.bootstrap(document, ['app']);
+        //    }, 4000);
+        //}
     </script>
-
     <script src="~/Scripts/bower_components/nanoScrollerJS/javascripts/main.js"></script>
-
 </body>
 </html>
 

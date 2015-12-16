@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Transactions;
+using EntityFramework.Extensions;
 
 namespace JUtilSharp.Database
 {
@@ -54,8 +55,6 @@ namespace JUtilSharp.Database
         {
             return this.dbSet.FirstOrDefault(predicate);
         }
-
-        
 
         public IQueryable<TEntity> GetAll()
         {
@@ -110,9 +109,7 @@ namespace JUtilSharp.Database
 
         public int Delete(Expression<Func<TEntity, bool>> predicate)
         {
-            var entities = GetMany(predicate);
-            foreach (var entity in entities)
-                this.dbSet.Remove(entity);
+            this.dbSet.Where(predicate).Delete();
             return this.SaveChanges();
         }
 
