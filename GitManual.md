@@ -33,6 +33,15 @@
 	git push origin --delete branchName
 	```
 
+### 修改最後一個commit訊息
+local端修改
+git commit --amend
+發送至遠端修改
+git pull
+git push
+## Git Merge
+1. [fast-forward](http://lemonup.logdown.com/posts/166352-git-merge-fast-forward-difference)
+
 ## 設定
 1. [diffmerge 下載](https://sourcegear.com/diffmerge/downloaded.php)
-2. [diffmerge 設定](https://sourcegear.com/diffmerge/downloaded.php)
+2. [diffmerge 設定](https://sourcegear.com/diffmerge/webhelp/sec__git__windows__msysgit.html)
