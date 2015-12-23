@@ -41,14 +41,12 @@ namespace EFunTech.Sms.Portal
     {
         public void ConfigureHangFire(IAppBuilder app) 
         {
-			//使用 Dashboard，可以設定顯示 dashboard 的 path
-            //使用 Dashboard，並任何人 Access 它
-            app.UseHangfireDashboard("/ds", new DashboardOptions
-            {
-                AuthorizationFilters = new[] { new RolesAuthorizationFilter(new Role[]{
-                    Role.Administrator
-                }) }
-            });
+            //app.UseHangfireDashboard("/ds", new DashboardOptions
+            //{
+            //    AuthorizationFilters = new[] { new RolesAuthorizationFilter(new Role[]{
+            //        Role.Administrator
+            //    }) }
+            //});
         }
 	}
 

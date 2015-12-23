@@ -15,10 +15,6 @@ namespace EFunTech.Sms.Schema
 
         public virtual ApplicationUser Owner { get; set; }
 
-        // 具備 virtual 關鍵字，並指定 [Key] 屬性，並不會自動建立對應主鍵值
-        //[Key]
-        //public virtual ApplicationUser CreatedUser { get; set; }
-
         public const bool DefaultValue_Enabled = false;
         public const bool DefaultValue_BySmsMessage = true;
         public const bool DefaultValue_ByEmail = false;

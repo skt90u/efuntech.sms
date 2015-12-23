@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using JUtilSharp.Database;
-using EFunTech.Sms.Portal.Models.Common;
 using System;
 
 using System.Transactions;
@@ -23,6 +22,10 @@ using Ionic.Zip;
 using System.Threading.Tasks;
 using System.Text;
 using EFunTech.Sms.Core;
+using EFunTech.Sms.Schema;
+using EFunTech.Sms.Portal.Models.Common;
+using EntityFramework.Extensions;
+using EntityFramework.Caching;
 
 // http://aspnet.codeplex.com/SourceControl/changeset/view/7ce67a547fd0#Samples/WebApi/RelaySample/Controllers/RelayController.cs
 
@@ -42,19 +45,6 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         }
 
         /// <summary>
-        /// 依照前端的排序資訊，排序Model的資料
-        /// </summary>
-        /// <param name="models">要排序的Models</param>
-        /// <param name="criteria">查詢條件的 Model.</param>
-        /// <returns>排序後的結果</returns>
-        /// <remarks>
-        /// </remarks>
-        //protected virtual IEnumerable<TModel> SortModel(IEnumerable<TModel> models, TCriteria criteria)
-        //{
-        //    return models;
-        //}
-
-        /// <summary>
         /// 轉換Model的資料
         /// </summary>
         /// <param name="models">轉換Models</param>
@@ -71,11 +61,11 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         /// <summary>
         /// ProduceFile 預設行為是將查詢到的資料以 Excel 的格式輸出
         /// </summary>
-        protected virtual ReportDownloadModel ProduceFile(TCriteria criteria, List<TModel> resultList)
+        protected virtual ReportDownloadModel ProduceFile(TCriteria criteria, IEnumerable<TModel> models)
         {
             string fileName = typeof(TModel).Name + ".xlsx";
             string sheetName = typeof(TModel).Name;
-            return ProduceExcelFile(fileName, sheetName, resultList);
+            return ProduceExcelFile(fileName, sheetName, models);
         }
 
         /// <summary>
@@ -87,10 +77,10 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         ///     sheetName: "點數購買與匯轉明細",
         ///     resultList: result.ToList());
         /// </example>
-        protected ReportDownloadModel ProduceExcelFile<T>(string fileName, string sheetName, List<T> resultList)
+        protected ReportDownloadModel ProduceExcelFile<T>(string fileName, string sheetName, IEnumerable<T> models)
         {
             return ProduceExcelFile(fileName, new Dictionary<string, DataTable> { 
-                { sheetName, Converter.ToDataTable(resultList) }
+                { sheetName, Converter.ToDataTable(models) }
             });
         }
 
@@ -185,7 +175,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
 
         #region GetAll
 
-        protected abstract IOrderedQueryable<TEntity> DoGetList(TCriteria criteria);
+        protected abstract IQueryable<TEntity> DoGetList(TCriteria criteria);
 
         private bool IsDownload(TCriteria criteria)
         {
@@ -195,7 +185,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         }
 
         [System.Web.Http.HttpGet]
-        public virtual HttpResponseMessage GetAll([FromUri] TCriteria criteria)
+        public virtual Task<HttpResponseMessage> GetAll([FromUri] TCriteria criteria)
         {
             try
             {
@@ -205,25 +195,14 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                     criteria = new TCriteria();
                 }
                 
-                // 透過 subclass 實作 DoGetList 方法，回傳一個排序過的 Queryable 物件
-                // 因為有可能需要作 Take / Skip 需要先排序
-                IQueryable<TEntity> orderedResult = DoGetList(criteria);
-                if (orderedResult == null) // 強制要求使用正確寫法
-                {
-                    throw new Exception(string.Format("DoGetList 不可以回傳 null，若查詢不到任何資料，請回傳 Enumerable.Empty<{0}>().AsQueryable()", typeof(TEntity).Name));
-                    //orderedResult = Enumerable.Empty<TEntity>().AsQueryable(); // 檢查 Enumerable.Empty 用法，在 Union 會出問題
-                }
-
-                //var result = orderedResult.Project().To<TModel>();
-                //var b = orderedResult.ProjectTo<TModel>();
-
-                var result = Mapper.Map<IEnumerable<TEntity>, IEnumerable<TModel>>(orderedResult);
-                result = ConvertModel(result);
-                //result = SortModel(result, criteria);
+                IQueryable<TEntity> entities = DoGetList(criteria);
+                IQueryable<TModel> models = entities.Project().To<TModel>();
 
                 if (IsDownload(criteria))
                 {
-                    var reportDownloadModel = ProduceFile(criteria, result.ToList());
+                    var result = ConvertModel(models.ToList());
+
+                    var reportDownloadModel = ProduceFile(criteria, result);
 
                     var response = new HttpResponseMessage(HttpStatusCode.OK)
                     {
@@ -234,32 +213,47 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                     {
                         FileName = reportDownloadModel.FileName
                     };
-                    return response;
+                    return Task.FromResult(response);
                 }
                 else
                 {
-                    WebApiQueryResult<TModel> content = null;
-
-                    var aPagedCriteriaModel = criteria as PagedCriteriaModel;
-                    if (aPagedCriteriaModel == null)
+                    var aPagedCriteria = criteria as PagedCriteriaModel;
+                    if (aPagedCriteria == null)
                     {
-                        content = new WebApiQueryResult<TModel>(result) { Criteria = criteria };
+                        var totalCount = models.Count();
+                        var result = ConvertModel(models.ToList());
+
+                        var response = this.Request.CreateResponse(HttpStatusCode.OK, new
+                        {
+                            Criteria = criteria,
+                            TotalCount = totalCount,
+                            Result = result,
+                            WebPath = string.Empty,
+                        });
+
+                        return Task.FromResult(response);
                     }
                     else
                     {
-                        int totalCount = orderedResult.Count();
+                        if (aPagedCriteria.PageSize == -1)
+                            aPagedCriteria.PageSize = Int32.MaxValue - 1;
 
-                        if (aPagedCriteriaModel.PageSize == -1)
-                            aPagedCriteriaModel.PageSize = Int32.MaxValue - 1;
+                        int pageIndex = aPagedCriteria.PageIndex;
+                        int pageSize = aPagedCriteria.PageSize;
 
-                        content = new WebApiQueryResult<TModel>(result.AsQueryable().ToPagedList(aPagedCriteriaModel.PageIndex - 1,
-                                                                aPagedCriteriaModel.PageSize),
-                                                             totalCount) { Criteria = criteria };
+                        var totalCount = models.Count();
+                        var result = ConvertModel(models.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList());
+
+                        var response = this.Request.CreateResponse(HttpStatusCode.OK, new
+                        {
+                            Criteria = criteria,
+                            TotalCount = totalCount,
+                            Result = result,
+                            WebPath = string.Empty,
+                        });
+
+                        return Task.FromResult(response);
                     }
-
-                    HttpResponseMessage responseMessage = new HttpResponseMessage(HttpStatusCode.OK);
-                    responseMessage.Content = new ObjectContent<WebApiQueryResult<TModel>>(content, new JsonMediaTypeFormatter());
-                    return responseMessage;
                 }
             }
             catch (Exception ex)
@@ -270,70 +264,27 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             }
         }
 
-        //[System.Web.Http.HttpGet]
-        //public virtual WebApiQueryResult<TModel> GetAll([FromUri] TCriteria criteria)
-        //{
-        //    // 避免部分的查詢沒有條件，傳入 null 值
-        //    if (null == criteria)
-        //    {
-        //        criteria = new TCriteria();
-        //    }
-            
-        //    // 透過 subclass 實作 DoGetList 方法，回傳一個排序過的 Queryable 物件
-        //    // 因為有可能需要作 Take / Skip 需要先排序
-        //    IQueryable<TEntity> orderedResult = DoGetList(criteria);
-        //    if (orderedResult == null) // 強制要求使用正確寫法
-        //    {
-        //        throw new Exception(string.Format("DoGetList 不可以回傳 null，若查詢不到任何資料，請回傳 Enumerable.Empty<{0}>().AsQueryable()", typeof(TEntity).Name));
-        //        //orderedResult = Enumerable.Empty<TEntity>().AsQueryable();
-        //    }
-
-        //    var properties = typeof(TCriteria).GetProperties();
-            
-
-        //    if (IsDownload)
-        //    {
-        //        var result = Mapper.Map<IEnumerable<TEntity>, IEnumerable<TModel>>(orderedResult);
-        //        var DownloadPath = ProduceFile(result.ToList());
-        //        return new WebApiQueryResult<TModel>(DownloadPath) { Criteria = criteria };
-        //    }
-        //    else
-        //    {
-        //        // 如果查詢條件沒有繼承 PagedCriteriaModel, 表示不需要分頁
-        //        // 直接轉換後回傳結果
-        //        var result = Mapper.Map<IEnumerable<TEntity>, IEnumerable<TModel>>(orderedResult);
-        //        result = ConvertModel(result);
-        //        result = SortModel(result, criteria);
-        //        if (!(criteria is PagedCriteriaModel))
-        //        {
-
-        //            return new WebApiQueryResult<TModel>(result) { Criteria = criteria };
-        //        }
-        //        // 如果有需要分頁，就可以透過 ToPagedList 這個 Extension Method 來轉換 
-        //        var aPagedCriteriaModel = criteria as PagedCriteriaModel;
-        //        int totalCount = orderedResult.Count();
-
-        //        return new WebApiQueryResult<TModel>(result.AsQueryable().ToPagedList(aPagedCriteriaModel.PageIndex - 1,
-        //                                                aPagedCriteriaModel.PageSize),
-        //                                             totalCount) { Criteria = criteria };
-        //    }
-        //}
-
         #endregion
 
         #region GetById
 
-        protected abstract TEntity DoGet(TIdentity id);
+        protected virtual TEntity DoGet(TIdentity id)
+        {
+            return this.unitOfWork.Repository<TEntity>().DbSet.Find(id);
+        }
 
         [System.Web.Http.HttpGet]
-        public virtual TModel GetById(TIdentity id)
+        public virtual Task<TModel> GetById(TIdentity id)
         {
             TEntity entity = DoGet(id);
+
             if (entity == null)
             {
                 throw new HttpResponseException(HttpStatusCode.NotFound);
             }
-            return Mapper.Map<TEntity, TModel>(entity);
+            var model = Mapper.Map<TEntity, TModel>(entity);
+
+            return Task.FromResult(model);
         }
         #endregion
 
@@ -347,7 +298,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         /// <param name="model">The model.</param>
         /// <returns></returns>
         [System.Web.Http.HttpPost]
-        public virtual HttpResponseMessage Create([FromBody]TModel model)
+        public virtual Task<HttpResponseMessage> Create([FromBody]TModel model)
         {
             try
             {
@@ -361,7 +312,8 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                     scope.Complete();
                 }
 
-                return this.WrapPostResponseMessage(Mapper.Map<TEntity, TModel>(entity), id.ToString());
+                var response = this.WrapPostResponseMessage(Mapper.Map<TEntity, TModel>(entity), id.ToString());
+                return Task.FromResult(response);
             }
             catch(Exception ex)
             {
@@ -396,11 +348,11 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         /// <returns></returns>
         /// <exception cref="System.Web.Http.HttpResponseException"></exception>
         [System.Web.Http.HttpPut]
-        public virtual HttpResponseMessage Update(TIdentity id, [FromBody]TModel model)
+        public virtual Task<HttpResponseMessage> Update(TIdentity id, [FromBody]TModel model)
         {
             try
             {
-                TEntity entity = this.repository.GetById(id);
+                TEntity entity = DoGet(id);
                 if (entity == null)
                 {
                     throw new HttpResponseException(HttpStatusCode.NotFound);
@@ -413,9 +365,9 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                     DoUpdate(model, id, entity);
                     scope.Complete();
                 }
-                
-                return Request.CreateResponse(HttpStatusCode.OK);
 
+                var response = Request.CreateResponse(HttpStatusCode.OK);
+                return Task.FromResult(response);
             }
             catch (Exception ex)
             {
@@ -428,39 +380,26 @@ namespace EFunTech.Sms.Portal.Controllers.Common
 
         #region Delete
 
-        protected abstract void DoRemove(List<TIdentity> ids, List<TEntity> entities);
-        protected abstract void DoRemove(TIdentity id, TEntity entity);
+        protected abstract void DoRemove(TIdentity[] ids);
+        protected abstract void DoRemove(TIdentity id);
 
         // DELETE api/<controller>/{idsWithComma}
         /// <summary>
         /// 刪除多筆資料.
         /// </summary>
         [System.Web.Http.HttpDelete]
-        //public virtual HttpResponseMessage DeleteMulti([FromUri]TIdentity[] ids)
-        public virtual HttpResponseMessage Delete([FromUri]TIdentity[] ids)
+        public virtual Task<HttpResponseMessage> Delete([FromUri] TIdentity[] ids)
         {
             try
             {
-                List<TEntity> entities = new List<TEntity>();
-
-                foreach (var id in ids)
-                {
-                    TEntity entity = this.repository.GetById(id);
-                    if (entity == null)
-                    {
-                        throw new HttpResponseException(HttpStatusCode.NotFound);
-                    }
-                    entities.Add(entity);
-                }
-
                 using (TransactionScope scope = this.unitOfWork.CreateTransactionScope())
                 {
-                    DoRemove(ids.ToList(), entities);
+                    DoRemove(ids);
                     scope.Complete();
                 }
 
-                return Request.CreateResponse(HttpStatusCode.OK);
-                //return Request.CreateResponse(HttpStatusCode.NoContent);
+                var response = Request.CreateResponse(HttpStatusCode.OK);
+                return Task.FromResult(response);
             }
             catch (Exception ex)
             {
@@ -469,6 +408,39 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                 throw;
             }
         }
+        //public virtual Task<HttpResponseMessage> Delete([FromUri] TIdentity[] ids)
+        //{
+        //    try
+        //    {
+        //        List<TEntity> entities = new List<TEntity>();
+
+        //        foreach (var id in ids)
+        //        {
+        //            TEntity entity = DoGet(id);
+        //            if (entity == null)
+        //            {
+        //                throw new HttpResponseException(HttpStatusCode.NotFound);
+        //            }
+        //            entities.Add(entity);
+        //        }
+
+        //        using (TransactionScope scope = this.unitOfWork.CreateTransactionScope())
+        //        {
+        //            DoRemove(ids.ToList(), entities);
+        //            scope.Complete();
+        //        }
+
+        //        var response = Request.CreateResponse(HttpStatusCode.OK);
+
+        //        return Task.FromResult(response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        this.logService.Error(ex);
+
+        //        throw;
+        //    }
+        //}
 
         // DELETE api/<controller>/{id}
         /// <summary>
@@ -478,24 +450,18 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         /// <returns></returns>
         /// <exception cref="System.Web.Http.HttpResponseException"></exception>
         [System.Web.Http.HttpDelete]
-        public virtual HttpResponseMessage Delete(TIdentity id)
+        public virtual Task<HttpResponseMessage> Delete(TIdentity id)
         {
             try
             {
-                TEntity entity = this.repository.GetById(id);
-                if (entity == null)
-                {
-                    throw new HttpResponseException(HttpStatusCode.NotFound);
-                }
-
                 using (TransactionScope scope = this.unitOfWork.CreateTransactionScope())
                 {
-                    DoRemove(id, entity);
+                    DoRemove(id);
                     scope.Complete();
                 }
 
-                return Request.CreateResponse(HttpStatusCode.OK);
-                //return Request.CreateResponse(HttpStatusCode.NoContent);
+                var response = Request.CreateResponse(HttpStatusCode.OK);
+                return Task.FromResult(response);
             }
             catch (Exception ex)
             {
@@ -504,6 +470,33 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                 throw;
             }
         }
+        //public virtual Task<HttpResponseMessage> Delete(TIdentity id)
+        //{
+        //    try
+        //    {
+        //        TEntity entity = DoGet(id);
+        //        if (entity == null)
+        //        {
+        //            throw new HttpResponseException(HttpStatusCode.NotFound);
+        //        }
+
+        //        using (TransactionScope scope = this.unitOfWork.CreateTransactionScope())
+        //        {
+        //            DoRemove(id, entity);
+        //            scope.Complete();
+        //        }
+
+        //        var response = Request.CreateResponse(HttpStatusCode.OK);
+
+        //        return Task.FromResult(response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        this.logService.Error(ex);
+
+        //        throw;
+        //    }
+        //}
         #endregion
     }
 

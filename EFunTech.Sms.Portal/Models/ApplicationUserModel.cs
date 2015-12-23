@@ -86,7 +86,7 @@ namespace EFunTech.Sms.Portal.Models
         /// </summary>
         public bool Deletable { get; set; }
 
-        public int DepartmentId { get; set; } // DepartmentId = 0 stand for no Department
+        public int? DepartmentId { get; set; } // DepartmentId = 0 stand for no Department
 
         public string RoleId { get; set; }
 
@@ -118,7 +118,7 @@ namespace EFunTech.Sms.Portal.Models
         /// <summary>
         /// 分享群組
         /// </summary>
-        public int SharedGroupId { get; set; }
+        public int? SharedGroupId { get; set; }
 
 	}
 }

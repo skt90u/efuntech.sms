@@ -9,6 +9,10 @@ using System.Linq;
 using AutoMapper;
 using EFunTech.Sms.Portal.Models;
 using System.Collections.Concurrent;
+using EntityFramework.Extensions;
+using EntityFramework.Caching;
+using System.Data.Entity;
+using AutoMapper.QueryableExtensions;
 
 namespace EFunTech.Sms.Portal.Controllers.Common
 {
@@ -36,32 +40,31 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         {
             get
             {
-                string userId = User.Identity.GetUserId();
-
-                return string.IsNullOrEmpty(userId) ? null : this.unitOfWork.Repository<ApplicationUser>().GetById(userId);
+                return User.Identity.GetUser();
             }
         }
 
-        public bool IsAuthenticated
-        {
-            get
-            {
-                return User.Identity.IsAuthenticated;
-            }
-        }
-
-        public Role _CurrentUserRole = Role.Unknown;
         public Role CurrentUserRole
         {
             get
             {
-                if (_CurrentUserRole == Role.Unknown)
-                {
-                    string userId = User.Identity.GetUserId();
+                return User.Identity.GetUserRole();
+            }
+        }
 
-                    _CurrentUserRole = string.IsNullOrEmpty(userId) ? Role.Unknown : apiControllerHelper.GetMaxPriorityRole(CurrentUser);
-                }
-                return _CurrentUserRole;
+        public string CurrentUserId
+        {
+            get
+            {
+                return User.Identity.GetUserId();
+            }
+        }
+
+        public string CurrentUserName
+        {
+            get
+            {
+                return User.Identity.GetUserName();
             }
         }
 
@@ -88,41 +91,27 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             });
         }
 
-        // 共用
-        private static ConcurrentDictionary<Role, List<MenuItemModel>> dictMenuItems = null;
-
         public List<MenuItemModel> GetMenuItems()
         {
-            if(dictMenuItems == null)
+            using (var context = new ApplicationDbContext())
             {
-                using (var context = new ApplicationDbContext())
-                {
-                    dictMenuItems = new ConcurrentDictionary<Role, List<MenuItemModel>>();
+                var role = CurrentUserRole;
 
-                    var roles = Enum.GetValues(typeof(Role)).Cast<Role>().OrderByDescending(x => (int)x).ToList();
+                string roleName = role.ToString();
 
-                    foreach (Role role in roles)
-                    {
-                        string roleName = role.ToString();
+                //var entities = context.MenuItems
+                var models = context.MenuItems
+                        .Include(p => p.WebAuthorization)
+                        .Where(p => p.WebAuthorization.Roles.Contains(roleName))
+                        .OrderBy(p => p.Order)
+                        .Project().To<MenuItemModel>()
+                        //.FromCache(tags: new [] { "MenuItems", roleName })
+                        .ToList();
 
-                        var entities = context.MenuItems
-                            .Include("WebAuthorization")
-                            .Where(p => p.WebAuthorization.Roles.Contains(roleName))
-                            .OrderBy(p => p.Order)
-                            .ToList();
+                //List<MenuItemModel> models = Mapper.Map<List<MenuItem>, List<MenuItemModel>>(entities);
 
-                        List<MenuItemModel> models = Mapper.Map<List<MenuItem>, List<MenuItemModel>>(entities);
-
-                        dictMenuItems.TryAdd(role, models);
-                    }
-                }
+                return models;
             }
-
-            List<MenuItemModel> menuItems = new List<MenuItemModel>();
-
-            dictMenuItems.TryGetValue(CurrentUserRole, out menuItems);
-
-            return menuItems;
         }
 
         //private TimeSpan _ClientTimezoneOffset = TimeSpan.Zero;

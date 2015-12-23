@@ -32,3 +32,7 @@
 	```
 	git push origin --delete branchName
 	```
+
+## 設定
+1. [diffmerge 下載](https://sourcegear.com/diffmerge/downloaded.php)
+2. [diffmerge 設定](https://sourcegear.com/diffmerge/downloaded.php)

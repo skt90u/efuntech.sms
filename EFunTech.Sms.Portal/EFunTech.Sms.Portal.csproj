@@ -318,6 +318,8 @@
     <Compile Include="Controllers\SectorStatistics\SectorSendMessageHistoryController.cs" />
     <Compile Include="Controllers\SectorStatistics\SectorSendMessageStatisticController.cs" />
     <Compile Include="Controllers\Others\SystemAnnouncementController.cs" />
+    <Compile Include="Extensions\DateTimeExtensions.cs" />
+    <Compile Include="Extensions\DbContextExtensions.cs" />
     <Compile Include="Extensions\HttpRequestExtensions.cs" />
     <Compile Include="Extensions\IdentityExtensions.cs" />
     <Compile Include="Filters\BasicAuthentication\BasicAuthenticationAttribute.cs" />
@@ -371,7 +373,6 @@
     <Compile Include="App_Start\UnityConfig.cs" />
     <Compile Include="App_Start\UnityMvcActivator.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\ContactManager\ContactGroupController.cs" />
     <Compile Include="Controllers\ContactManager\ContactInGroupController.cs" />
     <Compile Include="Controllers\ContactManager\ContactNotInGroupController.cs" />
     <Compile Include="Controllers\ContactManager\GroupController.cs" />

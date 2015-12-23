@@ -15,11 +15,8 @@ namespace EFunTech.Sms.Portal.Controllers
     {
         public CommonContactController(IUnitOfWork unitOfWork, ILogService logService) : base(unitOfWork, logService) { }
 
-        protected override IOrderedQueryable<Contact> DoGetList(SearchTextCriteriaModel criteria)
+        protected override IQueryable<Contact> DoGetList(SearchTextCriteriaModel criteria)
         {
-            var result = CurrentUser.Contacts.Where(p => p.GroupContacts.Any(pp => pp.Group.Name == Group.CommonContactGroupName))
-                                             .AsQueryable();
-
             var predicate = PredicateBuilder.True<Contact>();
             var searchText = criteria.SearchText;
             if (!string.IsNullOrEmpty(searchText))
@@ -33,41 +30,50 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 predicate = predicate.And(innerPredicate);
             }
-            result = result.AsExpandable().Where(predicate);
 
-            return result.OrderByDescending(p => p.Id);
-        }
+            predicate = predicate.And(p => p.GroupContacts.Any(pp => pp.Group.Name == Group.CommonContactGroupName));
+            predicate = predicate.And(p => p.CreatedUserId == CurrentUserId);
 
-        protected override Contact DoGet(int id)
-        {
-            return CurrentUser.Contacts.Where(p => p.Id == id).FirstOrDefault();
+            var result = this.repository.DbSet
+                            .AsExpandable()
+                            .Where(predicate)
+                            .OrderByDescending(p => p.Id);
+
+            return result;
         }
 
         protected override Contact DoCreate(ContactModel model, Contact entity, out int id)
         {
             entity = new Contact();
+
             entity.Name = model.Name;
             entity.Mobile = model.Mobile;
             entity.E164Mobile = MobileUtil.GetE164PhoneNumber(model.Mobile);
             entity.Region = MobileUtil.GetRegionName(model.Mobile);
             entity.HomePhoneArea = model.HomePhoneArea;
+
             entity.HomePhone = model.HomePhone;
             entity.CompanyPhoneArea = model.CompanyPhoneArea;
             entity.CompanyPhone = model.CompanyPhone;
             entity.CompanyPhoneExt = model.CompanyPhoneExt;
             entity.Email = model.Email;
+
             entity.Msn = model.Msn;
             entity.Description = model.Description;
             entity.Birthday = model.Birthday;
             entity.ImportantDay = model.ImportantDay;
             entity.Gender = model.Gender;
-            entity.Groups = string.Empty;
-            entity.CreatedUser = CurrentUser;
+
+            entity.Groups = Group.CommonContactGroupName;
+            entity.CreatedUserId = CurrentUserId;
 
             entity = this.repository.Insert(entity);
             id = entity.Id;
 
-            var group = this.unitOfWork.Repository<Group>().Get(p => p.Name == Group.CommonContactGroupName && p.CreatedUser == CurrentUser);
+            var group = this.unitOfWork.Repository<Group>().DbSet
+                .Where(p => p.Name == Group.CommonContactGroupName && p.CreatedUserId == CurrentUserId)
+                .FirstOrDefault();
+
             if (group == null)
                 throw new Exception(string.Format("使用者{0}常用聯絡人群組尚未建立", CurrentUser.UserName));
 
@@ -81,61 +87,36 @@ namespace EFunTech.Sms.Portal.Controllers
 
         protected override void DoUpdate(ContactModel model, int id, Contact entity)
         {
-            if (!CurrentUser.Contacts.Any(p => p.Id == id)) return;
-
             entity.E164Mobile = MobileUtil.GetE164PhoneNumber(model.Mobile);
             entity.Region = MobileUtil.GetRegionName(model.Mobile);
-            entity.CreatedUser = entity.CreatedUser;
 
             this.repository.Update(entity);
         }
 
-        protected override void DoRemove(int id, Contact entity)
+        protected override void DoRemove(int id)
         {
-            if (!CurrentUser.Contacts.Any(p => p.Id == id)) return;
-
             this.unitOfWork.Repository<GroupContact>().Delete(p => p.ContactId == id);
-
-            this.repository.Delete(entity);
+            this.repository.Delete(p => p.Id == id);
         }
 
-        protected override void DoRemove(List<int> ids, List<Contact> entities)
+        protected override void DoRemove(int[] ids)
         {
-            if (!CurrentUser.Contacts.Any(p => ids.Contains(p.Id))) return;
-
             this.unitOfWork.Repository<GroupContact>().Delete(p => ids.Contains(p.ContactId));
-            
             this.repository.Delete(p => ids.Contains(p.Id));
         }
 
         protected override IEnumerable<ContactModel> ConvertModel(IEnumerable<ContactModel> models)
         {
-            // 快取目前聯絡人對應群組
-            // 用以避免再ContactProfile重複查詢相同資料
-            // .ForMember(dst => dst.Groups, opt => opt.MapFrom(src => string.Join(",", src.GroupContacts.Select(p => p.Group.Name))))
-            // 解決方式是在 CommonContactController.cs 以及 AllContactController.cs 複寫 CrudApiController.ConvertModel 對於Groups為空的資料進行查詢並回存，而不使用AutoMapper
-
-            var groupContactRepository = this.unitOfWork.Repository<GroupContact>();
+            var groupContacts = this.unitOfWork.Repository<GroupContact>().DbSet
+                                    .Select(p => new
+                                    {
+                                        ContactId = p.ContactId,
+                                        GroupName = p.Group.Name,
+                                    }).ToList();
 
             foreach (var model in models)
             {
-                //if (string.IsNullOrEmpty(model.Groups))
-                //{
-                //    string Groups = string.Join(",", groupContactRepository.GetMany(p => p.ContactId == model.Id).Select(p => p.Group.Name));
-
-                //    if (!string.IsNullOrEmpty(Groups))
-                //    {
-                //        model.Groups = Groups;
-
-                //        var entity = this.repository.GetById(model.Id);
-                //        entity.Groups = Groups;
-                //        entity.CreatedUser = CurrentUser;
-                //        this.repository.Update(entity);
-                //    }
-                //}
-
-                // TODO: 如果效能沒問題，就將 entity.Groups 欄位拿掉
-                model.Groups = string.Join(",", groupContactRepository.GetMany(p => p.ContactId == model.Id).Select(p => p.Group.Name));
+                model.Groups = string.Join(",", groupContacts.Where(p => p.ContactId == model.Id).Select(p => p.GroupName));
             }
 
             return models;

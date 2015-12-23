@@ -20,10 +20,8 @@ namespace EFunTech.Sms.Portal.Controllers
 		{
 		}
 
-		protected override IOrderedQueryable<DeliveryReportQueue> DoGetList(DeliveryReportQueueCriteriaModel criteria)
+		protected override IQueryable<DeliveryReportQueue> DoGetList(DeliveryReportQueueCriteriaModel criteria)
 		{
-            IQueryable<DeliveryReportQueue> result = this.repository.GetAll().AsQueryable();
-
 			var predicate = PredicateBuilder.True<DeliveryReportQueue>();
 
             predicate = predicate.And(p => p.CreatedTime >= criteria.StartDate);
@@ -39,14 +37,13 @@ namespace EFunTech.Sms.Portal.Controllers
 
 				predicate = predicate.And(innerPredicate);
 			}
-			result = result.AsExpandable().Where(predicate);
 
-			return result.OrderByDescending(p => p.Id);
-		}
+            var result = this.repository.DbSet
+                            .AsExpandable()
+                            .Where(predicate)
+                            .OrderByDescending(p => p.Id);
 
-		protected override DeliveryReportQueue DoGet(int id)
-		{
-            throw new NotImplementedException();
+            return result;
 		}
 
 		protected override DeliveryReportQueue DoCreate(DeliveryReportQueueModel model, DeliveryReportQueue entity, out int id)
@@ -59,17 +56,17 @@ namespace EFunTech.Sms.Portal.Controllers
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(int id, DeliveryReportQueue entity)
+		protected override void DoRemove(int id)
 		{
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(List<int> ids, List<DeliveryReportQueue> entities)
+        protected override void DoRemove(int[] ids)
 		{
             throw new NotImplementedException();
 		}
 
-        protected override ReportDownloadModel ProduceFile(DeliveryReportQueueCriteriaModel criteria, List<DeliveryReportQueueModel> resultList)
+        protected override ReportDownloadModel ProduceFile(DeliveryReportQueueCriteriaModel criteria, IEnumerable<DeliveryReportQueueModel> resultList)
         {
             TimeSpan clientTimezoneOffset = ClientTimezoneOffset;
             string timeFormat = Converter.Every8d_SentTime;
@@ -87,7 +84,7 @@ namespace EFunTech.Sms.Portal.Controllers
             return ProduceExcelFile(
                 fileName: "接收簡訊發送結果序列.xlsx",
                 sheetName: "接收簡訊發送結果序列",
-                resultList: result.ToList());
+                models: result);
         }
 	}
 }

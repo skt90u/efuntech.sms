@@ -22,11 +22,12 @@ namespace EFunTech.Sms.Portal.Controllers
             this.systemParameters = systemParameters;
 		}
 
-		protected override IOrderedQueryable<Group> DoGetList(GroupCriteriaModel criteria)
+		protected override IQueryable<Group> DoGetList(GroupCriteriaModel criteria)
 		{
-            var result = CurrentUser.Groups.AsQueryable();
-
             var predicate = PredicateBuilder.True<Group>();
+
+            predicate = predicate.And(p => p.CreatedUserId == CurrentUserId);
+
 			var searchText = criteria.SearchText;
 			if (!string.IsNullOrEmpty(searchText))
 			{
@@ -37,7 +38,8 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 predicate = predicate.And(innerPredicate);
 			}
-			result = result.AsExpandable().Where(predicate);
+
+            var result = this.repository.DbSet.AsExpandable().Where(predicate);
 
             //if (criteria.IncludeAllGroup)
             //{
@@ -72,16 +74,10 @@ namespace EFunTech.Sms.Portal.Controllers
             return result.OrderByDescending(p => p.Id);
 		}
 
-		protected override Group DoGet(int id)
-		{
-			return CurrentUser.Groups.Where(p => p.Id == id).FirstOrDefault();
-		}
-
 		protected override Group DoCreate(GroupModel model, Group entity, out int id)
 		{
 			entity = new Group();
-            entity.CreatedUserId = CurrentUser.Id;
-			entity.CreatedUser = CurrentUser;
+            entity.CreatedUserId = CurrentUserId;
 			entity.Name = model.Name;
 			entity.Description = model.Description;
 			entity.Deletable = true;
@@ -94,16 +90,12 @@ namespace EFunTech.Sms.Portal.Controllers
 
 		protected override void DoUpdate(GroupModel model, int id, Group entity)
 		{
-            if (!CurrentUser.Groups.Any(p => p.Id == id))
-				return;
-
 			this.repository.Update(entity);
 		}
 
-		protected override void DoRemove(int id, Group entity)
+		protected override void DoRemove(int id)
 		{
-            if (!CurrentUser.Groups.Any(p => p.Id == id))
-				return;
+            var groupId = id;
 
             var groupContactRepository = this.unitOfWork.Repository<GroupContact>();
             var sharedGroupContactRepository = this.unitOfWork.Repository<SharedGroupContact>();
@@ -111,41 +103,37 @@ namespace EFunTech.Sms.Portal.Controllers
             
             if (systemParameters.ContactAtMostOneGroup) // 聯絡人只能對應至一個群組
             {
-                var contactIds = groupContactRepository.GetMany(p => p.GroupId == entity.Id).Select(p => p.ContactId).ToList();
+                var contactIds = groupContactRepository.DbSet.Where(p => p.GroupId == groupId).Select(p => p.ContactId).ToList();
 
                 // 刪除聯絡人與這個群組對應關係
-                groupContactRepository.Delete(p => p.GroupId == entity.Id);
+                groupContactRepository.Delete(p => p.GroupId == groupId);
 
                 // 刪除這個群組內所有聯絡人
-                contactRepository.Delete(p => contactIds.Contains(p.Id));
+                if (contactIds.Count != 0)
+                    contactRepository.Delete(p => contactIds.Contains(p.Id));
 
                 // 分享聯絡人 - 刪除其他帳號與這個群組的分享關係
-                sharedGroupContactRepository.Delete(p => p.GroupId == entity.Id);
+                sharedGroupContactRepository.Delete(p => p.GroupId == groupId);
 
                 // 刪除群組
-                this.repository.Delete(entity);
+                this.repository.Delete(p => p.Id == groupId);
             }
             else
             {
                 // 刪除聯絡人與這個群組對應關係
-                groupContactRepository.Delete(p => p.GroupId == entity.Id);
+                groupContactRepository.Delete(p => p.GroupId == groupId);
 
                 // 分享聯絡人 - 刪除其他帳號與這個群組的分享關係
-                sharedGroupContactRepository.Delete(p => p.GroupId == entity.Id);
+                sharedGroupContactRepository.Delete(p => p.GroupId == groupId);
 
                 // 刪除群組            
-                this.repository.Delete(entity);
+                this.repository.Delete(p => p.Id == groupId);
             }
 		}
 
-		protected override void DoRemove(List<int> ids, List<Group> entities)
+        protected override void DoRemove(int[] ids)
 		{
             throw new NotImplementedException();
-
-            //if (!CurrentUser.Groups.Any(p => ids.Contains(p.Id)))
-            //    return;
-
-            //this.repository.Delete(p => ids.Contains(p.Id));
 		}
 
         protected override IEnumerable<GroupModel> ConvertModel(IEnumerable<GroupModel> models)

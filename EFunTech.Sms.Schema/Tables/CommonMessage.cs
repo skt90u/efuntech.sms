@@ -29,15 +29,12 @@ namespace EFunTech.Sms.Schema
         [DateTimeKind(DateTimeKind.Utc)]
         public DateTime UpdatedTime { get; set; }
 
-        // 原本設定方式 (手動指定ForeignKey)
-        //[Required]
-        //[ColumnDescription("建立者")]
-        //[MaxLength(256), ForeignKey("CreatedUser")]
-        //public string CreatedUserId { get; set; }
-        //public virtual ApplicationUser CreatedUser { get; set; } 
-
-        // 後來設定方式 (Add-Migration 自動建立 ForeignKey)
         [Required]
-        public virtual ApplicationUser CreatedUser { get; set; } 
+        [ColumnDescription("建立者")]
+        [MaxLength(256), ForeignKey("CreatedUser")]
+        [Index("IX_CommonMessage_CreatedUserId")]
+        public string CreatedUserId { get; set; }
+
+        public virtual ApplicationUser CreatedUser { get; set; }
     }
 }

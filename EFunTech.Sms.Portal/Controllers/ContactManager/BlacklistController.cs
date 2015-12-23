@@ -18,11 +18,11 @@ namespace EFunTech.Sms.Portal.Controllers
         {
         }
 
-        protected override IOrderedQueryable<Blacklist> DoGetList(SearchTextCriteriaModel criteria)
+        protected override IQueryable<Blacklist> DoGetList(SearchTextCriteriaModel criteria)
         {
-            var result = CurrentUser.Blacklists.AsQueryable();
-
             var predicate = PredicateBuilder.True<Blacklist>();
+
+            predicate = predicate.And(p => p.CreatedUserId == CurrentUserId);
 
             var searchText = criteria.SearchText;
             if (!string.IsNullOrEmpty(searchText))
@@ -36,28 +36,29 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 predicate = predicate.And(innerPredicate);
             }
-            result = result.AsExpandable().Where(predicate);
 
-            return result.OrderByDescending(p => p.Id);
-        }
+            var result = this.repository.DbSet
+                            .AsExpandable()
+                            .Where(predicate)
+                            .OrderByDescending(p => p.Id);
 
-        protected override Blacklist DoGet(int id)
-        {
-            return CurrentUser.Blacklists.Where(p => p.Id == id).FirstOrDefault();
+            return result;
         }
 
         protected override Blacklist DoCreate(BlacklistModel model, Blacklist entity, out int id)
         {
             entity = new Blacklist();
+
             entity.Name = model.Name;
             entity.Mobile = model.Mobile;
             entity.E164Mobile = MobileUtil.GetE164PhoneNumber(model.Mobile);
             entity.Region = MobileUtil.GetRegionName(model.Mobile);
             entity.Enabled = model.Enabled;
+
             entity.Remark = model.Remark;
             entity.UpdatedTime = DateTime.UtcNow;
-            entity.CreatedUser = CurrentUser;
-            entity.UpdatedUserName = CurrentUser.UserName;
+            entity.CreatedUserId = CurrentUserId;
+            entity.UpdatedUserName = CurrentUserName;
 
             entity = this.repository.Insert(entity);
             id = entity.Id;
@@ -67,32 +68,21 @@ namespace EFunTech.Sms.Portal.Controllers
 
         protected override void DoUpdate(BlacklistModel model, int id, Blacklist entity)
         {
-            if (!CurrentUser.Blacklists.Any(p => p.Id == id))
-                return;
-
             entity.E164Mobile = MobileUtil.GetE164PhoneNumber(model.Mobile);
             entity.Region = MobileUtil.GetRegionName(model.Mobile);
-            entity.CreatedUser = entity.CreatedUser;
-
             entity.UpdatedTime = DateTime.UtcNow;
-            entity.UpdatedUserName = CurrentUser.UserName;
+            entity.UpdatedUserName = CurrentUserName;
 
             this.repository.Update(entity);
         }
 
-        protected override void DoRemove(int id, Blacklist entity)
+        protected override void DoRemove(int id)
         {
-            if (!CurrentUser.Blacklists.Any(p => p.Id == id))
-                return;
-
-            this.repository.Delete(entity);
+            this.repository.Delete(p => p.Id == id);
         }
 
-        protected override void DoRemove(List<int> ids, List<Blacklist> entities)
+        protected override void DoRemove(int[] ids)
         {
-            if (!CurrentUser.Blacklists.Any(p => ids.Contains(p.Id)))
-                return;
-
             this.repository.Delete(p => ids.Contains(p.Id));
         }
 

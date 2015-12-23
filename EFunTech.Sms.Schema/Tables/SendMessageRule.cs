@@ -116,6 +116,11 @@ namespace EFunTech.Sms.Schema
         public SendMessageRuleStatus SendMessageRuleStatus { get; set; }
 
         [Required]
+        [ColumnDescription("建立者")]
+        [MaxLength(256), ForeignKey("CreatedUser")]
+        [Index("IX_SendMessageRule_CreatedUserId")]
+        public string CreatedUserId { get; set; }
+
         public virtual ApplicationUser CreatedUser { get; set; }
 
         [Required]

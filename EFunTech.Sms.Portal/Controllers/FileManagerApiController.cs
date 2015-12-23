@@ -162,7 +162,7 @@ namespace EFunTech.Sms.Portal.Controllers
                     entity.Param3 = model.Param3;
                     entity.Param4 = model.Param4;
                     entity.Param5 = model.Param5;
-                    entity.CreatedUser = CurrentUser;
+                    entity.CreatedUserId = CurrentUserId;
                     entity.CreatedTime = uploadedFile.CreatedTime;
                     entity.UploadedFile = uploadedFile;
                     entity.UploadedSessionId = uploadedFile.Id;
@@ -251,8 +251,8 @@ namespace EFunTech.Sms.Portal.Controllers
                     entity.Enabled = true;
                     entity.Remark = model.Remark;
                     entity.UpdatedTime = uploadedFile.CreatedTime;
-                    entity.CreatedUser = CurrentUser;
-                    entity.UpdatedUserName = CurrentUser.UserName;
+                    entity.CreatedUserId = CurrentUserId;
+                    entity.UpdatedUserName = CurrentUserName;
                     entity.UploadedFile = uploadedFile;
 
                     var error = string.Empty;
@@ -336,7 +336,7 @@ namespace EFunTech.Sms.Portal.Controllers
                     entity.ImportantDay = model.ImportantDay;
                     entity.Gender = model.Gender == "2" ? Gender.Female :
                                     model.Gender == "1" ? Gender.Male : Gender.Unknown;
-                    entity.CreatedUser = CurrentUser;
+                    entity.CreatedUserId = CurrentUserId;
 
                     var error = string.Empty;
                     var isValid = this.validationService.Validate(entity, out error);
@@ -348,7 +348,9 @@ namespace EFunTech.Sms.Portal.Controllers
                         string groupDescription = model.Group.Trim();
                         if (!string.IsNullOrEmpty(groupDescription))
                         {
-                            var group = CurrentUser.Groups.Where(p => p.Name == model.Group.Trim()).FirstOrDefault();
+                            var group = this.unitOfWork.Repository<Group>().DbSet
+                                            .Where(p => p.CreatedUserId == CurrentUserId && p.Name == model.Group.Trim())
+                                            .FirstOrDefault();
                             if (group != null)
                             {
                                 this.unitOfWork.Repository<GroupContact>().Insert(new GroupContact { 
@@ -415,7 +417,7 @@ namespace EFunTech.Sms.Portal.Controllers
             entity.FileName = attachment.FileName;
             entity.FilePath = filePath;
             entity.UploadedFileType = uploadedFileType;
-            entity.CreatedUser = CurrentUser;
+            entity.CreatedUserId = CurrentUserId;
             entity.CreatedTime = DateTime.UtcNow;
             
             entity = this.unitOfWork.Repository<UploadedFile>().Insert(entity);

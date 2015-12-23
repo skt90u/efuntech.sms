@@ -22,7 +22,7 @@ namespace EFunTech.Sms.Portal.Controllers
         }
 
         // 只能管理子帳號
-        //protected override IOrderedQueryable<ApplicationUser> DoGetList(DepartmentManagerCriteriaModel criteria)
+        //protected override IQueryable<ApplicationUser> DoGetList(DepartmentManagerCriteriaModel criteria)
         //{
         //    // 尋找目前使用者以及目前使用者的子帳號
         //    var result = this.repository.GetMany(p => p.ParentId == CurrentUser.Id || p.Id == CurrentUser.Id).AsQueryable();
@@ -48,7 +48,7 @@ namespace EFunTech.Sms.Portal.Controllers
         /// </summary>
         /// <param name="criteria">The criteria.</param>
         /// <returns></returns>
-        protected override IOrderedQueryable<ApplicationUser> DoGetList(DepartmentManagerCriteriaModel criteria)
+        protected override IQueryable<ApplicationUser> DoGetList(DepartmentManagerCriteriaModel criteria)
         {
             // 尋找目前使用者以及目前使用者的子帳號或孫帳號
             List<ApplicationUser> users = this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUser);
@@ -106,7 +106,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
             entity = new ApplicationUser();
             entity.Level = CurrentUser.Level - 1;
-            entity.ParentId = CurrentUser.Id;
+            entity.ParentId = CurrentUserId;
             entity.UserName = model.UserName;
             entity.FullName = model.FullName;
             entity.SmsBalance = 0M;
@@ -271,9 +271,9 @@ namespace EFunTech.Sms.Portal.Controllers
         //    this.tradeService.DeleteChildUser(currentUser, childUser);
         //}
 
-        protected override void DoRemove(string id, ApplicationUser entity)
+        protected override void DoRemove(string id)
         {
-            var user = this.repository.GetById(id);
+            ApplicationUser entity = this.repository.GetById(id);
 
             // 刪除指定帳號必須確保該帳號所建立的所有使用者都已經刪除
 
@@ -329,16 +329,16 @@ namespace EFunTech.Sms.Portal.Controllers
             if (!string.IsNullOrEmpty(childUserRoleName))
                 userManager.RemoveFromRoleAsync(id, childUserRoleName).Wait();
 
-            this.tradeService.DeleteUser(user);
+            this.tradeService.DeleteUser(entity);
 
-            this.repository.Delete(user);
+            this.repository.Delete(entity);
         }
 
-        protected override void DoRemove(List<string> ids, List<ApplicationUser> entities)
+        protected override void DoRemove(string[] ids)
         {
-            for (var i = 0; i < entities.Count; i++)
+            for (var i = 0; i < ids.Length; i++)
             {
-                DoRemove(ids[i], entities[i]);
+                DoRemove(ids[i]);
             }
         }
 
@@ -346,7 +346,7 @@ namespace EFunTech.Sms.Portal.Controllers
         {
             foreach (var model in models)
             {
-                var isCurrentUser = model.Id == CurrentUser.Id;
+                var isCurrentUser = model.Id == CurrentUserId;
 
                 model.Activatable = !isCurrentUser; // 是否可以啟用或關閉
                 model.Maintainable = true; // 是否可以修改帳號設定

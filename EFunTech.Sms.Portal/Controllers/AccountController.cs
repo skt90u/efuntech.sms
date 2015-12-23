@@ -16,7 +16,9 @@ using System.Collections.Generic;
 using AutoMapper;
 using LinqKit;
 using Microsoft.Owin;
-
+using AutoMapper.QueryableExtensions;
+using EntityFramework.Extensions;
+using EntityFramework.Caching;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -533,40 +535,26 @@ namespace EFunTech.Sms.Portal.Controllers
         }
         #endregion
 
-        private static List<SystemAnnouncement> systemAnnouncements = null;
-
-        public static void ReloadSystemAnnouncements()
+        public List<SystemAnnouncementModel> GetSystemAnnouncements()
         {
             using (var context = new ApplicationDbContext())
             {
-                IUnitOfWork unitOfWork = new UnitOfWork(context);
-                var repository = unitOfWork.Repository<SystemAnnouncement>();
-
-                IQueryable<SystemAnnouncement> result = repository.GetAll().AsQueryable();
+                var PublishDate = DateTime.UtcNow.DateEnd();
 
                 var predicate = PredicateBuilder.True<SystemAnnouncement>();
-                predicate = predicate.And(p => p.PublishDate <= DateTime.UtcNow);
+                predicate = predicate.And(p => p.PublishDate <= PublishDate);
                 predicate = predicate.And(p => p.IsVisible == true);
-                result = result.AsExpandable().Where(predicate);
 
-                systemAnnouncements = result.OrderByDescending(p => p.PublishDate)
-                                     .ThenByDescending(p => p.CreatedTime)
-                                     .ToList();
+                return context.SystemAnnouncements
+                              .AsExpandable().Where(predicate)
+                              .OrderByDescending(p => p.PublishDate)
+                              .ThenByDescending(p => p.CreatedTime)
+                              .Project().To<SystemAnnouncementModel>()
+                              //.FromCache(tags: new[] { "SystemAnnouncements" })
+                              .ToList();
             }
         }
 
-        public List<SystemAnnouncementModel> GetSystemAnnouncements()
-        {
-            if (systemAnnouncements == null)
-            {
-                ReloadSystemAnnouncements();
-            }
-
-            var entities = systemAnnouncements;
-
-            List<SystemAnnouncementModel> models = Mapper.Map<List<SystemAnnouncement>, List<SystemAnnouncementModel>>(entities);
-
-            return models;
-        }
+        
     }
 }

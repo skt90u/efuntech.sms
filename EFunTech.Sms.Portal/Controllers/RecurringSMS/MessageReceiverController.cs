@@ -29,10 +29,8 @@ namespace EFunTech.Sms.Portal.Controllers
 		{
 		}
 
-		protected override IOrderedQueryable<MessageReceiver> DoGetList(MessageReceiverCriteriaModel criteria)
+		protected override IQueryable<MessageReceiver> DoGetList(MessageReceiverCriteriaModel criteria)
 		{
-            IQueryable<MessageReceiver> result = this.repository.GetAll();
-
 			var predicate = PredicateBuilder.True<MessageReceiver>();
             predicate = predicate.And(p => p.SendMessageRuleId == criteria.SendMessageRuleId);
 
@@ -50,12 +48,16 @@ namespace EFunTech.Sms.Portal.Controllers
 
 				predicate = predicate.And(innerPredicate);
 			}
-			result = result.AsExpandable().Where(predicate);
 
-			return result.OrderByDescending(p => p.Id);
+            var result = this.repository.DbSet
+                             .AsExpandable()
+                             .Where(predicate)
+                             .OrderByDescending(p => p.Id);
+
+			return result;
 		}
 
-        protected override ReportDownloadModel ProduceFile(MessageReceiverCriteriaModel criteria, List<MessageReceiverModel> resultList)
+        protected override ReportDownloadModel ProduceFile(MessageReceiverCriteriaModel criteria, IEnumerable<MessageReceiverModel> resultList)
         {
             var sendMessageRule = this.unitOfWork.Repository<SendMessageRule>().GetById(criteria.SendMessageRuleId);
             var sendMessageRuleModel = Mapper.Map<SendMessageRule, SendMessageRuleModel>(sendMessageRule);
@@ -79,7 +81,7 @@ namespace EFunTech.Sms.Portal.Controllers
                         return ProduceExcelFile(
                             fileName: "預約簡訊收訊人名單.xlsx",
                             sheetName: "預約簡訊收訊人名單",
-                            resultList: result.ToList());
+                            models: result);
                     }
                 case SendTimeType.Cycle:
                     {
@@ -95,17 +97,12 @@ namespace EFunTech.Sms.Portal.Controllers
                         return ProduceExcelFile(
                             fileName: "週期簡訊收訊人名單.xlsx",
                             sheetName: "週期簡訊收訊人名單",
-                            resultList: result.ToList());
+                            models: result);
                     }
                 default:
                     throw new Exception(string.Format("Unknown SendTimeType({0}", sendTimeType));
             }
         }
-
-		protected override MessageReceiver DoGet(int id)
-		{
-            return this.repository.GetById(id);
-		}
 
 		protected override MessageReceiver DoCreate(MessageReceiverModel model, MessageReceiver entity, out int id)
 		{
@@ -120,8 +117,10 @@ namespace EFunTech.Sms.Portal.Controllers
         /// <summary>
         /// 刪除指定收訊者
         /// </summary>
-		protected override void DoRemove(int id, MessageReceiver entity)
+		protected override void DoRemove(int id)
 		{
+            MessageReceiver entity = DoGet(id);
+
             // (1) 只能刪除自己所建立的簡訊規則
             // (2) 檢查目前簡訊狀態為 Ready 才可以執行刪除動作
             // (3) 設定目前簡訊狀態為刪除中
@@ -140,7 +139,7 @@ namespace EFunTech.Sms.Portal.Controllers
             // (1) 只能刪除自己所建立的簡訊規則
             ////////////////////////////////////////
 
-            if (!CurrentUser.SendMessageRules.Any(p => p.Id == sendMessageRule.Id))
+            if (!sendMessageRuleRepository.Any(p => p.Id == sendMessageRule.Id && p.CreatedUserId == CurrentUserId))
                 return;
 
             ////////////////////////////////////////
@@ -189,11 +188,11 @@ namespace EFunTech.Sms.Portal.Controllers
             //}
 		}
 
-		protected override void DoRemove(List<int> ids, List<MessageReceiver> entities)
+        protected override void DoRemove(int[] ids)
 		{
-            for (var i = 0; i < entities.Count; i++)
+            for (var i = 0; i < ids.Length; i++)
             {
-                DoRemove(ids[i], entities[i]);
+                DoRemove(ids[i]);
             }
 		}
 

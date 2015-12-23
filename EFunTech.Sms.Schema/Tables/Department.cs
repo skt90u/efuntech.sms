@@ -29,21 +29,12 @@ namespace EFunTech.Sms.Schema
         [ColumnDescription("說明")]
         public string Description { get; set; }
 
-        /*
-        //[Required]
-        //[ColumnDescription("建立者")]
-        //[MaxLength(256), ForeignKey("CreatedUser")] <--- 會造成循環的ForeignKey
-        //public string CreatedUserId { get; set; }
-
-        //public virtual ApplicationUser CreatedUser { get; set; }
-
         [Required]
         [ColumnDescription("建立者")]
-        [MaxLength(128)]
+        [MaxLength(256), ForeignKey("CreatedUser")]
+        [Index("IX_Department_CreatedUserId")]
         public string CreatedUserId { get; set; }
-        */
 
-        [Required]
         public virtual ApplicationUser CreatedUser { get; set; }
 
         [InverseProperty("Department")] // Department is ApplicationUser.Department

@@ -22,10 +22,8 @@ namespace EFunTech.Sms.Portal.Controllers
 		{
 		}
 
-		protected override IOrderedQueryable<LogItem> DoGetList(LogItemCriteriaModel criteria)
+		protected override IQueryable<LogItem> DoGetList(LogItemCriteriaModel criteria)
 		{
-            IQueryable<LogItem> result = this.repository.GetAll().AsQueryable();
-
 			var predicate = PredicateBuilder.True<LogItem>();
 
             predicate = predicate.And(p => p.CreatedTime >= criteria.StartDate);
@@ -66,14 +64,13 @@ namespace EFunTech.Sms.Portal.Controllers
 
 				predicate = predicate.And(innerPredicate);
 			}
-			result = result.AsExpandable().Where(predicate);
 
-			return result.OrderByDescending(p => p.Id);
-		}
+            var result = this.repository.DbSet
+                            .AsExpandable()
+                            .Where(predicate)
+                            .OrderByDescending(p => p.Id);
 
-		protected override LogItem DoGet(int id)
-		{
-            throw new NotImplementedException();
+            return result;
 		}
 
 		protected override LogItem DoCreate(LogItemModel model, LogItem entity, out int id)
@@ -86,15 +83,14 @@ namespace EFunTech.Sms.Portal.Controllers
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(int id, LogItem entity)
+		protected override void DoRemove(int id)
 		{
             this.repository.Delete(p => p.Id == id);
 		}
 
-		protected override void DoRemove(List<int> ids, List<LogItem> entities)
+		protected override void DoRemove(int[] ids)
 		{
-            for (var i = 0; i < ids.Count; i++)
-                DoRemove(ids[i], entities[i]);
+            this.repository.Delete(p => ids.Contains(p.Id));
 		}
 
         private string GetString(string str, int maxLen = 1000)
@@ -104,7 +100,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 : null;
         }
 
-        protected override ReportDownloadModel ProduceFile(LogItemCriteriaModel criteria, List<LogItemModel> resultList)
+        protected override ReportDownloadModel ProduceFile(LogItemCriteriaModel criteria, IEnumerable<LogItemModel> resultList)
         {
             TimeSpan clientTimezoneOffset = ClientTimezoneOffset;
             string timeFormat = Converter.Every8d_SentTime;
@@ -123,7 +119,7 @@ namespace EFunTech.Sms.Portal.Controllers
             return ProduceExcelFile(
                 fileName: "偵錯紀錄.xlsx",
                 sheetName: "偵錯紀錄",
-                resultList: result.ToList());
+                models: result);
         }
         
 	}

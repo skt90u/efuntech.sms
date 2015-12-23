@@ -55,7 +55,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 if (sendMessageRule == null)
                     throw new Exception(string.Format("無法取得簡訊派送報表，目前使用者 {0} 沒有對應的簡訊識別碼 {1}",
-                        CurrentUser.UserName,
+                        CurrentUserName,
                         sendMessageRuleId));
 
                 var sendMessageHistoryRepository = this.unitOfWork.Repository<SendMessageHistory>();

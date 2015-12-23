@@ -17,7 +17,7 @@ namespace EFunTech.Sms.Portal.Models
 
 		public SendMessageType SendMessageType { get; set; }
 
-		public DateTime SendTime { get; set; }
+        public DateTime? SendTime { get; set; }
 
 		public string SendTitle { get; set; }
 
@@ -39,21 +39,21 @@ namespace EFunTech.Sms.Portal.Models
 
 		public string DestinationAddress { get; set; }
 
-		public DateTime SendMessageResultCreatedTime { get; set; }
+        public DateTime? SendMessageResultCreatedTime { get; set; }
 
-		public DateTime SentDate { get; set; }
+        public DateTime? SentDate { get; set; }
 
-		public DateTime DoneDate { get; set; }
+        public DateTime? DoneDate { get; set; }
 
 		public DeliveryReportStatus DeliveryStatus { get; set; }
 
 		public string DeliveryStatusString { get; set; }
 
-		public Decimal Price { get; set; }
+        public Decimal? Price { get; set; }
 
-		public DateTime DeliveryReportCreatedTime { get; set; }
+        public DateTime? DeliveryReportCreatedTime { get; set; }
 
-		public Decimal MessageCost { get; set; }
+		public Decimal? MessageCost { get; set; }
 
 		public bool Delivered { get; set; }
 

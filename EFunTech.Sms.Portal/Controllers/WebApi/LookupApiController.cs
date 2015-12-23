@@ -13,6 +13,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using EntityFramework.Extensions;
+using EntityFramework.Caching;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -28,7 +30,11 @@ namespace EFunTech.Sms.Portal.Controllers
         [Route("api/LookupApi/GetExistentUserNames")]
         public IEnumerable<string> GetExistentUserNames()
         {
-            return this.unitOfWork.Repository<ApplicationUser>().GetAll().Select(p => p.UserName);
+            return this.unitOfWork.Repository<ApplicationUser>()
+                .GetAll()
+                .Select(p => p.UserName)
+                //.FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetExistentUserNames"})
+                ;
         }
 
         [HttpGet]
@@ -65,8 +71,12 @@ namespace EFunTech.Sms.Portal.Controllers
             //                            .Select(role => role.ToString());
 
             // 20151030 Norman, 改成以下邏輯，避免Admin可以建立Employee，理論上是不合理的
+            
+            var role = CurrentUserRole;
+
             var availableRoleNames = new List<string>();
-            switch (CurrentUserRole)
+
+            switch (role)
             {
                 case Role.Administrator:
                     {
@@ -94,19 +104,14 @@ namespace EFunTech.Sms.Portal.Controllers
 
             var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(this.unitOfWork.DbContext));
 
-            var availableRoles = roleManager.Roles.Where(role => availableRoleNames.Contains(role.Name)).ToList();
-
-            List<TitleMapModel<string, string>> result = new List<TitleMapModel<string, string>>();
-            foreach (var availableRole in availableRoles)
-            {
-                var name = AttributeHelper.GetColumnDescription((Role)(Enum.Parse(typeof(Role), availableRole.Name)));
-
-                result.Add(new TitleMapModel<string, string>
+            var result = roleManager.Roles
+                .Where(p => availableRoleNames.Contains(p.Name))
+                //.FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableRoles", role.ToString() })
+                .Select(p => new TitleMapModel<string, string>
                 {
-                    name = name,
-                    value = availableRole.Id
+                    name = AttributeHelper.GetColumnDescription((Role)(Enum.Parse(typeof(Role), p.Name))),
+                    value = p.Id
                 });
-            }
 
             return result;
         }
@@ -118,18 +123,22 @@ namespace EFunTech.Sms.Portal.Controllers
         [Route("api/LookupApi/GetAvailableDepartments_DepartmentManager")]
         public IEnumerable<TitleMapModel<string, int>> GetAvailableDepartments_DepartmentManager()
         {
-            switch (CurrentUserRole)
+            var role = CurrentUserRole;
+
+            switch (role)
             {
                 case Role.Administrator:
                     {
                         // Administrator 可選取所有部門
                         var result = this.unitOfWork.Repository<Department>()
                                          .GetAll()
+                                         //.FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableDepartments_DepartmentManager", role.ToString() })
                                          .Select(p => new TitleMapModel<string, int>
                                          {
                                              name = p.Name,
                                              value = p.Id,
                                          }).ToList();
+
                         result.Insert(0, new TitleMapModel<string, int>
                             {
                                 name = "不指定",
@@ -143,7 +152,8 @@ namespace EFunTech.Sms.Portal.Controllers
                     {
                         // Supervisor 建立的所有部門
                         var result = this.unitOfWork.Repository<Department>()
-                                         .GetMany(p => p.CreatedUser.Id == CurrentUser.Id)
+                                         .GetMany(p => p.CreatedUser.Id == CurrentUserId)
+                                         //.FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableDepartments_DepartmentManager", role.ToString() })
                                          .Select(p => new TitleMapModel<string, int>
                                          {
                                              name = p.Name,
@@ -171,13 +181,12 @@ namespace EFunTech.Sms.Portal.Controllers
                     }
 
                 case Role.Employee:
+                default:
                     {
                         // Employee 無任何部門(Employee 不能建立使用者，避免 Employee 具備建立帳號功能)
                         return Enumerable.Empty<TitleMapModel<string, int>>();
                     }
             }
-
-            return Enumerable.Empty<TitleMapModel<string, int>>();
         }
 
         /// <summary>
@@ -187,69 +196,60 @@ namespace EFunTech.Sms.Portal.Controllers
         [Route("api/LookupApi/GetAvailableDepartments_ShareContact")]
         public IEnumerable<TitleMapModel<string, int>> GetAvailableDepartments_ShareContact()
         {
-            switch (CurrentUserRole)
+            var role = CurrentUserRole;
+
+            var predicate = PredicateBuilder.True<Department>();
+
+            switch (role)
             {
                 case Role.Administrator:
                     {
                         // Administrator 可選取所有部門
-                        var result = this.unitOfWork.Repository<Department>()
-                                         .GetAll()
-                                         .Select(p => new TitleMapModel<string, int>
-                                         {
-                                             name = p.Name,
-                                             value = p.Id,
-                                         }).ToList();
-                        return result;
-                    }
+                    }break;
 
                 case Role.Supervisor:
                 case Role.DepartmentHead:
                     {
                         // 可顯示內容：本身所在部門 + 建立的所有部門
-                        var predicate = PredicateBuilder.False<Department>();
+                        var innerPredicate = PredicateBuilder.False<Department>();
                         
-                        if(CurrentUser.Department != null) 
-                            predicate = predicate.Or(p => p.Id == CurrentUser.Department.Id);
-                        
-                        predicate = predicate.Or(p => p.CreatedUser.Id == CurrentUser.Id);
+                        if(CurrentUser.Department != null)
+                            innerPredicate = innerPredicate.Or(p => p.Id == CurrentUser.Department.Id);
 
-                        var result = this.unitOfWork.Repository<Department>()
-                            .GetAll()
-                            .AsExpandable()
-                            .Where(predicate)
-                            .Select(p => new TitleMapModel<string, int>
-                            {
-                                name = p.Name,
-                                value = p.Id,
-                            }).ToList();
+                        innerPredicate = innerPredicate.Or(p => p.CreatedUser.Id == CurrentUserId);
 
-                        return result;
-                    }
+                        predicate = predicate.And(innerPredicate);
+                    }break;
 
                 case Role.Employee:
                     {
                         // 可顯示內容：本身所在部門
-                        var predicate = PredicateBuilder.False<Department>();
+                        var innerPredicate = PredicateBuilder.False<Department>();
 
-                        if (CurrentUser.Department != null) 
-                            predicate = predicate.Or(p => p.Id == CurrentUser.Department.Id);
+                        if (CurrentUser.Department != null)
+                            innerPredicate = innerPredicate.Or(p => p.Id == CurrentUser.Department.Id);
 
-                        var result = this.unitOfWork.Repository<Department>()
-                            .GetAll()
+                        predicate = predicate.And(innerPredicate);
+                    }break;
+                default:
+                    {
+                        var innerPredicate = PredicateBuilder.False<Department>();
+
+                        predicate = predicate.And(innerPredicate);
+                    }break;
+            }
+
+            var result = this.unitOfWork.Repository<Department>().DbSet
                             .AsExpandable()
                             .Where(predicate)
+                            //.FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableDepartments_ShareContact", role.ToString() })
                             .Select(p => new TitleMapModel<string, int>
                             {
                                 name = p.Name,
                                 value = p.Id,
-                            }).ToList();
+                            });
 
-                        return result;
-                    }
-            }
-
-            // 尚未對應的角色類型
-            return Enumerable.Empty<TitleMapModel<string, int>>();
+            return result;
         }
 
     }

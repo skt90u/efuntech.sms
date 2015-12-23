@@ -20,10 +20,8 @@ namespace EFunTech.Sms.Portal.Controllers
         {
         }
 
-        protected override IOrderedQueryable<UploadedMessageReceiver> DoGetList(UploadedMessageReceiverCriteriaModel criteria)
+        protected override IQueryable<UploadedMessageReceiver> DoGetList(UploadedMessageReceiverCriteriaModel criteria)
         {
-            IQueryable<UploadedMessageReceiver> result = this.repository.GetAll();
-
             var predicate = PredicateBuilder.True<UploadedMessageReceiver>();
             predicate = predicate.And(p => p.UploadedSessionId == criteria.UploadedSessionId);
 
@@ -52,17 +50,15 @@ namespace EFunTech.Sms.Portal.Controllers
                 predicate = predicate.And(innerPredicate);
             }
 
-            result = result.AsExpandable().Where(predicate);
+            var result = this.repository.DbSet
+                             .AsExpandable()
+                             .Where(predicate)
+                             .OrderBy(p => p.RowNo);
 
-            return result.OrderBy(p => p.RowNo);
+            return result;
         }
 
         
-        protected override UploadedMessageReceiver DoGet(int id)
-        {
-            return this.repository.GetById(id);
-        }
-
         protected override UploadedMessageReceiver DoCreate(UploadedMessageReceiverModel model, UploadedMessageReceiver entity, out int id)
         {
             entity = new UploadedMessageReceiver();
@@ -83,7 +79,7 @@ namespace EFunTech.Sms.Portal.Controllers
             entity.Param3 = model.Param3 ?? string.Empty;
             entity.Param4 = model.Param4 ?? string.Empty;
             entity.Param5 = model.Param5 ?? string.Empty;
-            entity.CreatedUser = CurrentUser;
+            entity.CreatedUserId = CurrentUserId;
             entity.CreatedTime = DateTime.UtcNow;
             entity.UploadedFile = null;
             entity.UploadedSessionId = model.UploadedSessionId;
@@ -111,7 +107,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
             entity.E164Mobile = MobileUtil.GetE164PhoneNumber(model.Mobile);
             entity.Region = MobileUtil.GetRegionName(model.Mobile);
-            entity.CreatedUser = entity.CreatedUser;
+            entity.CreatedUserId = entity.CreatedUserId;
 
             var error = string.Empty;
             var isValid = this.validationService.Validate(entity, out error);
@@ -128,12 +124,12 @@ namespace EFunTech.Sms.Portal.Controllers
             }
         }
 
-        protected override void DoRemove(int id, UploadedMessageReceiver entity)
+        protected override void DoRemove(int id)
         {
-            this.repository.Delete(entity);
+            this.repository.Delete(p=> p.Id == id);
         }
 
-        protected override void DoRemove(List<int> ids, List<UploadedMessageReceiver> entities)
+        protected override void DoRemove(int[] ids)
         {
             this.repository.Delete(p => ids.Contains(p.Id));
         }
