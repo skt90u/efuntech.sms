@@ -91,6 +91,30 @@
                 crudApi.Download(criteria);
             };
 
+            this.selectColumns = function () {
+
+                var modalInstance = $modal.open({
+                    templateUrl: 'template/modal/columnEditor.html',
+                    controller: 'ColumnEditorCtrl',
+                    windowClass: 'center-modal',
+                    //size: size,
+                    resolve: {
+                        options: function () {
+                            return {
+                                title: '自訂資料顯示欄位',
+                                maxColumns: self.gridOptions.columnDefs.length,
+                                columnDefs: self.gridOptions.columnDefs,
+                                exclusiveNames: [], //['Name'],
+                            };
+                        },
+                    }
+                });
+
+                modalInstance.result.then(function (xxx) {
+                    self.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+                });
+            };
+
             this.init = function () {
                 self.searchText = '';
                 self.search();

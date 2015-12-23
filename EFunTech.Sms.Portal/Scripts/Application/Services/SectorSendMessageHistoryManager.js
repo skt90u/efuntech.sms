@@ -20,17 +20,17 @@
                 //    name: 'RowNo',
                 //    displayName: '編號'
                 //},
-                {
-                    name: 'SendMessageType',
-                    width: '80',
-                    displayName: '簡訊類別',
-                    cellEditableCondition: false,
-                    cellClass: 'grid-align-center',
-                    cellTemplate: [
-                        '<img class="smsMessage" ng-show="row.entity.SendMessageType === 0" />',
-                        '<img class="appMessage" ng-show="row.entity.SendMessageType === 1" />',
-                    ].join('\n'),
-                },
+                //{
+                //    name: 'SendMessageType',
+                //    width: '80',
+                //    displayName: '簡訊類別',
+                //    cellEditableCondition: false,
+                //    cellClass: 'grid-align-center',
+                //    cellTemplate: [
+                //        '<img class="smsMessage" ng-show="row.entity.SendMessageType === 0" />',
+                //        '<img class="appMessage" ng-show="row.entity.SendMessageType === 1" />',
+                //    ].join('\n'),
+                //},
                 {
                     name: 'DepartmentName',
                     displayName: '部門'

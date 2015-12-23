@@ -38,7 +38,7 @@
                 <div ng-show="ShowStatistic">
                     <div class="search-area">
                         <div class="row">
-                            <div class="col-md-10">
+                            <div class="col-md-9">
                                 <form class="form-horizontal" role="form">
                                     <div class="form-group">
                                         <label class="col-sm-3 control-label">
@@ -98,10 +98,11 @@
 
                                 </form>
                             </div>
-                            <div class="col-md-2 clearfix">
+                            <div class="col-md-3 clearfix">
                                 <div class="btn-group pull-right" role="group">
                                     <button class="btn btn-primary" ng-click="search()">搜尋</button>
                                     <button class="btn btn-warning" ng-click="exportStatistic()">匯出</button>
+                                    <button class="btn btn-danger" ng-click="selectStatisticColumns()">檢視</button>
                                 </div>
                             </div>
                         </div>
@@ -124,6 +125,7 @@
                                 <div class="btn-group pull-right" role="group">
                                     <button class="btn btn-primary" ng-click="hideHistory()">上一頁</button>
                                     <button class="btn btn-warning" ng-click="exportHistory()">匯出</button>
+                                    <button class="btn btn-danger" ng-click="selectHistoryColumns()">檢視</button>
                                 </div>
                             </div>
                         </div>

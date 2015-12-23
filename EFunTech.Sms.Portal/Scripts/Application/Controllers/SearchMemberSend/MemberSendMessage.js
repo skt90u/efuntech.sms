@@ -102,6 +102,14 @@
             });
         };
 
+        $scope.selectStatisticColumns = function () {
+            $scope.MemberSendMessageStatisticManager.selectColumns();
+        };
+
+        $scope.selectHistoryColumns = function () {
+            $scope.MemberSendMessageHistoryManager.selectColumns();
+        };
+
         //========================================
         // Events & EventHandlers
         //========================================

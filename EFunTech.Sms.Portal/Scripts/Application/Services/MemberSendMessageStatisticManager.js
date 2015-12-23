@@ -20,17 +20,17 @@
                 //    name: 'RowNo',
                 //    displayName: '編號'
                 //},
-                {
-                    name: 'SendMessageType',
-                    width: '80',
-                    displayName: '訊息類型',
-                    cellEditableCondition: false,
-                    cellClass: 'grid-align-center',
-                    cellTemplate: [
-                        '<img class="smsMessage" ng-show="row.entity.SendMessageType === 0" />',
-                        '<img class="appMessage" ng-show="row.entity.SendMessageType === 1" />',
-                    ].join('\n'),
-                },
+                //{
+                //    name: 'SendMessageType',
+                //    width: '80',
+                //    displayName: '訊息類型',
+                //    cellEditableCondition: false,
+                //    cellClass: 'grid-align-center',
+                //    cellTemplate: [
+                //        '<img class="smsMessage" ng-show="row.entity.SendMessageType === 0" />',
+                //        '<img class="appMessage" ng-show="row.entity.SendMessageType === 1" />',
+                //    ].join('\n'),
+                //},
                 {
                     name: 'SendTime',
                     displayName: '發送時間',
@@ -114,6 +114,30 @@
                 }, extraCriteria);
 
                 crudApi.Download(criteria);
+            };
+
+            this.selectColumns = function () {
+
+                var modalInstance = $modal.open({
+                    templateUrl: 'template/modal/columnEditor.html',
+                    controller: 'ColumnEditorCtrl',
+                    windowClass: 'center-modal',
+                    //size: size,
+                    resolve: {
+                        options: function () {
+                            return {
+                                title: '自訂資料顯示欄位',
+                                maxColumns: self.gridOptions.columnDefs.length,
+                                columnDefs: self.gridOptions.columnDefs,
+                                exclusiveNames: [], //['Name'],
+                            };
+                        },
+                    }
+                });
+
+                modalInstance.result.then(function (xxx) {
+                    self.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+                });
             };
 
             this.init = function () {

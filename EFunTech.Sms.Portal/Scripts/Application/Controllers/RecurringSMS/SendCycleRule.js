@@ -118,17 +118,17 @@
                 useExternalSorting: true,
                 enableColumnMenus: false,
                 columnDefs: [
-                {
-                    name: 'SendMessageType',
-                    width: '80',
-                    displayName: '訊息類型',
-                    cellEditableCondition: false,
-                    cellClass: 'grid-align-center',
-                    cellTemplate: [
-                        '<img class="smsMessage" ng-show="row.entity.SendMessageType === 0" />',
-                        '<img class="appMessage" ng-show="row.entity.SendMessageType === 1" />',
-                    ].join('\n'),
-                },
+                //{
+                //    name: 'SendMessageType',
+                //    width: '80',
+                //    displayName: '訊息類型',
+                //    cellEditableCondition: false,
+                //    cellClass: 'grid-align-center',
+                //    cellTemplate: [
+                //        '<img class="smsMessage" ng-show="row.entity.SendMessageType === 0" />',
+                //        '<img class="appMessage" ng-show="row.entity.SendMessageType === 1" />',
+                //    ].join('\n'),
+                //},
                 {
                     name: 'Name',
                     displayName: '收訊者姓名'

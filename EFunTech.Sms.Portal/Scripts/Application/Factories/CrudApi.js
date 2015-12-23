@@ -23,7 +23,7 @@
                 });
                 
                 var pathname = url + '?' + $.param(params);
-                var openUrl = window.location.origin + pathname;
+                var openUrl = window.location.origin + '/' + pathname;
                 window.open(openUrl, '_self'); // TODO: TimezoneOffset 無法傳遞過去，要如何設定 Request Header ??
             };
 
