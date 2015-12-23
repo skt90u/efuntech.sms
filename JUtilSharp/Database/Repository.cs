@@ -20,12 +20,10 @@ namespace JUtilSharp.Database
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     {
         private DbContext context = null;
-        private DbSet<TEntity> dbSet = null;
 
         public Repository(DbContext context)
         {
             this.context = context;
-            this.dbSet = context.Set<TEntity>();
         }
 
         /// <summary>
@@ -46,24 +44,32 @@ namespace JUtilSharp.Database
         //    return this;
         //}
 
+        public DbSet<TEntity> DbSet
+        {
+            get
+            {
+                return context.Set<TEntity>();
+            }
+        }
+
         public virtual TEntity GetById(params object[] keys)
         {
-            return this.dbSet.Find(keys);
+            return DbSet.Find(keys);
         }
 
         public virtual TEntity Get(Expression<Func<TEntity, bool>> predicate)
         {
-            return this.dbSet.FirstOrDefault(predicate);
+            return DbSet.FirstOrDefault(predicate);
         }
 
         public IQueryable<TEntity> GetAll()
         {
-            return this.dbSet.AsQueryable();
+            return DbSet.AsQueryable();
         }
 
         public IQueryable<TEntity> GetMany(Expression<Func<TEntity, bool>> predicate)
         {
-            return this.dbSet.Where(predicate).AsQueryable<TEntity>();
+            return DbSet.Where(predicate).AsQueryable<TEntity>();
         }
 
         //public virtual IQueryable<TEntity> SqlQuery(string sql, params object[] parameters)
@@ -73,22 +79,22 @@ namespace JUtilSharp.Database
 
         public bool Any(Expression<Func<TEntity, bool>> predicate)
         {
-            return this.dbSet.Any(predicate);
+            return DbSet.Any(predicate);
         }
 
         public int Count()
         {
-            return this.dbSet.Count();
+            return DbSet.Count();
         }
 
         public int Count(Expression<Func<TEntity, bool>> predicate)
         {
-            return this.dbSet.Count(predicate);
+            return DbSet.Count(predicate);
         }
 
         public TEntity Insert(TEntity entity)
         {
-            var newEntry = this.dbSet.Add(entity);
+            var newEntry = DbSet.Add(entity);
             this.SaveChanges();
             return newEntry;
         }
@@ -96,20 +102,20 @@ namespace JUtilSharp.Database
         public int Update(TEntity entity)
         {
             var entry = context.Entry(entity);
-            this.dbSet.Attach(entity);
+            DbSet.Attach(entity);
             entry.State = EntityState.Modified;
             return this.SaveChanges();
         }
 
         public int Delete(TEntity entity)
         {
-            this.dbSet.Remove(entity);
+            DbSet.Remove(entity);
             return this.SaveChanges();
         }
 
         public int Delete(Expression<Func<TEntity, bool>> predicate)
         {
-            this.dbSet.Where(predicate).Delete();
+            DbSet.Where(predicate).Delete();
             return this.SaveChanges();
         }
 

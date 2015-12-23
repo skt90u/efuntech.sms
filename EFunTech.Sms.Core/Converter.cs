@@ -47,6 +47,13 @@ namespace EFunTech.Sms.Core
             return result;
         }
 
+        public static string ToLocalTimeString(DateTime? utcTime, TimeSpan timezoneOffset, string format)
+        {
+            return utcTime.HasValue
+                ? ToLocalTimeString(utcTime.Value, timezoneOffset, format)
+                : string.Empty;
+        }
+
         public static string ToLocalTimeString(DateTime utcTime, TimeSpan timezoneOffset, string format)
         {
             var result = ToLocalTime(utcTime, timezoneOffset);
