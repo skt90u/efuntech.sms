@@ -73,7 +73,10 @@
                                       <tbody>
                                           <tr>
                                               <td>
-                                                  <span class="font-green2">@systemAnnouncement.PublishDateString </span><br>
+                                                  <span class="font-green2">
+                                                      @*將Utc時間轉換成台灣時間*@
+                                                      @systemAnnouncement.PublishDate.AddHours(8).ToString("yyyy-MM-dd")
+                                                  </span><br>
                                                   @systemAnnouncement.Announcement
                                               </td>
                                           </tr>

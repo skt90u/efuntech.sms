@@ -302,6 +302,7 @@
     <Compile Include="App_Start\Startup.Mapper.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\ApplicationDbContextInitializer.cs" />
+    <Compile Include="Controllers\Common\AsyncCrudApiController.cs" />
     <Compile Include="Controllers\Others\DeliveryReportQueueController.cs" />
     <Compile Include="Controllers\Notification\InfobipNotificationController.cs" />
     <Compile Include="Controllers\BasicAuthApi\SendSMSController.cs" />

@@ -8,10 +8,11 @@ using JUtilSharp.Database;
 using System.Collections.Generic;
 using System;
 using LinqKit;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class BlacklistController : CrudApiController<SearchTextCriteriaModel, BlacklistModel, Blacklist, int>
+    public class BlacklistController : AsyncCrudApiController<SearchTextCriteriaModel, BlacklistModel, Blacklist, int>
     {
         public BlacklistController(IUnitOfWork unitOfWork, ILogService logService)
             : base(unitOfWork, logService)
@@ -45,7 +46,7 @@ namespace EFunTech.Sms.Portal.Controllers
             return result;
         }
 
-        protected override Blacklist DoCreate(BlacklistModel model, Blacklist entity, out int id)
+        protected override async Task<Blacklist> DoCreate(BlacklistModel model, Blacklist entity)
         {
             entity = new Blacklist();
 
