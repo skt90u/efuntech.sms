@@ -66,6 +66,11 @@ namespace EFunTech.Sms.Schema
         public RecipientFromType RecipientFromType { get; set; }
 
         [Required]
+        [ColumnDescription("建立者")]
+        [MaxLength(256), ForeignKey("CreatedUser")]
+        [Index("IX_MessageReceiver_CreatedUserId")]
+        public string CreatedUserId { get; set; }
+
         public virtual ApplicationUser CreatedUser { get; set; }
 
         [Required]

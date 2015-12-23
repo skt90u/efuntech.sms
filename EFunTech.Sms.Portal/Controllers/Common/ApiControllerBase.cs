@@ -33,41 +33,19 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             this.tradeService = new TradeService(unitOfWork, logService);
         }
 
-        public ApplicationUser _CurrentUser;
         public ApplicationUser CurrentUser
         {
             get
             {
-                if (_CurrentUser == null)
-                {
-                    string userId = User.Identity.GetUserId();
-                    
-                    _CurrentUser = string.IsNullOrEmpty(userId) ? null : this.unitOfWork.Repository<ApplicationUser>().GetById(userId);
-                }
-                return _CurrentUser;
+                return User.Identity.GetUser();
             }
         }
 
-        public bool IsAuthenticated
-        { 
-            get 
-            {
-                return User.Identity.IsAuthenticated;
-            } 
-        }
-
-        public Role _CurrentUserRole = Role.Unknown;
         public Role CurrentUserRole
         {
             get
             {
-                if (_CurrentUserRole == Role.Unknown)
-                {
-                    string userId = User.Identity.GetUserId();
-
-                    _CurrentUserRole = string.IsNullOrEmpty(userId) ? Role.Unknown : apiControllerHelper.GetMaxPriorityRole(CurrentUser);
-                }
-                return _CurrentUserRole;
+                return User.Identity.GetUserRole();
             }
         }
 
@@ -135,5 +113,27 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                 }
             }
         }
+
+        ////////////////////////////////////////
+
+        
+
+        public string CurrentUserId
+        {
+            get
+            {
+                return User.Identity.GetUserId();
+            }
+        }
+
+        public string CurrentUserName
+        {
+            get
+            {
+                return User.Identity.GetUserName();
+            }
+        }
+
+        
     }
 }

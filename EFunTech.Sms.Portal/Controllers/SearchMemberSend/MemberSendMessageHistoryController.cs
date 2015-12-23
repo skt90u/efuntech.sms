@@ -21,11 +21,10 @@ namespace EFunTech.Sms.Portal.Controllers
 		{
 		}
 
-		protected override IOrderedQueryable<SendMessageHistory> DoGetList(MemberSendMessageHistoryCriteriaModel criteria)
+		protected override IQueryable<SendMessageHistory> DoGetList(MemberSendMessageHistoryCriteriaModel criteria)
 		{
-            IQueryable<SendMessageHistory> result = this.repository.GetAll();
-
 			var predicate = PredicateBuilder.True<SendMessageHistory>();
+
             predicate = predicate.And(p => p.SendMessageQueueId == criteria.SendMessageQueueId);
 
             // 依接收狀態查詢
@@ -47,9 +46,12 @@ namespace EFunTech.Sms.Portal.Controllers
                 }
             }
 
-            result = result.AsExpandable().Where(predicate);
+            var result = this.repository.DbSet
+                            .AsExpandable()
+                            .Where(predicate)
+                            .OrderByDescending(p => p.Id);
 
-			return result.OrderByDescending(p => p.Id);
+			return result;
 		}
 
 		protected override SendMessageHistory DoGet(int id)
@@ -67,17 +69,17 @@ namespace EFunTech.Sms.Portal.Controllers
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(int id, SendMessageHistory entity)
+		protected override void DoRemove(int id)
 		{
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(List<int> ids, List<SendMessageHistory> entities)
+        protected override void DoRemove(int[] ids)
 		{
             throw new NotImplementedException();
 		}
 
-        protected override ReportDownloadModel ProduceFile(MemberSendMessageHistoryCriteriaModel criteria, List<SendMessageHistoryModel> resultList)
+        protected override ReportDownloadModel ProduceFile(MemberSendMessageHistoryCriteriaModel criteria, IEnumerable<SendMessageHistoryModel> resultList)
         {
             TimeSpan clientTimezoneOffset = ClientTimezoneOffset;
             string timeFormat = Converter.Every8d_SentTime;

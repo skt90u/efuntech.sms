@@ -19,30 +19,8 @@ namespace EFunTech.Sms.Portal.Controllers
 		{
 		}
 
-		protected override IOrderedQueryable<ApplicationUser> DoGetList(UserNotInSharedGroupCriteriaModel criteria)
+		protected override IQueryable<ApplicationUser> DoGetList(UserNotInSharedGroupCriteriaModel criteria)
 		{
-            // 有分享此群組的所有使用者ID
-            var userIds = this.unitOfWork.Repository<SharedGroupContact>().GetMany(p => p.GroupId == criteria.GroupId).Select(p => p.ShareToUserId);
-
-            // 排除已經在SharedGroup之中的使用者ID
-            var result = Enumerable.Empty<ApplicationUser>().AsQueryable();
-            var department = this.unitOfWork.Repository<Department>().Get(p => p.Id == criteria.DepartmentId); 
-            if(department != null)
-            {
-                // result = department.Users.Where(p => !userIds.Contains(p.Id)).AsQueryable();
-
-                // 20151030 Norman, 排除使用者本身
-                result = department.Users.Where(p => !userIds.Contains(p.Id) && p.Id != CurrentUser.Id).AsQueryable();
-            }
-            else
-            {
-                // 20151029 Norman, 手動輸入分享使用者，允許分享給所有其他系統使用者
-
-                // 手動輸入使用者時，Client端會傳送 DepartmentId = -1，查不到指定部門，代表要所有使用者
-                
-                result = this.unitOfWork.Repository<ApplicationUser>().GetMany(p => p.Id != CurrentUser.Id);
-            }
-
             var predicate = PredicateBuilder.True<ApplicationUser>();
             var searchText = criteria.SearchText;
             if (!string.IsNullOrEmpty(searchText))
@@ -69,16 +47,36 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 predicate = predicate.And(innerPredicate);
             }
-            result = result.AsExpandable().Where(predicate);
 
-            return result.OrderByDescending(p => p.Id);
-		}
+            // 排除已經在SharedGroup之中的使用者ID
+            
+            var department = this.unitOfWork.Repository<Department>().Get(p => p.Id == criteria.DepartmentId);
+            if (department != null)
+            {
+                // 有分享此群組的所有使用者ID
+                var userIds = this.unitOfWork.Repository<SharedGroupContact>().GetMany(p => p.GroupId == criteria.GroupId).Select(p => p.ShareToUserId);
 
-		protected override ApplicationUser DoGet(string id)
-		{
-            var result = this.unitOfWork.Repository<SharedGroupContact>().Get(p => p.ShareToUserId == id);
+                var result = department.Users.Where(p => !userIds.Contains(p.Id) && p.Id != CurrentUserId)
+                            .AsQueryable()
+                            .AsExpandable()
+                            .Where(predicate)
+                            .OrderByDescending(p => p.Id);
 
-            return result != null ? result.ShareToUser : null;
+                return result;
+            }
+            else
+            {
+                // 20151029 Norman, 手動輸入分享使用者，允許分享給所有其他系統使用者
+
+                // 手動輸入使用者時，Client端會傳送 DepartmentId = -1，查不到指定部門，代表要所有使用者
+                
+                var result = this.unitOfWork.Repository<ApplicationUser>().GetMany(p => p.Id != CurrentUserId)
+                    .AsExpandable()
+                    .Where(predicate)
+                    .OrderByDescending(p => p.Id);
+
+                return result;
+            }
 		}
 
 		protected override ApplicationUser DoCreate(ApplicationUserModel model, ApplicationUser entity, out string id)
@@ -86,7 +84,8 @@ namespace EFunTech.Sms.Portal.Controllers
             if (!this.unitOfWork.Repository<SharedGroupContact>().Any(p => p.GroupId == model.SharedGroupId && p.ShareToUserId == model.Id))
             {
                 SharedGroupContact sharedGroupContact = new SharedGroupContact();
-                sharedGroupContact.GroupId = model.SharedGroupId;
+                //sharedGroupContact.GroupId = model.SharedGroupId;
+                sharedGroupContact.GroupId = model.SharedGroupId.Value;
                 sharedGroupContact.ShareToUserId = model.Id;
                 this.unitOfWork.Repository<SharedGroupContact>().Insert(sharedGroupContact);
             }
@@ -101,12 +100,12 @@ namespace EFunTech.Sms.Portal.Controllers
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(string id, ApplicationUser entity)
+		protected override void DoRemove(string id)
 		{
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(List<string> ids, List<ApplicationUser> entities)
+        protected override void DoRemove(string[] ids)
 		{
             throw new NotImplementedException();
 		}

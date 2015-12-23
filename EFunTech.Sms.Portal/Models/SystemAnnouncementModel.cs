@@ -14,8 +14,5 @@ namespace EFunTech.Sms.Portal.Models
         public string Announcement { get; set; }
 
         public DateTime CreatedTime { get; set; }
-
-        public string PublishDateString { get; set; }
-
 	}
 }

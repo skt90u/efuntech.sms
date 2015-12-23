@@ -19,7 +19,7 @@ namespace EFunTech.Sms.Portal.Controllers
 		{
 		}
 
-		protected override IOrderedQueryable<ApplicationUser> DoGetList(DepartmentUserCriteriaModel criteria)
+		protected override IQueryable<ApplicationUser> DoGetList(DepartmentUserCriteriaModel criteria)
 		{
             IQueryable<ApplicationUser> result = (criteria.DepartmentId == -1)
                 ? this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUser).AsQueryable()
@@ -69,12 +69,12 @@ namespace EFunTech.Sms.Portal.Controllers
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(string id, ApplicationUser entity)
+		protected override void DoRemove(string id)
 		{
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(List<string> ids, List<ApplicationUser> entities)
+        protected override void DoRemove(string[] ids)
 		{
             throw new NotImplementedException();
 		}

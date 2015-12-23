@@ -80,7 +80,7 @@ namespace EFunTech.Sms.Portal.Controllers
             return result.OrderByDescending(p => p.Id);
         }
 
-		protected override IOrderedQueryable<SendMessageStatistic> DoGetList(SectorSendMessageStatisticCriteriaModel criteria)
+		protected override IQueryable<SendMessageStatistic> DoGetList(SectorSendMessageStatisticCriteriaModel criteria)
 		{
             DateTime utcNow = DateTime.UtcNow;
 
@@ -221,12 +221,12 @@ namespace EFunTech.Sms.Portal.Controllers
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(int id, SendMessageStatistic entity)
+		protected override void DoRemove(int id)
 		{
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(List<int> ids, List<SendMessageStatistic> entities)
+        protected override void DoRemove(int[] ids)
 		{
             throw new NotImplementedException();
 		}
@@ -266,7 +266,7 @@ namespace EFunTech.Sms.Portal.Controllers
             return models;
         }
 
-        protected override ReportDownloadModel ProduceFile(SectorSendMessageStatisticCriteriaModel criteria, List<SendMessageStatisticModel> resultList)
+        protected override ReportDownloadModel ProduceFile(SectorSendMessageStatisticCriteriaModel criteria, IEnumerable<SendMessageStatisticModel> resultList)
         {
             switch (criteria.DownloadType)
             {

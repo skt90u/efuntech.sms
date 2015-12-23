@@ -35,8 +35,12 @@ namespace EFunTech.Sms.Schema
         [DateTimeKind(DateTimeKind.Utc)]
         public DateTime CreatedTime { get; set; }
 
-        // 後來設定方式 (Add-Migration 自動建立 ForeignKey)
         [Required]
-        public virtual ApplicationUser CreatedUser { get; set; } 
+        [ColumnDescription("建立者")]
+        [MaxLength(256), ForeignKey("CreatedUser")]
+        [Index("IX_SystemAnnouncement_CreatedUserId")]
+        public string CreatedUserId { get; set; }
+
+        public virtual ApplicationUser CreatedUser { get; set; }
     }
 }

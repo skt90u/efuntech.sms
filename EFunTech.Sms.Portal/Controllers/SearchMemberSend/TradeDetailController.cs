@@ -23,12 +23,12 @@ namespace EFunTech.Sms.Portal.Controllers
 		{
 		}
 
-		protected override IOrderedQueryable<TradeDetail> DoGetList(TradeDetailCriteriaModel criteria)
+		protected override IQueryable<TradeDetail> DoGetList(TradeDetailCriteriaModel criteria)
 		{
             IQueryable<TradeDetail> result = this.unitOfWork.Repository<TradeDetail>().GetAll();
 
 			var predicate = PredicateBuilder.True<TradeDetail>();
-            predicate = predicate.And(p => p.OwnerId == CurrentUser.Id);
+            predicate = predicate.And(p => p.OwnerId == CurrentUserId);
             predicate = predicate.And(p => p.TradeTime >= criteria.StartDate);
             predicate = predicate.And(p => p.TradeTime <= criteria.EndDate);
 
@@ -65,12 +65,14 @@ namespace EFunTech.Sms.Portal.Controllers
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(int id, TradeDetail entity)
+		protected override void DoRemove(int id)
 		{
+            TradeDetail entity = DoGet(id);
+
             this.tradeService.DismissAllot(entity);
 		}
 
-		protected override void DoRemove(List<int> ids, List<TradeDetail> entities)
+        protected override void DoRemove(int[] ids)
 		{
             throw new NotImplementedException();
 		}
@@ -86,7 +88,7 @@ namespace EFunTech.Sms.Portal.Controllers
         //    return models;
         //}
 
-        protected override ReportDownloadModel ProduceFile(TradeDetailCriteriaModel criteria, List<TradeDetailModel> resultList)
+        protected override ReportDownloadModel ProduceFile(TradeDetailCriteriaModel criteria, IEnumerable<TradeDetailModel> resultList)
         {
             var clientTimezoneOffset = ClientTimezoneOffset;
             string timeFormat = Converter.Every8d_SentTime;
@@ -102,7 +104,7 @@ namespace EFunTech.Sms.Portal.Controllers
             return ProduceExcelFile(
                 fileName: "點數購買與匯轉明細.xlsx", 
                 sheetName: "點數購買與匯轉明細",
-                resultList: result.ToList());
+                models: result);
         }
 	}
 }

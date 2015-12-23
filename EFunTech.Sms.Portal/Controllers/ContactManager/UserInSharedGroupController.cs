@@ -19,11 +19,22 @@ namespace EFunTech.Sms.Portal.Controllers
 		{
 		}
 
-		protected override IOrderedQueryable<ApplicationUser> DoGetList(UserInSharedGroupCriteriaModel criteria)
+		protected override IQueryable<ApplicationUser> DoGetList(UserInSharedGroupCriteriaModel criteria)
 		{
-            IQueryable<ApplicationUser> result = this.unitOfWork.Repository<SharedGroupContact>().GetMany(p => p.GroupId == criteria.GroupId).Select(p => p.ShareToUser).AsQueryable();
-
+            //IQueryable<ApplicationUser> result = this.unitOfWork.Repository<SharedGroupContact>().GetMany(p => p.GroupId == criteria.GroupId).Select(p => p.ShareToUser).AsQueryable();
+            var userIds = this.unitOfWork.Repository<SharedGroupContact>().DbSet.Where(p => p.GroupId == criteria.GroupId).Select(p => p.ShareToUserId);
+            
             var predicate = PredicateBuilder.True<ApplicationUser>();
+
+            if (userIds.Count() == 0)
+            {
+                predicate = predicate.And(p => false);
+            }
+            else
+            {
+                predicate = predicate.And(p => userIds.Contains(p.Id));
+            }
+            
             var searchText = criteria.SearchText;
             if (!string.IsNullOrEmpty(searchText))
             {
@@ -49,9 +60,13 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 predicate = predicate.And(innerPredicate);
             }
-            result = result.AsExpandable().Where(predicate);
 
-            return result.OrderByDescending(p => p.Id);
+            var result = this.repository.DbSet
+                            .AsExpandable()
+                            .Where(predicate)
+                            .OrderByDescending(p => p.Id);
+            
+            return result;
 		}
 
 		protected override ApplicationUser DoGet(string id)
@@ -73,12 +88,12 @@ namespace EFunTech.Sms.Portal.Controllers
                 this.unitOfWork.Repository<SharedGroupContact>().Delete(sharedGroupContact);
 		}
 
-		protected override void DoRemove(string id, ApplicationUser entity)
+		protected override void DoRemove(string id)
 		{
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(List<string> ids, List<ApplicationUser> entities)
+        protected override void DoRemove(string[] ids)
 		{
             throw new NotImplementedException();
 		}

@@ -4,8 +4,6 @@ using System.Linq;
 using EFunTech.Sms.Portal.Controllers.Common;
 using EFunTech.Sms.Portal.Models.Common;
 using JUtilSharp.Database;
-
-using System.Collections.Generic;
 using LinqKit;
 using System;
 
@@ -18,12 +16,11 @@ namespace EFunTech.Sms.Portal.Controllers
 		{
 		}
 
-		protected override IOrderedQueryable<SharedGroupContact> DoGetList(SearchTextCriteriaModel criteria)
+		protected override IQueryable<SharedGroupContact> DoGetList(SearchTextCriteriaModel criteria)
 		{
-            IQueryable<SharedGroupContact> result = this.unitOfWork.Repository<SharedGroupContact>().GetAll();
-
 			var predicate = PredicateBuilder.True<SharedGroupContact>();
-            predicate = predicate.And(p => p.ShareToUser.Id == CurrentUser.Id);
+
+            predicate = predicate.And(p => p.ShareToUser.Id == CurrentUserId);
 
 			var searchText = criteria.SearchText;
 			if (!string.IsNullOrEmpty(searchText))
@@ -34,14 +31,13 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 //predicate = predicate.And(innerPredicate);
 			}
-			result = result.AsExpandable().Where(predicate);
+
+			var result = this.repository.DbSet
+                             .AsExpandable()
+                             .Where(predicate)
+                             .OrderByDescending(p => p.GroupId);
 
             return result.OrderByDescending(p => p.GroupId);
-		}
-
-		protected override SharedGroupContact DoGet(int id)
-		{
-            throw new NotImplementedException();
 		}
 
 		protected override SharedGroupContact DoCreate(SharedGroupContactModel model, SharedGroupContact entity, out int id)
@@ -54,15 +50,14 @@ namespace EFunTech.Sms.Portal.Controllers
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(int id, SharedGroupContact entity)
+		protected override void DoRemove(int id)
 		{
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(List<int> ids, List<SharedGroupContact> entities)
+        protected override void DoRemove(int[] ids)
 		{
             throw new NotImplementedException();
 		}
-
 	}
 }

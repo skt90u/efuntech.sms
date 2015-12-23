@@ -29,7 +29,8 @@ namespace EFunTech.Sms.Portal.Controllers
         [System.Web.Http.HttpGet]
         public ApplicationUserModel GetCurrentUser()
         {
-            var user = this.unitOfWork.Repository<ApplicationUser>().GetById(CurrentUser.Id);
+            var user = this.unitOfWork.Repository<ApplicationUser>().GetById(CurrentUserId);
+
             var model = Mapper.Map<ApplicationUser, ApplicationUserModel>(user);
 
             return model;
@@ -59,7 +60,7 @@ namespace EFunTech.Sms.Portal.Controllers
                         var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(this.unitOfWork.DbContext));
 
                         String hashedNewPassword = userManager.PasswordHasher.HashPassword(model.NewPassword);
-                        var user = this.unitOfWork.Repository<ApplicationUser>().GetById(CurrentUser.Id);
+                        var user = this.unitOfWork.Repository<ApplicationUser>().GetById(CurrentUserId);
 
                         EFunTech.Sms.Core.AsyncHelper.RunSync(() => store.SetPasswordHashAsync(user, hashedNewPassword));
                         EFunTech.Sms.Core.AsyncHelper.RunSync(() => store.UpdateAsync(user));

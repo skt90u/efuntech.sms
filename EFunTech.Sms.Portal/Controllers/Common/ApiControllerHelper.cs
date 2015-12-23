@@ -22,34 +22,34 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             this.logService = logService;
         }
 
-        public Role GetMaxPriorityRole(ApplicationUser user)
-        {
-            if (user == null) return Role.Unknown;
+        //public Role GetMaxPriorityRole(ApplicationUser user)
+        //{
+        //    if (user == null) return Role.Unknown;
 
-            var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(this.unitOfWork.DbContext));
+        //    var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(this.unitOfWork.DbContext));
 
-            List<Role> roles = new List<Role>();
-            var userRoles = user.Roles.ToList();
-            foreach (var AspNetUserRole in userRoles)
-            {
-                var aspNetRole = roleManager.Roles.Where(AspNetRole => AspNetRole.Id == AspNetUserRole.RoleId).FirstOrDefault();
-                Role aRole = Role.Unknown;
-                if (Enum.TryParse<Role>(aspNetRole.Name, out aRole))
-                {
-                    roles.Add(aRole);
-                }
+        //    List<Role> roles = new List<Role>();
+        //    var userRoles = user.Roles.ToList();
+        //    foreach (var AspNetUserRole in userRoles)
+        //    {
+        //        var aspNetRole = roleManager.Roles.Where(AspNetRole => AspNetRole.Id == AspNetUserRole.RoleId).FirstOrDefault();
+        //        Role aRole = Role.Unknown;
+        //        if (Enum.TryParse<Role>(aspNetRole.Name, out aRole))
+        //        {
+        //            roles.Add(aRole);
+        //        }
 
-            }
-            if (roles.Count != 0)
-            {
-                var result = roles.OrderByDescending(role => (int)role).First();
-                return result;
-            }
-            else
-            {
-                return Role.Unknown;
-            }
-        }
+        //    }
+        //    if (roles.Count != 0)
+        //    {
+        //        var result = roles.OrderByDescending(role => (int)role).First();
+        //        return result;
+        //    }
+        //    else
+        //    {
+        //        return Role.Unknown;
+        //    }
+        //}
 
         public string GetRoleId(string applicationUserId)
         {

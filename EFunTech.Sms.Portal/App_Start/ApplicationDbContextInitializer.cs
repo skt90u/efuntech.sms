@@ -31,7 +31,7 @@ namespace EFunTech.Sms.Portal
     {
         public void InitializeDatabase(ApplicationDbContext context)
         {
-            Seed(context);
+            // Seed(context); // 測試看看關閉這個，效能是否會提升網站啟動速度
         }
 
         protected virtual void Seed(ApplicationDbContext context)

@@ -35,7 +35,7 @@ namespace EFunTech.Sms.Schema
 
         [ColumnDescription("自動補足點數")]
         public Decimal LimitMaxPoint { get; set; }
-       
+
         [Required]
         public virtual ApplicationUser Owner { get; set; }
     }

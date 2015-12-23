@@ -22,7 +22,7 @@ namespace EFunTech.Sms.Portal.Controllers
 		{
 		}
 
-		protected override IOrderedQueryable<SendMessageStatistic> DoGetList(MemberSendMessageStatisticCriteriaModel criteria)
+		protected override IQueryable<SendMessageStatistic> DoGetList(MemberSendMessageStatisticCriteriaModel criteria)
 		{
             // 目前使用者的資料
             IQueryable<SendMessageStatistic> result = this.repository.GetAll();
@@ -30,7 +30,7 @@ namespace EFunTech.Sms.Portal.Controllers
             var sendMessageHistoryRepository = this.unitOfWork.Repository<SendMessageHistory>();
 
             var predicate = PredicateBuilder.True<SendMessageStatistic>();
-            predicate = predicate.And(p => p.CreatedUserId == CurrentUser.Id);
+            predicate = predicate.And(p => p.CreatedUserId == CurrentUserId);
             predicate = predicate.And(p => p.SendTime >= criteria.StartDate);
             predicate = predicate.And(p => p.SendTime <= criteria.EndDate);
 
@@ -38,7 +38,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 !string.IsNullOrEmpty(criteria.ReceiptStatus))
             {
                 var innerPredicate = PredicateBuilder.True<SendMessageHistory>();
-                innerPredicate = innerPredicate.And(p => p.CreatedUserId == CurrentUser.Id);
+                innerPredicate = innerPredicate.And(p => p.CreatedUserId == CurrentUserId);
                 innerPredicate = innerPredicate.And(p => p.SendTime >= criteria.StartDate);
                 innerPredicate = innerPredicate.And(p => p.SendTime <= criteria.EndDate);
 
@@ -113,12 +113,12 @@ namespace EFunTech.Sms.Portal.Controllers
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(int id, SendMessageStatistic entity)
+		protected override void DoRemove(int id)
 		{
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(List<int> ids, List<SendMessageStatistic> entities)
+        protected override void DoRemove(int[] ids)
 		{
             throw new NotImplementedException();
 		}
@@ -138,7 +138,7 @@ namespace EFunTech.Sms.Portal.Controllers
         //    return models;
         //}
 
-        protected override ReportDownloadModel ProduceFile(MemberSendMessageStatisticCriteriaModel criteria, List<SendMessageStatisticModel> resultList)
+        protected override ReportDownloadModel ProduceFile(MemberSendMessageStatisticCriteriaModel criteria, IEnumerable<SendMessageStatisticModel> resultList)
         {
             TimeSpan clientTimezoneOffset = ClientTimezoneOffset;
             string timeFormat = Converter.Every8d_SentTime;

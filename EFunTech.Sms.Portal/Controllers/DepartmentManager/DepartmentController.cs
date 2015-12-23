@@ -19,7 +19,7 @@ namespace EFunTech.Sms.Portal.Controllers
 		{
 		}
 
-		protected override IOrderedQueryable<Department> DoGetList(SearchTextCriteriaModel criteria)
+		protected override IQueryable<Department> DoGetList(SearchTextCriteriaModel criteria)
 		{
             IQueryable<Department> result = this.repository.GetAll().AsQueryable();
 
@@ -35,7 +35,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 case Role.Supervisor:
                     {
                         // 列出建立的所有部門
-                        predicate = predicate.And(p => p.CreatedUser.Id == CurrentUser.Id);
+                        predicate = predicate.And(p => p.CreatedUser.Id == CurrentUserId);
                     }break;
                 case Role.DepartmentHead:
                     {
@@ -92,12 +92,14 @@ namespace EFunTech.Sms.Portal.Controllers
 			this.repository.Update(entity);
 		}
 
-		protected override void DoRemove(int id, Department entity)
+		protected override void DoRemove(int id)
 		{
             // 必須先刪除此部門下，所有使用者
-            var users = this.unitOfWork.Repository<ApplicationUser>().GetMany(p => p.Department != null && p.Department.Id == id).ToList();
+            var users = this.unitOfWork.Repository<ApplicationUser>().DbSet.Where(p => p.Department != null && p.Department.Id == id).ToList();
             if (users.Count != 0)
             {
+                var entity = DoGet(id);
+
                 string error = string.Format("部門【{0}】下還有 {1} 位使用者，分別是 {2}，請先刪除該部門下所有使用者，之後再刪除此部門",
                     entity.Name,
                     users.Count,
@@ -105,20 +107,14 @@ namespace EFunTech.Sms.Portal.Controllers
                 throw new Exception(error);
             }
 
-            //foreach (var user in users)
-            //{
-            //    user.Department = null;
-            //    this.unitOfWork.Repository<ApplicationUser>().Update(user);
-            //}
-
-			this.repository.Delete(entity);
+			this.repository.Delete(p => p.Id == id);
 		}
 
-		protected override void DoRemove(List<int> ids, List<Department> entities)
+        protected override void DoRemove(int[] ids)
 		{
-            for (var i = 0; i < entities.Count; i++)
+            for (var i = 0; i < ids.Length; i++)
             {
-                DoRemove(ids[i], entities[i]);
+                DoRemove(ids[i]);
             }
 		}
 

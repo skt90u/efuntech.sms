@@ -26,7 +26,7 @@ namespace EFunTech.Sms.Portal.Controllers
         /// <summary>
         /// 搜尋指定使用者在特定發送時間範圍的資料
         /// </summary>
-		protected override IOrderedQueryable<SendMessageHistory> DoGetList(SectorSendMessageHistoryCriteriaModel criteria)
+		protected override IQueryable<SendMessageHistory> DoGetList(SectorSendMessageHistoryCriteriaModel criteria)
 		{
             IQueryable<SendMessageHistory> result = this.repository.GetAll();
 
@@ -60,12 +60,12 @@ namespace EFunTech.Sms.Portal.Controllers
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(int id, SendMessageHistory entity)
+		protected override void DoRemove(int id)
 		{
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(List<int> ids, List<SendMessageHistory> entities)
+        protected override void DoRemove(int[] ids)
 		{
             throw new NotImplementedException();
 		}
@@ -75,7 +75,7 @@ namespace EFunTech.Sms.Portal.Controllers
             return SendMessageHistoryProfile.ConvertModel(models, this.unitOfWork);
         }
 
-        protected override ReportDownloadModel ProduceFile(SectorSendMessageHistoryCriteriaModel criteria, List<SendMessageHistoryModel> resultList)
+        protected override ReportDownloadModel ProduceFile(SectorSendMessageHistoryCriteriaModel criteria, IEnumerable<SendMessageHistoryModel> resultList)
         {
             TimeSpan clientTimezoneOffset = ClientTimezoneOffset;
             string timeFormat = Converter.Every8d_SentTime;

@@ -70,6 +70,11 @@ namespace EFunTech.Sms.Schema
         public string InvalidReason { get; set; }
 
         [Required]
+        [ColumnDescription("建立者")]
+        [MaxLength(256), ForeignKey("CreatedUser")]
+        [Index("IX_UploadedMessageReceiver_CreatedUserId")]
+        public string CreatedUserId { get; set; }
+
         public virtual ApplicationUser CreatedUser { get; set; }
 
         [Required]
@@ -77,7 +82,11 @@ namespace EFunTech.Sms.Schema
         [DateTimeKind(DateTimeKind.Utc)]
         public DateTime CreatedTime { get; set; }
 
-        public virtual UploadedFile UploadedFile { get; set; }
+        [ColumnDescription("上傳檔案")]
+        [ForeignKey("UploadedFile")]
+        public int? UploadedFileId { get; set; }
+
+        public virtual UploadedFile UploadedFile { get; set; } // 可能來自檔案上傳
 
         /// <summary>
         /// 上傳名單識別碼

@@ -156,7 +156,7 @@ namespace EFunTech.Sms.Portal.Controllers
                         entity.Param3 = _model.Param3;
                         entity.Param4 = _model.Param4;
                         entity.Param5 = _model.Param5;
-                        entity.CreatedUser = CurrentUser;
+                        entity.CreatedUserId = CurrentUserId;
                         entity.CreatedTime = entityUploadedFile.CreatedTime;
                         entity.UploadedFile = entityUploadedFile;
                         entity.UploadedSessionId = entityUploadedFile.Id;

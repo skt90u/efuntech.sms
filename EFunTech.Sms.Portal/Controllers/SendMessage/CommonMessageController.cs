@@ -4,8 +4,6 @@ using System.Linq;
 using EFunTech.Sms.Portal.Controllers.Common;
 using EFunTech.Sms.Portal.Models.Common;
 using JUtilSharp.Database;
-
-using System.Collections.Generic;
 using LinqKit;
 using System;
 
@@ -18,11 +16,12 @@ namespace EFunTech.Sms.Portal.Controllers
 		{
 		}
 
-		protected override IOrderedQueryable<CommonMessage> DoGetList(SearchTextCriteriaModel criteria)
+		protected override IQueryable<CommonMessage> DoGetList(SearchTextCriteriaModel criteria)
 		{
-			IQueryable<CommonMessage> result = CurrentUser.CommonMessages.AsQueryable();
-
 			var predicate = PredicateBuilder.True<CommonMessage>();
+
+            predicate = predicate.And(p => p.CreatedUserId == CurrentUserId);
+
 			var searchText = criteria.SearchText;
 			if (!string.IsNullOrEmpty(searchText))
 			{
@@ -33,14 +32,11 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 predicate = predicate.And(innerPredicate);
 			}
-			result = result.AsExpandable().Where(predicate);
 
-			return result.OrderByDescending(p => p.Id);
-		}
-
-		protected override CommonMessage DoGet(int id)
-		{
-			return CurrentUser.CommonMessages.Where(p => p.Id == id).FirstOrDefault();
+            return this.repository.DbSet
+                       .AsExpandable()
+                       .Where(predicate)
+                       .OrderByDescending(p => p.Id);
 		}
 
 		protected override CommonMessage DoCreate(CommonMessageModel model, CommonMessage entity, out int id)
@@ -49,7 +45,7 @@ namespace EFunTech.Sms.Portal.Controllers
 			entity.Subject = model.Subject;
 			entity.Content = model.Content;
             entity.UpdatedTime = DateTime.UtcNow;
-			entity.CreatedUser = CurrentUser;
+			entity.CreatedUserId = CurrentUserId;
 
 			entity = this.repository.Insert(entity);
 			id = entity.Id;
@@ -59,27 +55,18 @@ namespace EFunTech.Sms.Portal.Controllers
 
 		protected override void DoUpdate(CommonMessageModel model, int id, CommonMessage entity)
 		{
-			if (!CurrentUser.CommonMessages.Any(p => p.Id == id))
-				return;
-
             entity.UpdatedTime = DateTime.UtcNow;
 
 			this.repository.Update(entity);
 		}
 
-		protected override void DoRemove(int id, CommonMessage entity)
+		protected override void DoRemove(int id)
 		{
-			if (!CurrentUser.CommonMessages.Any(p => p.Id == id))
-				return;
-
-			this.repository.Delete(entity);
+			this.repository.Delete(p=> p.Id == id);
 		}
 
-		protected override void DoRemove(List<int> ids, List<CommonMessage> entities)
+		protected override void DoRemove(int[] ids)
 		{
-			if (!CurrentUser.CommonMessages.Any(p => ids.Contains(p.Id)))
-				return;
-
 			this.repository.Delete(p => ids.Contains(p.Id));
 		}
 

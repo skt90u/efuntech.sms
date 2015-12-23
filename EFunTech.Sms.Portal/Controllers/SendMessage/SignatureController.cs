@@ -4,8 +4,6 @@ using System.Linq;
 using EFunTech.Sms.Portal.Controllers.Common;
 using EFunTech.Sms.Portal.Models.Common;
 using JUtilSharp.Database;
-
-using System.Collections.Generic;
 using LinqKit;
 using System;
 
@@ -18,12 +16,13 @@ namespace EFunTech.Sms.Portal.Controllers
 		{
 		}
 
-		protected override IOrderedQueryable<Signature> DoGetList(SearchTextCriteriaModel criteria)
+		protected override IQueryable<Signature> DoGetList(SearchTextCriteriaModel criteria)
 		{
-			IQueryable<Signature> result = CurrentUser.Signatures.AsQueryable();
-
 			var predicate = PredicateBuilder.True<Signature>();
-			var searchText = criteria.SearchText;
+            
+            predicate = predicate.And(p => p.CreatedUserId == CurrentUserId);
+            
+            var searchText = criteria.SearchText;
 			if (!string.IsNullOrEmpty(searchText))
 			{
                 var innerPredicate = PredicateBuilder.False<Signature>();
@@ -33,14 +32,11 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 predicate = predicate.And(innerPredicate);
 			}
-			result = result.AsExpandable().Where(predicate);
 
-			return result.OrderByDescending(p => p.Id);
-		}
-
-		protected override Signature DoGet(int id)
-		{
-			return CurrentUser.Signatures.Where(p => p.Id == id).FirstOrDefault();
+            return this.repository.DbSet
+                       .AsExpandable()
+                       .Where(predicate)
+                       .OrderByDescending(p => p.Id);
 		}
 
 		protected override Signature DoCreate(SignatureModel model, Signature entity, out int id)
@@ -49,7 +45,7 @@ namespace EFunTech.Sms.Portal.Controllers
 			entity.Subject = model.Subject;
 			entity.Content = model.Content;
             entity.UpdatedTime = DateTime.UtcNow;
-			entity.CreatedUser = CurrentUser;
+            entity.CreatedUserId = CurrentUserId;
 
 			entity = this.repository.Insert(entity);
 			id = entity.Id;
@@ -59,29 +55,20 @@ namespace EFunTech.Sms.Portal.Controllers
 
 		protected override void DoUpdate(SignatureModel model, int id, Signature entity)
 		{
-			if (!CurrentUser.Signatures.Any(p => p.Id == id))
-				return;
-
             entity.UpdatedTime = DateTime.UtcNow;
 
 			this.repository.Update(entity);
 		}
 
-		protected override void DoRemove(int id, Signature entity)
-		{
-			if (!CurrentUser.Signatures.Any(p => p.Id == id))
-				return;
+        protected override void DoRemove(int id)
+        {
+            this.repository.Delete(p => p.Id == id);
+        }
 
-			this.repository.Delete(entity);
-		}
-
-		protected override void DoRemove(List<int> ids, List<Signature> entities)
-		{
-			if (!CurrentUser.Signatures.Any(p => ids.Contains(p.Id)))
-				return;
-
-			this.repository.Delete(p => ids.Contains(p.Id));
-		}
+        protected override void DoRemove(int[] ids)
+        {
+            this.repository.Delete(p => ids.Contains(p.Id));
+        }
 
 	}
 }

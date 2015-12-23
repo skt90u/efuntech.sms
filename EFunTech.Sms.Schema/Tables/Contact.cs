@@ -73,16 +73,13 @@ namespace EFunTech.Sms.Schema
         // 解決方式是在 CommonContactsController.cs 以及 AllContactsController.cs 複寫 CrudApiController.ConvertModel 對於Groups為空的資料進行查詢並回存，而不使用AutoMapper
         public string Groups { get; set; }
 
-        // 原本設定方式 (手動指定ForeignKey)
-        //[Required]
-        //[ColumnDescription("建立者")]
-        //[MaxLength(256), ForeignKey("CreatedUser")]
-        //public string CreatedUserId { get; set; }
-        //public virtual ApplicationUser CreatedUser { get; set; } 
-
-        // 後來設定方式 (Add-Migration 自動建立 ForeignKey)
         [Required]
-        public virtual ApplicationUser CreatedUser { get; set; } 
+        [ColumnDescription("建立者")]
+        [MaxLength(256), ForeignKey("CreatedUser")]
+        [Index("IX_Contact_CreatedUserId")]
+        public string CreatedUserId { get; set; }
+
+        public virtual ApplicationUser CreatedUser { get; set; }
 
         public virtual ICollection<GroupContact> GroupContacts { get; set; }
     }

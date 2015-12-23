@@ -24,7 +24,7 @@ namespace EFunTech.Sms.Portal.Controllers
 		{
 		}
 
-        //protected override IOrderedQueryable<ApplicationUser> DoGetList(DepartmentPointManagerCriteriaModel criteria)
+        //protected override IQueryable<ApplicationUser> DoGetList(DepartmentPointManagerCriteriaModel criteria)
         //{
         //    // 尋找目前使用者以及目前使用者的子帳號
         //    var result = this.repository.GetMany(p => p.ParentId == CurrentUser.Id || p.Id == CurrentUser.Id).AsQueryable();
@@ -50,7 +50,7 @@ namespace EFunTech.Sms.Portal.Controllers
         /// </summary>
         /// <param name="criteria">The criteria.</param>
         /// <returns></returns>
-        protected override IOrderedQueryable<ApplicationUser> DoGetList(DepartmentPointManagerCriteriaModel criteria)
+        protected override IQueryable<ApplicationUser> DoGetList(DepartmentPointManagerCriteriaModel criteria)
         {
             // 尋找目前使用者以及目前使用者的子帳號或孫帳號
             List<ApplicationUser> users = this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUser);
@@ -93,12 +93,12 @@ namespace EFunTech.Sms.Portal.Controllers
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(string id, ApplicationUser entity)
+		protected override void DoRemove(string id)
 		{
             throw new NotImplementedException();
 		}
 
-		protected override void DoRemove(List<string> ids, List<ApplicationUser> entities)
+        protected override void DoRemove(string[] ids)
 		{
             throw new NotImplementedException();
 		}
@@ -107,7 +107,7 @@ namespace EFunTech.Sms.Portal.Controllers
         {
             foreach (var model in models)
             {
-                var isCurrentUser = model.Id == CurrentUser.Id;
+                var isCurrentUser = model.Id == CurrentUserId;
                 model.CanAllotPoint = !isCurrentUser;
                 model.Checked = false;
                 if(model.AllotSetting == null){
@@ -141,7 +141,7 @@ namespace EFunTech.Sms.Portal.Controllers
             {
                 using (TransactionScope scope = this.unitOfWork.CreateTransactionScope())
                 {
-                    var src = this.repository.GetById(CurrentUser.Id);
+                    var src = this.repository.GetById(CurrentUserId);
                     var dsts = this.repository.GetMany(p => model.ids.Contains(p.Id)).ToList(); // 已經開啟一個與這個 Command 相關的 DataReader，必須先將它關閉
                     this.tradeService.AllotPoint(src, dsts, model.point);
                     scope.Complete();
