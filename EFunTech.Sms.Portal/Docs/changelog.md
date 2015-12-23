@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Add - 2015-12-23
+- 隱藏【訊息類型】欄位
+- 解決無法【匯出】的問題
+- 發送查詢加上【檢視】欄位功能
+
 ## Fixed - 2015-12-13
 - 修正相對路徑設定
 	* (ServerSide) 將 /SendMessage 改成 SendMessage
