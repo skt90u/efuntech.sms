@@ -38,7 +38,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 predicate = predicate.And(innerPredicate);
             }
 
-            var result = this.repository.DbSet
+            var result = context.Set<Blacklist>()
                             .AsExpandable()
                             .Where(predicate)
                             .OrderByDescending(p => p.Id);
@@ -61,30 +61,29 @@ namespace EFunTech.Sms.Portal.Controllers
             entity.CreatedUserId = CurrentUserId;
             entity.UpdatedUserName = CurrentUserName;
 
-            entity = this.repository.Insert(entity);
-            id = entity.Id;
-
+            entity = await context.InsertAsync(entity);
+            
             return entity;
         }
 
-        protected override void DoUpdate(BlacklistModel model, int id, Blacklist entity)
+        protected override async Task<int> DoUpdate(BlacklistModel model, int id, Blacklist entity)
         {
             entity.E164Mobile = MobileUtil.GetE164PhoneNumber(model.Mobile);
             entity.Region = MobileUtil.GetRegionName(model.Mobile);
             entity.UpdatedTime = DateTime.UtcNow;
             entity.UpdatedUserName = CurrentUserName;
 
-            this.repository.Update(entity);
+            return await context.UpdateAsync(entity);
         }
 
-        protected override void DoRemove(int id)
+        protected override async Task<int> DoRemove(int id) 
         {
-            this.repository.Delete(p => p.Id == id);
+            return await context.DeleteAsync<Blacklist>(p => p.Id == id);
         }
 
-        protected override void DoRemove(int[] ids)
+        protected override async Task<int> DoRemove(int[] ids) 
         {
-            this.repository.Delete(p => ids.Contains(p.Id));
+            return await context.DeleteAsync<Blacklist>(p => ids.Contains(p.Id));
         }
 
         protected override IEnumerable<BlacklistModel> ConvertModel(IEnumerable<BlacklistModel> models)

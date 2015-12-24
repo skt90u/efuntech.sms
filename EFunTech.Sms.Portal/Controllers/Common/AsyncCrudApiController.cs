@@ -37,13 +37,9 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         where TModel : new()
         where TEntity : class
     {
-        protected IRepository<TEntity> repository;
-
-
         protected AsyncCrudApiController(IUnitOfWork unitOfWork, ILogService logService)
             : base(unitOfWork, logService)
         {
-            this.repository = this.unitOfWork.Repository<TEntity>();
         }
 
         /// <summary>
@@ -292,7 +288,11 @@ namespace EFunTech.Sms.Portal.Controllers.Common
 
         #region Create
 
-        protected virtual async Task<TEntity> DoCreate(TModel model, TEntity entity) { return await Task.FromResult(default(TEntity)); }
+        protected virtual async Task<TEntity> DoCreate(TModel model, TEntity entity) 
+        {
+            throw new NotImplementedException();
+        }
+
         // POST api/<controller>
         /// <summary>
         /// .新增資料
@@ -302,13 +302,17 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         [System.Web.Http.HttpPost]
         public virtual async Task<HttpResponseMessage> Create([FromBody]TModel model)
         {
-        https://mail.google.com/mail/u/0/#inbox/151cfacccc962847
-        http://blogs.msdn.com/b/webdev/archive/2013/09/18/scaffolding-asynchronous-mvc-and-web-api-controllers-for-entity-framework-6.aspx
             try
             {
                 TEntity entity = Mapper.Map<TModel, TEntity>(model);
 
-                using (TransactionScope scope = this.unitOfWork.CreateTransactionScope())
+                //using (TransactionScope scope = this.unitOfWork.CreateTransactionScope())
+                //{
+                //    entity = await DoCreate(model, entity);
+                //    scope.Complete();
+                //}
+
+                using (TransactionScope scope = context.CreateTransactionScope())
                 {
                     entity = await DoCreate(model, entity);
                     scope.Complete();
@@ -342,8 +346,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
 
         #region Update
 
-        //protected abstract async Task DoUpdate(TModel model, TIdentity id, TEntity entity);
-        protected virtual async Task DoUpdate(TModel model, TIdentity id, TEntity entity) { }
+        protected virtual async Task<int> DoUpdate(TModel model, TIdentity id, TEntity entity) { throw new NotImplementedException(); }
         // PUT api/<controller>/{id}
         /// <summary>
         /// 更新資料.
@@ -385,10 +388,8 @@ namespace EFunTech.Sms.Portal.Controllers.Common
 
         #region Delete
 
-        //protected abstract async Task DoRemove(TIdentity[] ids);
-        //protected abstract async Task DoRemove(TIdentity id);
-        protected virtual async Task DoRemove(TIdentity[] ids) { }
-        protected virtual async Task DoRemove(TIdentity id) { }
+        protected virtual async Task<int> DoRemove(TIdentity[] ids) { throw new NotImplementedException(); }
+        protected virtual async Task<int> DoRemove(TIdentity id) { throw new NotImplementedException(); }
         // DELETE api/<controller>/{idsWithComma}
         /// <summary>
         /// 刪除多筆資料.
@@ -445,7 +446,16 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         }
        
         #endregion
+
+        protected ApplicationDbContext context
+        {
+            get
+            {
+                return (ApplicationDbContext)this.unitOfWork.DbContext;
+            }
+        }
     }
 
+    
  
 }
