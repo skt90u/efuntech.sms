@@ -23,8 +23,6 @@ namespace EFunTech.Sms.Portal.Models
 
         public string UpdatedUserName { get; set; }
 
-        public string DecoratedValue_SequenceNo { get; set; }
-        public string DecoratedValue_Enabled { get; set; }
-        public string DecoratedValue_UpdatedTime { get; set; }
+        
 	}
 }

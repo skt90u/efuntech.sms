@@ -3,19 +3,17 @@ using EFunTech.Sms.Schema;
 using System.Linq;
 using EFunTech.Sms.Portal.Controllers.Common;
 using EFunTech.Sms.Portal.Models.Common;
-using JUtilSharp.Database;
-
-using System.Collections.Generic;
 using System;
 using LinqKit;
 using System.Threading.Tasks;
+using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
     public class BlacklistController : AsyncCrudApiController<SearchTextCriteriaModel, BlacklistModel, Blacklist, int>
     {
-        public BlacklistController(IUnitOfWork unitOfWork, ILogService logService)
-            : base(unitOfWork, logService)
+        public BlacklistController(DbContext context, ILogService logService)
+            : base(context, logService)
         {
         }
 
@@ -84,20 +82,6 @@ namespace EFunTech.Sms.Portal.Controllers
         protected override async Task<int> DoRemove(int[] ids) 
         {
             return await context.DeleteAsync<Blacklist>(p => ids.Contains(p.Id));
-        }
-
-        protected override IEnumerable<BlacklistModel> ConvertModel(IEnumerable<BlacklistModel> models)
-        {
-            int index = 0;
-            foreach (var model in models)
-            {
-                model.DecoratedValue_SequenceNo = (index + 1).ToString();
-                model.DecoratedValue_Enabled = model.Enabled ? "¶}±Ò" : "Ãö³¬";
-                model.DecoratedValue_UpdatedTime = model.UpdatedTime.ToString("yyyy/MM/dd HH:mm");
-
-                index++;
-            }
-            return models;
         }
     }
 }

@@ -2,27 +2,24 @@ using EFunTech.Sms.Portal.Models;
 using EFunTech.Sms.Schema;
 using System.Linq;
 using EFunTech.Sms.Portal.Controllers.Common;
-using EFunTech.Sms.Portal.Models.Common;
-using JUtilSharp.Database;
-
-using System.Collections.Generic;
 using LinqKit;
 using EFunTech.Sms.Portal.Models.Criteria;
-using System;
+using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class ContactNotInGroupController : CrudApiController<ContactNotInGroupCriteriaModel, ContactModel, Contact, int>
+    public class ContactNotInGroupController : AsyncCrudApiController<ContactNotInGroupCriteriaModel, ContactModel, Contact, int>
 	{
         private ISystemParameters systemParameters;
 
-        public ContactNotInGroupController(ISystemParameters systemParameters, IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
+        public ContactNotInGroupController(ISystemParameters systemParameters, DbContext context, ILogService logService)
+			: base(context, logService)
 		{
             this.systemParameters = systemParameters;
-		}
+        }
 
-		protected override IQueryable<Contact> DoGetList(ContactNotInGroupCriteriaModel criteria)
+        protected override IQueryable<Contact> DoGetList(ContactNotInGroupCriteriaModel criteria)
 		{
             var predicate = PredicateBuilder.True<Contact>();
 
@@ -63,47 +60,33 @@ namespace EFunTech.Sms.Portal.Controllers
                 predicate = predicate.And(p => !p.GroupContacts.Any(pp => pp.GroupId == criteria.GroupId));
             }
 
-            var result = this.repository.DbSet.AsExpandable().Where(predicate).OrderByDescending(p => p.Id);
+            var result = context.Set<Contact>()
+                            .AsExpandable()
+                            .Where(predicate)
+                            .OrderByDescending(p => p.Id);
 
             return result;
-		}
-
-		protected override Contact DoCreate(ContactModel model, Contact entity, out int id)
-		{
-            throw new NotImplementedException();
 		}
 
         /// <summary>
         /// 將聯絡人加入至指定群組中
         /// </summary>
-		protected override void DoUpdate(ContactModel model, int id, Contact entity)
+        protected override async Task<int> DoUpdate(ContactModel model, int id, Contact entity)
 		{
-            GroupContact result = this.unitOfWork.Repository<GroupContact>().Get(p => p.ContactId == model.Id && p.GroupId == model.JoinToGroupId);
-
-            if (result == null)
+            if(!context.Set<GroupContact>().Any(p => p.ContactId == model.Id && p.GroupId == model.JoinToGroupId))
             {
                 // 將聯絡人加入至指定群組中
-                var groupContactRepository = this.unitOfWork.Repository<GroupContact>();
                 var groupContact = new GroupContact();
                 groupContact.GroupId = model.JoinToGroupId;
                 groupContact.ContactId = entity.Id;
-                groupContact = groupContactRepository.Insert(groupContact);
+                groupContact = await context.InsertAsync(groupContact);
 
                 // 更新群組快取
-                entity.Groups = string.Join(",", groupContactRepository.GetMany(p => p.ContactId == model.Id).Select(p => p.Group.Name));
-                this.repository.Update(entity);
+                entity.Groups = string.Join(",", context.Set<GroupContact>().Where(p => p.ContactId == model.Id).Select(p => p.Group.Name));
+                return await context.UpdateAsync(entity);
             }
-		}
 
-		protected override void DoRemove(int id)
-		{
-            throw new NotImplementedException();
+            return 0;
 		}
-
-        protected override void DoRemove(int[] ids)
-		{
-            throw new NotImplementedException();
-		}
-
 	}
 }

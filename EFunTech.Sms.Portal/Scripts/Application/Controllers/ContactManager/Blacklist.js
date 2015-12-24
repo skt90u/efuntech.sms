@@ -19,13 +19,20 @@
                 useExternalSorting: true,
                 enableColumnMenus: false,
                 columnDefs: [
-					{ name: 'DecoratedValue_SequenceNo', displayName: '編號' },
 					{ name: 'Name', displayName: '姓名' },
 					{ name: 'Mobile', displayName: '行動電話' },
                     { name: 'Region', displayName: '發送地區' },
-					{ name: 'DecoratedValue_Enabled', displayName: '開啟/關閉' },
+                    {
+                        name: 'Enabled',
+                        displayName: '開啟/關閉',
+                        cellTemplate: '<div class="ui-grid-cell-contents">{{ row.entity.Enabled && "開啟" || "關閉" }}</div>',
+                    },
 					{ name: 'UpdatedUserName', displayName: '設定人' },
-					{ name: 'DecoratedValue_UpdatedTime', displayName: '設定日期' },
+                    {
+                        name: 'UpdatedTime',
+                        displayName: '設定日期',
+                        cellTemplate: '<div class="ui-grid-cell-contents">{{ row.entity.UpdatedTime | UtcToLocalTimeFilter: "YYYY/MM/DD HH:mm" }}</div>',
+                    },
 					{ name: 'Remark', displayName: '備註' },
 					{
 					    name: 'Maintain',

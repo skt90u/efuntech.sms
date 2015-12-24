@@ -2,22 +2,21 @@ using EFunTech.Sms.Portal.Models;
 using EFunTech.Sms.Schema;
 using System.Linq;
 using EFunTech.Sms.Portal.Controllers.Common;
-using EFunTech.Sms.Portal.Models.Common;
-using JUtilSharp.Database;
 
 using System.Collections.Generic;
 using LinqKit;
-using System;
 using EFunTech.Sms.Portal.Models.Criteria;
+using System.Threading.Tasks;
+using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class GroupController : CrudApiController<GroupCriteriaModel, GroupModel, Group, int>
+    public class GroupController : AsyncCrudApiController<GroupCriteriaModel, GroupModel, Group, int>
 	{
         private ISystemParameters systemParameters;
 
-        public GroupController(ISystemParameters systemParameters, IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
+        public GroupController(ISystemParameters systemParameters, DbContext context, ILogService logService)
+			: base(context, logService)
 		{
             this.systemParameters = systemParameters;
 		}
@@ -39,26 +38,9 @@ namespace EFunTech.Sms.Portal.Controllers
                 predicate = predicate.And(innerPredicate);
 			}
 
-            var result = this.repository.DbSet.AsExpandable().Where(predicate);
-
-            //if (criteria.IncludeAllGroup)
-            //{
-            //    var list = result.OrderByDescending(p => p.Id).ToList();
-
-            //    list.Insert(0, new Group
-            //    {
-            //        Id = 0, // Id = 0 stand for All Group
-            //        Name = "AllGroup",
-            //        Description = "所有群組",
-            //        Deletable = false,
-            //    });
-
-            //    return list.AsQueryable().OrderBy(p => p.Id);
-            //}
-            //else
-            //{
-            //    return result.OrderBy(p => p.Id);
-            //}
+            var result = context.Set<Group>()
+                            .AsExpandable()
+                            .Where(predicate);
 
             if (criteria.IncludeAllGroup)
             {
@@ -74,7 +56,7 @@ namespace EFunTech.Sms.Portal.Controllers
             return result.OrderByDescending(p => p.Id);
 		}
 
-		protected override Group DoCreate(GroupModel model, Group entity, out int id)
+        protected override async Task<Group> DoCreate(GroupModel model, Group entity)
 		{
 			entity = new Group();
             entity.CreatedUserId = CurrentUserId;
@@ -82,58 +64,48 @@ namespace EFunTech.Sms.Portal.Controllers
 			entity.Description = model.Description;
 			entity.Deletable = true;
 
-			entity = this.repository.Insert(entity);
-			id = entity.Id;
+            entity = await context.InsertAsync(entity);
 
 			return entity;
 		}
 
-		protected override void DoUpdate(GroupModel model, int id, Group entity)
+        protected override async Task<int> DoUpdate(GroupModel model, int id, Group entity)
 		{
-			this.repository.Update(entity);
+            return await context.UpdateAsync(entity);
 		}
 
-		protected override void DoRemove(int id)
+        protected override async Task<int> DoRemove(int id)
 		{
             var groupId = id;
 
-            var groupContactRepository = this.unitOfWork.Repository<GroupContact>();
-            var sharedGroupContactRepository = this.unitOfWork.Repository<SharedGroupContact>();
-            var contactRepository = this.unitOfWork.Repository<Contact>();
-            
             if (systemParameters.ContactAtMostOneGroup) // 聯絡人只能對應至一個群組
             {
-                var contactIds = groupContactRepository.DbSet.Where(p => p.GroupId == groupId).Select(p => p.ContactId).ToList();
+                var contactIds = context.Set<GroupContact>().Where(p => p.GroupId == groupId).Select(p => p.ContactId).ToList();
 
                 // 刪除聯絡人與這個群組對應關係
-                groupContactRepository.Delete(p => p.GroupId == groupId);
+                await context.DeleteAsync<GroupContact>(p => p.GroupId == groupId);
 
                 // 刪除這個群組內所有聯絡人
                 if (contactIds.Count != 0)
-                    contactRepository.Delete(p => contactIds.Contains(p.Id));
+                    await context.DeleteAsync<Contact>(p => contactIds.Contains(p.Id));
 
                 // 分享聯絡人 - 刪除其他帳號與這個群組的分享關係
-                sharedGroupContactRepository.Delete(p => p.GroupId == groupId);
+                await context.DeleteAsync<SharedGroupContact>(p => p.GroupId == groupId);
 
                 // 刪除群組
-                this.repository.Delete(p => p.Id == groupId);
+                return await context.DeleteAsync<Group>(p => p.Id == groupId);
             }
             else
             {
                 // 刪除聯絡人與這個群組對應關係
-                groupContactRepository.Delete(p => p.GroupId == groupId);
+                await context.DeleteAsync<GroupContact>(p => p.GroupId == groupId);
 
                 // 分享聯絡人 - 刪除其他帳號與這個群組的分享關係
-                sharedGroupContactRepository.Delete(p => p.GroupId == groupId);
+                await context.DeleteAsync<SharedGroupContact>(p => p.GroupId == groupId);
 
                 // 刪除群組            
-                this.repository.Delete(p => p.Id == groupId);
+                return await context.DeleteAsync<Group>(p => p.Id == groupId);
             }
-		}
-
-        protected override void DoRemove(int[] ids)
-		{
-            throw new NotImplementedException();
 		}
 
         protected override IEnumerable<GroupModel> ConvertModel(IEnumerable<GroupModel> models)

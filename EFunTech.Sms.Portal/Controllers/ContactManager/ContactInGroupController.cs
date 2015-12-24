@@ -2,24 +2,21 @@ using EFunTech.Sms.Portal.Models;
 using EFunTech.Sms.Schema;
 using System.Linq;
 using EFunTech.Sms.Portal.Controllers.Common;
-using EFunTech.Sms.Portal.Models.Common;
-using JUtilSharp.Database;
-
-using System.Collections.Generic;
 using LinqKit;
 using EFunTech.Sms.Portal.Models.Criteria;
-using System;
+using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class ContactInGroupController : CrudApiController<ContactInGroupCriteriaModel, ContactModel, Contact, int>
+    public class ContactInGroupController : AsyncCrudApiController<ContactInGroupCriteriaModel, ContactModel, Contact, int>
 	{
-		public ContactInGroupController(IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
+        public ContactInGroupController(DbContext context, ILogService logService)
+			: base(context, logService)
 		{
-		}
+        }
 
-		protected override IQueryable<Contact> DoGetList(ContactInGroupCriteriaModel criteria)
+        protected override IQueryable<Contact> DoGetList(ContactInGroupCriteriaModel criteria)
 		{
 			var predicate = PredicateBuilder.True<Contact>();
 
@@ -50,7 +47,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 predicate = predicate.And(innerPredicate);
 			}
 
-            var result = this.repository.DbSet
+            var result = context.Set<Contact>()
                             .AsExpandable()
                             .Where(predicate)
                             .OrderByDescending(p => p.Id);
@@ -58,34 +55,17 @@ namespace EFunTech.Sms.Portal.Controllers
 			return result;
 		}
 
-		protected override Contact DoCreate(ContactModel model, Contact entity, out int id)
-		{
-            throw new NotImplementedException();
-		}
-
         /// <summary>
         /// 將聯絡人由指定群組中移除
         /// </summary>
-		protected override void DoUpdate(ContactModel model, int id, Contact entity)
+        protected override async Task<int> DoUpdate(ContactModel model, int id, Contact entity)
 		{
             // 將聯絡人由指定群組中移除
-            var groupContactRepository = this.unitOfWork.Repository<GroupContact>();
-            groupContactRepository.Delete(p => p.ContactId == model.Id && p.GroupId == model.RemoveFromGroupId);
+            await context.DeleteAsync<GroupContact>(p => p.ContactId == model.Id && p.GroupId == model.RemoveFromGroupId);
 
             // 更新群組快取
-            entity.Groups = string.Join(",", groupContactRepository.GetMany(p => p.ContactId == model.Id).Select(p => p.Group.Name));
-            this.repository.Update(entity);
-		}
-
-        /// </summary>
-		protected override void DoRemove(int id)
-		{
-            throw new NotImplementedException();
-		}
-
-        protected override void DoRemove(int[] ids)
-		{
-            throw new NotImplementedException();
+            entity.Groups = string.Join(",", context.Set<GroupContact>().Where(p => p.ContactId == model.Id).Select(p => p.Group.Name));
+            return await context.UpdateAsync(entity);
 		}
 
 	}

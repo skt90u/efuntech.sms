@@ -9,20 +9,23 @@ using System.Collections.Generic;
 using LinqKit;
 using System;
 using EFunTech.Sms.Portal.Models.Criteria;
+using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class UserInSharedGroupController : CrudApiController<UserInSharedGroupCriteriaModel, ApplicationUserModel, ApplicationUser, string>
+	public class UserInSharedGroupController : AsyncCrudApiController<UserInSharedGroupCriteriaModel, ApplicationUserModel, ApplicationUser, string>
 	{
-		public UserInSharedGroupController(IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
+        public UserInSharedGroupController(DbContext context, ILogService logService)
+			: base(context, logService)
 		{
-		}
+        }
 
-		protected override IQueryable<ApplicationUser> DoGetList(UserInSharedGroupCriteriaModel criteria)
+        protected override IQueryable<ApplicationUser> DoGetList(UserInSharedGroupCriteriaModel criteria)
 		{
-            //IQueryable<ApplicationUser> result = this.unitOfWork.Repository<SharedGroupContact>().GetMany(p => p.GroupId == criteria.GroupId).Select(p => p.ShareToUser).AsQueryable();
-            var userIds = this.unitOfWork.Repository<SharedGroupContact>().DbSet.Where(p => p.GroupId == criteria.GroupId).Select(p => p.ShareToUserId);
+            var userIds = context.Set<SharedGroupContact>()
+                            .Where(p => p.GroupId == criteria.GroupId)
+                            .Select(p => p.ShareToUserId);
             
             var predicate = PredicateBuilder.True<ApplicationUser>();
 
@@ -61,7 +64,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 predicate = predicate.And(innerPredicate);
             }
 
-            var result = this.repository.DbSet
+            var result = context.Set<ApplicationUser>()
                             .AsExpandable()
                             .Where(predicate)
                             .OrderByDescending(p => p.Id);
@@ -69,34 +72,23 @@ namespace EFunTech.Sms.Portal.Controllers
             return result;
 		}
 
-		protected override ApplicationUser DoGet(string id)
-		{
-            var result = this.unitOfWork.Repository<SharedGroupContact>().Get(p => p.ShareToUserId == id);
+        public override async Task<ApplicationUser> DoGet(string id)
+        {
+            var result = await context.Set<SharedGroupContact>().FirstOrDefaultAsync(p => p.ShareToUserId == id);
 
             return result != null ? result.ShareToUser : null;
+        }
+
+		protected override async Task<int> DoUpdate(ApplicationUserModel model, string id, ApplicationUser entity)
+		{
+            SharedGroupContact sharedGroupContact = await context.Set<SharedGroupContact>().FirstOrDefaultAsync(p => p.GroupId == model.SharedGroupId && p.ShareToUserId == model.Id);
+            if (sharedGroupContact != null)
+                return await context.DeleteAsync(sharedGroupContact);
+            else
+                return 0;
 		}
 
-		protected override ApplicationUser DoCreate(ApplicationUserModel model, ApplicationUser entity, out string id)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoUpdate(ApplicationUserModel model, string id, ApplicationUser entity)
-		{
-            SharedGroupContact sharedGroupContact = this.unitOfWork.Repository<SharedGroupContact>().Get(p => p.GroupId == model.SharedGroupId && p.ShareToUserId == model.Id);
-            if(sharedGroupContact != null)
-                this.unitOfWork.Repository<SharedGroupContact>().Delete(sharedGroupContact);
-		}
-
-		protected override void DoRemove(string id)
-		{
-            throw new NotImplementedException();
-		}
-
-        protected override void DoRemove(string[] ids)
-		{
-            throw new NotImplementedException();
-		}
+		
 
 	}
 }

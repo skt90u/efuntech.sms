@@ -16,15 +16,15 @@ namespace EFunTech.Sms.Portal
         {
             return new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            return new TransactionScope(
-                // a new transaction will always be created
-                TransactionScopeOption.RequiresNew,
-                // we will allow volatile data to be read during transaction
-                new TransactionOptions()
-                {
-                    IsolationLevel = IsolationLevel.ReadUncommitted
-                }
-            );
+            //return new TransactionScope(
+            //    // a new transaction will always be created
+            //    TransactionScopeOption.RequiresNew,
+            //    // we will allow volatile data to be read during transaction
+            //    new TransactionOptions()
+            //    {
+            //        IsolationLevel = IsolationLevel.ReadUncommitted
+            //    }
+            //);
         }
 
         public static async Task<TEntity> InsertAsync<TEntity>(this DbContext context, TEntity entity)

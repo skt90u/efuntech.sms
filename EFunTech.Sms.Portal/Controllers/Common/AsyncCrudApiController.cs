@@ -32,13 +32,13 @@ using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers.Common
 {
-    public abstract class AsyncCrudApiController<TCriteria, TModel, TEntity, TIdentity> : ApiControllerBase
+    public abstract class AsyncCrudApiController<TCriteria, TModel, TEntity, TIdentity> : AsyncApiControllerBase
         where TCriteria : new()
         where TModel : new()
         where TEntity : class
     {
-        protected AsyncCrudApiController(IUnitOfWork unitOfWork, ILogService logService)
-            : base(unitOfWork, logService)
+        protected AsyncCrudApiController(DbContext context, ILogService logService)
+            : base(context, logService)
         {
         }
 
@@ -268,7 +268,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
 
         public virtual async Task<TEntity> DoGet(TIdentity id)
         {
-            return await this.unitOfWork.Repository<TEntity>().DbSet.FindAsync(id);
+            return await context.Set<TEntity>().FindAsync(id);
         }
 
         [System.Web.Http.HttpGet]
@@ -305,12 +305,6 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             try
             {
                 TEntity entity = Mapper.Map<TModel, TEntity>(model);
-
-                //using (TransactionScope scope = this.unitOfWork.CreateTransactionScope())
-                //{
-                //    entity = await DoCreate(model, entity);
-                //    scope.Complete();
-                //}
 
                 using (TransactionScope scope = context.CreateTransactionScope())
                 {
@@ -368,7 +362,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
 
                 Mapper.Map(model, entity);
 
-                using (TransactionScope scope = this.unitOfWork.CreateTransactionScope())
+                using (TransactionScope scope = context.CreateTransactionScope())
                 {
                     await DoUpdate(model, id, entity);
                     scope.Complete();
@@ -399,7 +393,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         {
             try
             {
-                using (TransactionScope scope = this.unitOfWork.CreateTransactionScope())
+                using (TransactionScope scope = context.CreateTransactionScope())
                 {
                     await DoRemove(ids);
                     scope.Complete();
@@ -428,7 +422,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         {
             try
             {
-                using (TransactionScope scope = this.unitOfWork.CreateTransactionScope())
+                using (TransactionScope scope = context.CreateTransactionScope())
                 {
                     await DoRemove(id);
                     scope.Complete();
@@ -446,14 +440,6 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         }
        
         #endregion
-
-        protected ApplicationDbContext context
-        {
-            get
-            {
-                return (ApplicationDbContext)this.unitOfWork.DbContext;
-            }
-        }
     }
 
     

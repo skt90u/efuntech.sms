@@ -9,17 +9,19 @@ using System.Collections.Generic;
 using LinqKit;
 using EFunTech.Sms.Portal.Models.Criteria;
 using System;
+using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class UserNotInSharedGroupController : CrudApiController<UserNotInSharedGroupCriteriaModel, ApplicationUserModel, ApplicationUser, string>
+	public class UserNotInSharedGroupController : AsyncCrudApiController<UserNotInSharedGroupCriteriaModel, ApplicationUserModel, ApplicationUser, string>
 	{
-		public UserNotInSharedGroupController(IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
+        public UserNotInSharedGroupController(DbContext context, ILogService logService)
+			: base(context, logService)
 		{
-		}
+        }
 
-		protected override IQueryable<ApplicationUser> DoGetList(UserNotInSharedGroupCriteriaModel criteria)
+        protected override IQueryable<ApplicationUser> DoGetList(UserNotInSharedGroupCriteriaModel criteria)
 		{
             var predicate = PredicateBuilder.True<ApplicationUser>();
             var searchText = criteria.SearchText;
@@ -50,13 +52,14 @@ namespace EFunTech.Sms.Portal.Controllers
 
             // 排除已經在SharedGroup之中的使用者ID
             
-            var department = this.unitOfWork.Repository<Department>().Get(p => p.Id == criteria.DepartmentId);
+            var department = context.Set<Department>().FirstOrDefault(p => p.Id == criteria.DepartmentId);
             if (department != null)
             {
                 // 有分享此群組的所有使用者ID
-                var userIds = this.unitOfWork.Repository<SharedGroupContact>().GetMany(p => p.GroupId == criteria.GroupId).Select(p => p.ShareToUserId);
+                var userIds = context.Set<SharedGroupContact>().Where(p => p.GroupId == criteria.GroupId).Select(p => p.ShareToUserId);
 
-                var result = department.Users.Where(p => !userIds.Contains(p.Id) && p.Id != CurrentUserId)
+                var result = context.Set<ApplicationUser>()
+                            .Where(p => !userIds.Contains(p.Id) && p.Id != CurrentUserId)
                             .AsQueryable()
                             .AsExpandable()
                             .Where(predicate)
@@ -70,7 +73,8 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 // 手動輸入使用者時，Client端會傳送 DepartmentId = -1，查不到指定部門，代表要所有使用者
                 
-                var result = this.unitOfWork.Repository<ApplicationUser>().GetMany(p => p.Id != CurrentUserId)
+                var result = context.Set<ApplicationUser>()
+                    .Where(p => p.Id != CurrentUserId)
                     .AsExpandable()
                     .Where(predicate)
                     .OrderByDescending(p => p.Id);
@@ -79,36 +83,17 @@ namespace EFunTech.Sms.Portal.Controllers
             }
 		}
 
-		protected override ApplicationUser DoCreate(ApplicationUserModel model, ApplicationUser entity, out string id)
+        protected override async Task<ApplicationUser> DoCreate(ApplicationUserModel model, ApplicationUser entity)
 		{
-            if (!this.unitOfWork.Repository<SharedGroupContact>().Any(p => p.GroupId == model.SharedGroupId && p.ShareToUserId == model.Id))
+            if (!context.Set<SharedGroupContact>().Any(p => p.GroupId == model.SharedGroupId && p.ShareToUserId == model.Id))
             {
                 SharedGroupContact sharedGroupContact = new SharedGroupContact();
-                //sharedGroupContact.GroupId = model.SharedGroupId;
                 sharedGroupContact.GroupId = model.SharedGroupId.Value;
                 sharedGroupContact.ShareToUserId = model.Id;
-                this.unitOfWork.Repository<SharedGroupContact>().Insert(sharedGroupContact);
+                sharedGroupContact = await context.InsertAsync(sharedGroupContact);
             }
 
-            id = model.Id;
-
             return entity;
-		}
-
-		protected override void DoUpdate(ApplicationUserModel model, string id, ApplicationUser entity)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoRemove(string id)
-		{
-            throw new NotImplementedException();
-		}
-
-        protected override void DoRemove(string[] ids)
-		{
-            throw new NotImplementedException();
-		}
-
+        }
 	}
 }

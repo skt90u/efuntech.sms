@@ -3,17 +3,21 @@ using EFunTech.Sms.Schema;
 using System.Linq;
 using EFunTech.Sms.Portal.Controllers.Common;
 using EFunTech.Sms.Portal.Models.Common;
-using JUtilSharp.Database;
 
 using System.Collections.Generic;
 using LinqKit;
 using System;
+using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class CommonContactController : CrudApiController<SearchTextCriteriaModel, ContactModel, Contact, int>
+    public class CommonContactController : AsyncCrudApiController<SearchTextCriteriaModel, ContactModel, Contact, int>
     {
-        public CommonContactController(IUnitOfWork unitOfWork, ILogService logService) : base(unitOfWork, logService) { }
+        public CommonContactController(DbContext context, ILogService logService)
+            : base(context, logService)
+        {
+        }
 
         protected override IQueryable<Contact> DoGetList(SearchTextCriteriaModel criteria)
         {
@@ -34,7 +38,7 @@ namespace EFunTech.Sms.Portal.Controllers
             predicate = predicate.And(p => p.GroupContacts.Any(pp => pp.Group.Name == Group.CommonContactGroupName));
             predicate = predicate.And(p => p.CreatedUserId == CurrentUserId);
 
-            var result = this.repository.DbSet
+            var result = context.Set<Contact>()
                             .AsExpandable()
                             .Where(predicate)
                             .OrderByDescending(p => p.Id);
@@ -42,7 +46,7 @@ namespace EFunTech.Sms.Portal.Controllers
             return result;
         }
 
-        protected override Contact DoCreate(ContactModel model, Contact entity, out int id)
+        protected override async Task<Contact> DoCreate(ContactModel model, Contact entity)
         {
             entity = new Contact();
 
@@ -67,10 +71,9 @@ namespace EFunTech.Sms.Portal.Controllers
             entity.Groups = Group.CommonContactGroupName;
             entity.CreatedUserId = CurrentUserId;
 
-            entity = this.repository.Insert(entity);
-            id = entity.Id;
+            entity = await context.InsertAsync(entity);
 
-            var group = this.unitOfWork.Repository<Group>().DbSet
+            var group = context.Set<Group>()
                 .Where(p => p.Name == Group.CommonContactGroupName && p.CreatedUserId == CurrentUserId)
                 .FirstOrDefault();
 
@@ -80,36 +83,35 @@ namespace EFunTech.Sms.Portal.Controllers
             var groupContact = new GroupContact();
             groupContact.GroupId = group.Id;
             groupContact.ContactId = entity.Id;
-            groupContact = this.unitOfWork.Repository<GroupContact>().Insert(groupContact);
+            groupContact = await context.InsertAsync(groupContact);
 
             return entity;
         }
 
-        protected override void DoUpdate(ContactModel model, int id, Contact entity)
+        protected override async Task<int> DoUpdate(ContactModel model, int id, Contact entity)
         {
             entity.E164Mobile = MobileUtil.GetE164PhoneNumber(model.Mobile);
             entity.Region = MobileUtil.GetRegionName(model.Mobile);
 
-            this.repository.Update(entity);
+            return await context.UpdateAsync(entity);
         }
 
-        protected override void DoRemove(int id)
+        protected override async Task<int> DoRemove(int id)
         {
-            this.unitOfWork.Repository<GroupContact>().Delete(p => p.ContactId == id);
-            this.repository.Delete(p => p.Id == id);
+            await context.DeleteAsync<GroupContact>(p => p.ContactId == id);
+            return await context.DeleteAsync<Contact>(p => p.Id == id);
         }
 
-        protected override void DoRemove(int[] ids)
+        protected override async Task<int> DoRemove(int[] ids)
         {
-            this.unitOfWork.Repository<GroupContact>().Delete(p => ids.Contains(p.ContactId));
-            this.repository.Delete(p => ids.Contains(p.Id));
+            await context.DeleteAsync<GroupContact>(p => ids.Contains(p.ContactId));
+            return await context.DeleteAsync<Contact>(p => ids.Contains(p.Id));
         }
 
         protected override IEnumerable<ContactModel> ConvertModel(IEnumerable<ContactModel> models)
         {
-            var groupContacts = this.unitOfWork.Repository<GroupContact>().DbSet
-                                    .Select(p => new
-                                    {
+            var groupContacts = context.Set<GroupContact>()
+                                    .Select(p => new {
                                         ContactId = p.ContactId,
                                         GroupName = p.Group.Name,
                                     }).ToList();
