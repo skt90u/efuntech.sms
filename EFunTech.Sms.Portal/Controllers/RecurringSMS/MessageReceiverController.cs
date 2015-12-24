@@ -3,7 +3,6 @@ using EFunTech.Sms.Schema;
 using System.Linq;
 using EFunTech.Sms.Portal.Controllers.Common;
 using EFunTech.Sms.Portal.Models.Common;
-using JUtilSharp.Database;
 
 using System.Collections.Generic;
 using LinqKit;
@@ -12,24 +11,25 @@ using EFunTech.Sms.Portal.Models.Criteria;
 
 using System.ComponentModel;
 using System.Data;
-using System.Reflection;
-using OfficeOpenXml;
-using System.IO;
 using AutoMapper;
-using OfficeOpenXml.Style;
-using System.Drawing;
 using EFunTech.Sms.Core;
+using System.Data.Entity;
+using JUtilSharp.Database;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class MessageReceiverController : CrudApiController<MessageReceiverCriteriaModel, MessageReceiverModel, MessageReceiver, int>
+    public class MessageReceiverController : AsyncCrudApiController<MessageReceiverCriteriaModel, MessageReceiverModel, MessageReceiver, int>
 	{
-		public MessageReceiverController(IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
-		{
-		}
+        protected TradeService tradeService;
 
-		protected override IQueryable<MessageReceiver> DoGetList(MessageReceiverCriteriaModel criteria)
+        public MessageReceiverController(DbContext context, ILogService logService)
+            : base(context, logService)
+        {
+            this.tradeService = new TradeService(new UnitOfWork(context), logService);
+        }
+
+        protected override IQueryable<MessageReceiver> DoGetList(MessageReceiverCriteriaModel criteria)
 		{
 			var predicate = PredicateBuilder.True<MessageReceiver>();
             predicate = predicate.And(p => p.SendMessageRuleId == criteria.SendMessageRuleId);
@@ -49,7 +49,7 @@ namespace EFunTech.Sms.Portal.Controllers
 				predicate = predicate.And(innerPredicate);
 			}
 
-            var result = this.repository.DbSet
+            var result = context.Set<MessageReceiver>()
                              .AsExpandable()
                              .Where(predicate)
                              .OrderByDescending(p => p.Id);
@@ -59,7 +59,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
         protected override ReportDownloadModel ProduceFile(MessageReceiverCriteriaModel criteria, IEnumerable<MessageReceiverModel> resultList)
         {
-            var sendMessageRule = this.unitOfWork.Repository<SendMessageRule>().GetById(criteria.SendMessageRuleId);
+            var sendMessageRule = context.Set<SendMessageRule>().Find(criteria.SendMessageRuleId);
             var sendMessageRuleModel = Mapper.Map<SendMessageRule, SendMessageRuleModel>(sendMessageRule);
             var sendTimeType = sendMessageRule.SendTimeType;
 
@@ -104,22 +104,12 @@ namespace EFunTech.Sms.Portal.Controllers
             }
         }
 
-		protected override MessageReceiver DoCreate(MessageReceiverModel model, MessageReceiver entity, out int id)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoUpdate(MessageReceiverModel model, int id, MessageReceiver entity)
-		{
-            throw new NotImplementedException();
-		}
-
         /// <summary>
         /// 刪除指定收訊者
         /// </summary>
-		protected override void DoRemove(int id)
+        protected override async Task<int> DoRemove(int id) 
 		{
-            MessageReceiver entity = DoGet(id);
+            MessageReceiver entity = await DoGet(id);
 
             // (1) 只能刪除自己所建立的簡訊規則
             // (2) 檢查目前簡訊狀態為 Ready 才可以執行刪除動作
@@ -129,9 +119,7 @@ namespace EFunTech.Sms.Portal.Controllers
             // (6) 設定目前簡訊狀態為 Ready 
             // (7) 判斷是否全部收訊者都刪除，如果是就刪除簡訊規則 ?
 
-            var sendMessageRuleRepository = this.unitOfWork.Repository<SendMessageRule>();
-
-            var sendMessageRule = sendMessageRuleRepository.GetById(entity.SendMessageRuleId);
+            var sendMessageRule = await context.Set<SendMessageRule>().FindAsync(entity.SendMessageRuleId);
             if (sendMessageRule == null)
                 throw new Exception("找不到對應簡訊規則");
 
@@ -139,8 +127,8 @@ namespace EFunTech.Sms.Portal.Controllers
             // (1) 只能刪除自己所建立的簡訊規則
             ////////////////////////////////////////
 
-            if (!sendMessageRuleRepository.Any(p => p.Id == sendMessageRule.Id && p.CreatedUserId == CurrentUserId))
-                return;
+            if (!context.Set<SendMessageRule>().Any(p => p.Id == sendMessageRule.Id && p.CreatedUserId == CurrentUserId))
+                return 0;
 
             ////////////////////////////////////////
             // (2) 檢查目前簡訊狀態為 Ready 才可以執行刪除動作
@@ -151,14 +139,13 @@ namespace EFunTech.Sms.Portal.Controllers
                 var description = AttributeHelper.GetColumnDescription(sendMessageRule.SendMessageRuleStatus);
                 throw new Exception(description);
             }
-
             
             ////////////////////////////////////////
             // (3) 設定目前簡訊狀態為刪除中
             ////////////////////////////////////////
 
             sendMessageRule.SendMessageRuleStatus = SendMessageRuleStatus.Deleting;
-            sendMessageRuleRepository.Update(sendMessageRule);
+            await context.UpdateAsync(sendMessageRule);
 
             ////////////////////////////////////////
             // (4) 回補目前使用者點數 + 更新目前簡訊規則總花費點數
@@ -170,14 +157,14 @@ namespace EFunTech.Sms.Portal.Controllers
             // (5) 刪除 簡訊收訊人 (MessageReceiver)
             ////////////////////////////////////////
 
-            this.repository.Delete(entity);
+            int result = await context.DeleteAsync(entity);
 
             ////////////////////////////////////////
             // (6) 設定目前簡訊狀態為 Ready 
             ////////////////////////////////////////
 
             sendMessageRule.SendMessageRuleStatus = SendMessageRuleStatus.Ready;
-            sendMessageRuleRepository.Update(sendMessageRule);
+            await context.UpdateAsync(sendMessageRule);
 
             ////////////////////////////////////////
             // (7) 判斷是否全部收訊者都刪除，如果是就刪除簡訊規則 ?
@@ -186,15 +173,20 @@ namespace EFunTech.Sms.Portal.Controllers
             //{
 
             //}
-		}
 
-        protected override void DoRemove(int[] ids)
+            return result;
+        }
+
+        protected override async Task<int> DoRemove(int[] ids) 
 		{
+            int result = 0;
             for (var i = 0; i < ids.Length; i++)
             {
-                DoRemove(ids[i]);
+                result += await DoRemove(ids[i]);
             }
-		}
+            return result;
+
+        }
 
 	}
 }

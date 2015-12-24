@@ -311,7 +311,7 @@ namespace EFunTech.Sms.Portal
             entity.RemainingSmsBalance = this.tradeService.ShouldWithhold(model.SendTimeType) ? totalMessageCostInfo.RemainingSmsBalance : user.SmsBalance;
 
             entity.CreatedTime = DateTime.UtcNow;
-            entity.CreatedUser = user;
+            entity.CreatedUserId = user.Id;
             entity.SendMessageRuleStatus = SendMessageRuleStatus.Prepare; // 正在建立簡訊規則以及相關資料已經備妥
 
             // 20151024 Norman, 讓使用者有能力修改發送來源
@@ -623,7 +623,7 @@ namespace EFunTech.Sms.Portal
                             _entity.SendBody = messageCostInfo.SendBody;
                             _entity.SendMessageType = entity.SendMessageType;
                             _entity.RecipientFromType = entity.RecipientFromType;
-                            _entity.CreatedUser = user;
+                            _entity.CreatedUserId = user.Id;
                             _entity.CreatedTime = utcNow;
                             _entity.UpdatedTime = utcNow;
 
@@ -654,7 +654,7 @@ namespace EFunTech.Sms.Portal
                             _entity.SendBody = messageCostInfo.SendBody;
                             _entity.SendMessageType = entity.SendMessageType;
                             _entity.RecipientFromType = entity.RecipientFromType;
-                            _entity.CreatedUser = user;
+                            _entity.CreatedUserId = user.Id;
                             _entity.CreatedTime = utcNow;
                             _entity.UpdatedTime = utcNow;
 
@@ -699,7 +699,7 @@ namespace EFunTech.Sms.Portal
                             _entity.SendBody = entity.SendBody;
                             _entity.SendMessageType = entity.SendMessageType;
                             _entity.RecipientFromType = entity.RecipientFromType;
-                            _entity.CreatedUser = user;
+                            _entity.CreatedUserId = user.Id;
                             _entity.CreatedTime = utcNow;
                             _entity.UpdatedTime = utcNow;
 
@@ -743,7 +743,7 @@ namespace EFunTech.Sms.Portal
                             _entity.SendBody = entity.SendBody;
                             _entity.SendMessageType = entity.SendMessageType;
                             _entity.RecipientFromType = entity.RecipientFromType;
-                            _entity.CreatedUser = user;
+                            _entity.CreatedUserId = user.Id;
                             _entity.CreatedTime = utcNow;
                             _entity.UpdatedTime = utcNow;
 
@@ -782,7 +782,7 @@ namespace EFunTech.Sms.Portal
                             _entity.SendBody = entity.SendBody;
                             _entity.SendMessageType = entity.SendMessageType;
                             _entity.RecipientFromType = entity.RecipientFromType;
-                            _entity.CreatedUser = user;
+                            _entity.CreatedUserId = user.Id;
                             _entity.CreatedTime = utcNow;
                             _entity.UpdatedTime = utcNow;
 

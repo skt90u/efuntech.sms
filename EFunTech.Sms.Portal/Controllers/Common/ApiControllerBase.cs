@@ -37,7 +37,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         {
             get
             {
-                return User.Identity.GetUser();
+                return User.Identity.GetUser(unitOfWork.DbContext);
             }
         }
 
@@ -45,7 +45,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         {
             get
             {
-                return User.Identity.GetUserRole();
+                return User.Identity.GetUserRole(unitOfWork.DbContext);
             }
         }
 

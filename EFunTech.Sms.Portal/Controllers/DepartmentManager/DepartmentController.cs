@@ -3,26 +3,24 @@ using EFunTech.Sms.Schema;
 using System.Linq;
 using EFunTech.Sms.Portal.Controllers.Common;
 using EFunTech.Sms.Portal.Models.Common;
-using JUtilSharp.Database;
 
 using System.Collections.Generic;
 using LinqKit;
 using System;
-using AutoMapper;
+using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class DepartmentController : CrudApiController<SearchTextCriteriaModel, DepartmentModel, Department, int>
+    public class DepartmentController : AsyncCrudApiController<SearchTextCriteriaModel, DepartmentModel, Department, int>
 	{
-		public DepartmentController(IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
-		{
-		}
+        public DepartmentController(DbContext context, ILogService logService)
+            : base(context, logService)
+        {
+        }
 
-		protected override IQueryable<Department> DoGetList(SearchTextCriteriaModel criteria)
+        protected override IQueryable<Department> DoGetList(SearchTextCriteriaModel criteria)
 		{
-            IQueryable<Department> result = this.repository.GetAll().AsQueryable();
-
 			var predicate = PredicateBuilder.True<Department>();
 
             switch (CurrentUserRole)
@@ -63,42 +61,38 @@ namespace EFunTech.Sms.Portal.Controllers
                     }break;
             }
 
-			result = result.AsExpandable().Where(predicate);
+			var result = context.Set<Department>()
+                            .AsExpandable()
+                            .Where(predicate)
+                            .OrderByDescending(p => p.Id);
 
-			return result.OrderByDescending(p => p.Id);
+            return result;
 		}
 
-		protected override Department DoGet(int id)
-		{
-            return this.repository.GetById(id);
-		}
-
-		protected override Department DoCreate(DepartmentModel model, Department entity, out int id)
+        protected override async Task<Department> DoCreate(DepartmentModel model, Department entity)
 		{
 			entity = new Department();
 			entity.Name = model.Name;
 			entity.Description = model.Description;
-			entity.CreatedUser = CurrentUser;
+			entity.CreatedUserId = CurrentUserId;
 
-			entity = this.repository.Insert(entity);
-			id = entity.Id;
+            entity = await context.InsertAsync(entity);
 
 			return entity;
 		}
 
-		protected override void DoUpdate(DepartmentModel model, int id, Department entity)
+        protected override async Task<int> DoUpdate(DepartmentModel model, int id, Department entity)
 		{
-            entity.CreatedUser = CurrentUser;
-			this.repository.Update(entity);
+            return await context.UpdateAsync(entity);
 		}
 
-		protected override void DoRemove(int id)
+        protected override async Task<int> DoRemove(int id) 
 		{
             // 必須先刪除此部門下，所有使用者
-            var users = this.unitOfWork.Repository<ApplicationUser>().DbSet.Where(p => p.Department != null && p.Department.Id == id).ToList();
+            var users = await context.Set<ApplicationUser>().Where(p => p.Department != null && p.Department.Id == id).ToListAsync();
             if (users.Count != 0)
             {
-                var entity = DoGet(id);
+                var entity = await DoGet(id);
 
                 string error = string.Format("部門【{0}】下還有 {1} 位使用者，分別是 {2}，請先刪除該部門下所有使用者，之後再刪除此部門",
                     entity.Name,
@@ -107,27 +101,39 @@ namespace EFunTech.Sms.Portal.Controllers
                 throw new Exception(error);
             }
 
-			this.repository.Delete(p => p.Id == id);
+			return await context.DeleteAsync< Department>(p => p.Id == id);
 		}
 
-        protected override void DoRemove(int[] ids)
+        protected override async Task<int> DoRemove(int[] ids) 
 		{
+            int result = 0;
             for (var i = 0; i < ids.Length; i++)
             {
-                DoRemove(ids[i]);
+                result += await DoRemove(ids[i]);
             }
-		}
+            return result;
+
+        }
 
         protected override IEnumerable<DepartmentModel> ConvertModel(IEnumerable<DepartmentModel> models)
         {
+            var departmentInfos = context.Set<Department>()
+                                         .Include(p => p.Users)
+                                         .Select(p => new {
+                                            Id = p.Id,
+                                            Name = p.Name,
+                                            UserCount = p.Users.Count
+                                         });
+
             foreach (var model in models)
             {
                 // 取出此部門對應使用者
-                var Users = Mapper.Map<List<ApplicationUser>, List<ApplicationUserModel>>(this.repository.GetById(model.Id).Users.ToList());
-                //model.Users = Users;
-
+                var departmentInfo = departmentInfos.FirstOrDefault(p => p.Id == model.Id);
+                if (departmentInfo != null)
+                {
                 // 一帆(3) = Department.Name + Department.Users.Count
-                model.Summary = string.Format("{0}({1})", model.Name, Users.Count);
+                    model.Summary = string.Format("{0}({1})", departmentInfo.Name, departmentInfo.UserCount);
+                }
             }
 
             return models;            
