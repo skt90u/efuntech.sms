@@ -10,17 +10,18 @@ using LinqKit;
 using System;
 using EFunTech.Sms.Portal.Models.Criteria;
 using EFunTech.Sms.Core;
+using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class DeliveryReportQueueController : CrudApiController<DeliveryReportQueueCriteriaModel, DeliveryReportQueueModel, DeliveryReportQueue, int>
+	public class DeliveryReportQueueController : AsyncCrudApiController<DeliveryReportQueueCriteriaModel, DeliveryReportQueueModel, DeliveryReportQueue, int>
 	{
-		public DeliveryReportQueueController(IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
-		{
-		}
+        public DeliveryReportQueueController(DbContext context, ILogService logService)
+            : base(context, logService)
+        {
+        }
 
-		protected override IQueryable<DeliveryReportQueue> DoGetList(DeliveryReportQueueCriteriaModel criteria)
+        protected override IQueryable<DeliveryReportQueue> DoGetList(DeliveryReportQueueCriteriaModel criteria)
 		{
 			var predicate = PredicateBuilder.True<DeliveryReportQueue>();
 
@@ -38,32 +39,12 @@ namespace EFunTech.Sms.Portal.Controllers
 				predicate = predicate.And(innerPredicate);
 			}
 
-            var result = this.repository.DbSet
+            var result = context.Set<DeliveryReportQueue>()
                             .AsExpandable()
                             .Where(predicate)
                             .OrderByDescending(p => p.Id);
 
             return result;
-		}
-
-		protected override DeliveryReportQueue DoCreate(DeliveryReportQueueModel model, DeliveryReportQueue entity, out int id)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoUpdate(DeliveryReportQueueModel model, int id, DeliveryReportQueue entity)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoRemove(int id)
-		{
-            throw new NotImplementedException();
-		}
-
-        protected override void DoRemove(int[] ids)
-		{
-            throw new NotImplementedException();
 		}
 
         protected override ReportDownloadModel ProduceFile(DeliveryReportQueueCriteriaModel criteria, IEnumerable<DeliveryReportQueueModel> resultList)

@@ -16,32 +16,34 @@ using System.Web.Http;
 using System.Net.Http;
 using System.Net;
 using System.Transactions;
+using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class SMS_SettingController : ApiControllerBase
+    public class SMS_SettingController : AsyncApiControllerBase
     {
-        public SMS_SettingController(IUnitOfWork unitOfWork, ILogService logService)
-            : base(unitOfWork, logService)
+        public SMS_SettingController(DbContext context, ILogService logService)
+            : base(context, logService)
         {
         }
 
         [System.Web.Http.HttpGet]
-        public ApplicationUserModel GetCurrentUser()
+        public virtual async Task<ApplicationUserModel> GetCurrentUser()
         {
-            var user = this.unitOfWork.Repository<ApplicationUser>().GetById(CurrentUserId);
+            var entity = await context.Set<ApplicationUser>().FindAsync(CurrentUserId);
 
-            var model = Mapper.Map<ApplicationUser, ApplicationUserModel>(user);
+            var model = Mapper.Map<ApplicationUser, ApplicationUserModel>(entity);
 
             return model;
         }
 
         [System.Web.Http.HttpPut]
-        public HttpResponseMessage UpdateCurrentUser(string id, [FromBody] ApplicationUserModel model)
+        public virtual async Task<HttpResponseMessage> UpdateCurrentUser(string id, [FromBody] ApplicationUserModel model)
         {
             try
             {
-                ApplicationUser entity = this.unitOfWork.Repository<ApplicationUser>().GetById(model.Id);
+                var entity = await context.Set<ApplicationUser>().FindAsync(CurrentUserId);
                 if (entity == null)
                 {
                     throw new HttpResponseException(HttpStatusCode.NotFound);
@@ -49,24 +51,23 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 Mapper.Map(model, entity);
 
-                using (TransactionScope scope = this.unitOfWork.CreateTransactionScope())
+                using (TransactionScope scope = context.CreateTransactionScope())
                 {
                     //¬O§_¦³­×§ï±K½X
                     if (!string.IsNullOrEmpty(model.NewPassword))
                     {
                         // http://stackoverflow.com/questions/19524111/asp-net-identity-reset-password
-                        var store = new UserStore<ApplicationUser>(this.unitOfWork.DbContext);
+                        var store = new UserStore<ApplicationUser>(context);
                         var userManager = new UserManager<ApplicationUser>(store);
-                        var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(this.unitOfWork.DbContext));
+                        var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
 
                         String hashedNewPassword = userManager.PasswordHasher.HashPassword(model.NewPassword);
-                        var user = this.unitOfWork.Repository<ApplicationUser>().GetById(CurrentUserId);
 
-                        EFunTech.Sms.Core.AsyncHelper.RunSync(() => store.SetPasswordHashAsync(user, hashedNewPassword));
-                        EFunTech.Sms.Core.AsyncHelper.RunSync(() => store.UpdateAsync(user));
+                        await store.SetPasswordHashAsync(entity, hashedNewPassword);
+                        await store.UpdateAsync(entity);
                     }
 
-                    this.unitOfWork.Repository<ApplicationUser>().Update(entity);
+                    await context.UpdateAsync(entity);
                     scope.Complete();
                 }
 

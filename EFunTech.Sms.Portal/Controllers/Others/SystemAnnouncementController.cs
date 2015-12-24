@@ -2,20 +2,21 @@
 using EFunTech.Sms.Schema;
 using System.Linq;
 using EFunTech.Sms.Portal.Controllers.Common;
-using EFunTech.Sms.Portal.Models.Common;
-using JUtilSharp.Database;
-
-using System.Collections.Generic;
 using LinqKit;
 using System;
 using EFunTech.Sms.Portal.Models.Criteria;
 using EntityFramework.Caching;
+using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class SystemAnnouncementController : CrudApiController<SystemAnnouncementCriteriaModel, SystemAnnouncementModel, SystemAnnouncement, int>
+    public class SystemAnnouncementController : AsyncCrudApiController<SystemAnnouncementCriteriaModel, SystemAnnouncementModel, SystemAnnouncement, int>
 	{
-		public SystemAnnouncementController(IUnitOfWork unitOfWork, ILogService logService) : base(unitOfWork, logService) {}
+        public SystemAnnouncementController(DbContext context, ILogService logService)
+            : base(context, logService)
+        {
+        }
 
 		protected override IQueryable<SystemAnnouncement> DoGetList(SystemAnnouncementCriteriaModel criteria)
 		{
@@ -29,7 +30,7 @@ namespace EFunTech.Sms.Portal.Controllers
 				predicate = predicate.And(innerPredicate);
 			}
 
-            var result = this.repository.DbSet
+            var result = context.Set<SystemAnnouncement>()
                                 .AsExpandable()
                                 .Where(predicate)
                                 .OrderByDescending(p => p.PublishDate)
@@ -38,7 +39,7 @@ namespace EFunTech.Sms.Portal.Controllers
             return result;
 		}
 
-		protected override SystemAnnouncement DoCreate(SystemAnnouncementModel model, SystemAnnouncement entity, out int id)
+        protected override async Task<SystemAnnouncement> DoCreate(SystemAnnouncementModel model, SystemAnnouncement entity)
 		{
 			entity = new SystemAnnouncement();
 			entity.IsVisible = model.IsVisible;
@@ -47,30 +48,33 @@ namespace EFunTech.Sms.Portal.Controllers
             entity.CreatedTime = DateTime.UtcNow;
             entity.CreatedUserId = CurrentUserId;
 
-			entity = this.repository.Insert(entity);
-			id = entity.Id;
+            entity = await context.InsertAsync(entity);
 
             CacheManager.Current.Expire("SystemAnnouncements");
+
 			return entity;
 		}
 
-		protected override void DoUpdate(SystemAnnouncementModel model, int id, SystemAnnouncement entity)
-		{
-			this.repository.Update(entity);
-            CacheManager.Current.Expire("SystemAnnouncements");
-        }
-
-        protected override void DoRemove(int id)
+        protected override async Task<int> DoUpdate(SystemAnnouncementModel model, int id, SystemAnnouncement entity)
         {
-            this.repository.Delete(p=> p.Id == id);
+            int result = await context.UpdateAsync(entity);
             CacheManager.Current.Expire("SystemAnnouncements");
+            return result;
         }
 
-        protected override void DoRemove(int[] ids)
+        protected override async Task<int> DoRemove(int id) 
         {
-            this.repository.Delete(p => ids.Contains(p.Id));
+            int result = await context.DeleteAsync<SystemAnnouncement>(p=> p.Id == id);
             CacheManager.Current.Expire("SystemAnnouncements");
+            return result;
         }
 
-	}
+        protected override async Task<int> DoRemove(int[] ids) 
+        {
+            int result = await context.DeleteAsync<SystemAnnouncement>(p => ids.Contains(p.Id));
+            CacheManager.Current.Expire("SystemAnnouncements");
+            return result;
+        }
+
+    }
 }

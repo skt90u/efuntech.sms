@@ -12,15 +12,17 @@ using EFunTech.Sms.Core;
 using System.ComponentModel;
 using System.Data;
 using EFunTech.Sms.Portal.Models.Criteria;
+using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class LogItemController : CrudApiController<LogItemCriteriaModel, LogItemModel, LogItem, int>
+	public class LogItemController : AsyncCrudApiController<LogItemCriteriaModel, LogItemModel, LogItem, int>
 	{
-		public LogItemController(IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
-		{
-		}
+        public LogItemController(DbContext context, ILogService logService)
+            : base(context, logService)
+        {
+        }
 
 		protected override IQueryable<LogItem> DoGetList(LogItemCriteriaModel criteria)
 		{
@@ -65,7 +67,7 @@ namespace EFunTech.Sms.Portal.Controllers
 				predicate = predicate.And(innerPredicate);
 			}
 
-            var result = this.repository.DbSet
+            var result = context.Set<LogItem>()
                             .AsExpandable()
                             .Where(predicate)
                             .OrderByDescending(p => p.Id);
@@ -73,25 +75,15 @@ namespace EFunTech.Sms.Portal.Controllers
             return result;
 		}
 
-		protected override LogItem DoCreate(LogItemModel model, LogItem entity, out int id)
-		{
-            throw new NotImplementedException();
-		}
+        protected override async Task<int> DoRemove(int id)
+        {
+            return await context.DeleteAsync<LogItem>(p => p.Id == id);
+        }
 
-		protected override void DoUpdate(LogItemModel model, int id, LogItem entity)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoRemove(int id)
-		{
-            this.repository.Delete(p => p.Id == id);
-		}
-
-		protected override void DoRemove(int[] ids)
-		{
-            this.repository.Delete(p => ids.Contains(p.Id));
-		}
+        protected override async Task<int> DoRemove(int[] ids)
+        {
+            return await context.DeleteAsync<LogItem>(p => ids.Contains(p.Id));
+        }
 
         private string GetString(string str, int maxLen = 1000)
         {
