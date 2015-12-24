@@ -58,8 +58,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 // 有分享此群組的所有使用者ID
                 var userIds = context.Set<SharedGroupContact>().Where(p => p.GroupId == criteria.GroupId).Select(p => p.ShareToUserId);
 
-                var result = context.Set<ApplicationUser>()
-                            .Where(p => !userIds.Contains(p.Id) && p.Id != CurrentUserId)
+                var result = department.Users.Where(p => !userIds.Contains(p.Id) && p.Id != CurrentUserId)
                             .AsQueryable()
                             .AsExpandable()
                             .Where(predicate)
@@ -72,7 +71,9 @@ namespace EFunTech.Sms.Portal.Controllers
                 // 20151029 Norman, 手動輸入分享使用者，允許分享給所有其他系統使用者
 
                 // 手動輸入使用者時，Client端會傳送 DepartmentId = -1，查不到指定部門，代表要所有使用者
-                
+
+                // result = this.unitOfWork.Repository<ApplicationUser>().GetMany(p => p.Id != CurrentUser.Id);
+
                 var result = context.Set<ApplicationUser>()
                     .Where(p => p.Id != CurrentUserId)
                     .AsExpandable()
