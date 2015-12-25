@@ -303,8 +303,10 @@
     <Compile Include="App_Start\Startup.Mapper.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\ApplicationDbContextInitializer.cs" />
+    <Compile Include="Controllers\Common\ApiControllerBase.cs" />
     <Compile Include="Controllers\Common\AsyncApiControllerBase.cs" />
     <Compile Include="Controllers\Common\AsyncCrudApiController.cs" />
+    <Compile Include="Controllers\Common\CrudApiController.cs" />
     <Compile Include="Controllers\Others\DeliveryReportQueueController.cs" />
     <Compile Include="Controllers\Notification\InfobipNotificationController.cs" />
     <Compile Include="Controllers\BasicAuthApi\SendSMSController.cs" />
@@ -397,9 +399,7 @@
     <Compile Include="Controllers\ContactManager\AllContactController.cs" />
     <Compile Include="Controllers\FileManagerApiController.cs" />
     <Compile Include="Controllers\SendMessage\CommonMessageController.cs" />
-    <Compile Include="Controllers\Common\CrudApiController.cs" />
     <Compile Include="Controllers\Common\MvcControllerBase.cs" />
-    <Compile Include="Controllers\Common\ApiControllerBase.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />

@@ -58,18 +58,21 @@ namespace EFunTech.Sms.Portal.Controllers
         protected override async Task DoUpdate(SystemAnnouncementModel model, int id, SystemAnnouncement entity)
         {
             await context.UpdateAsync(entity);
+
             CacheManager.Current.Expire("SystemAnnouncements");
         }
 
         protected override async Task DoRemove(int id) 
         {
             await context.DeleteAsync<SystemAnnouncement>(p=> p.Id == id);
+
             CacheManager.Current.Expire("SystemAnnouncements");
         }
 
         protected override async Task DoRemove(int[] ids) 
         {
             await context.DeleteAsync<SystemAnnouncement>(p => ids.Contains(p.Id));
+
             CacheManager.Current.Expire("SystemAnnouncements");
         }
 

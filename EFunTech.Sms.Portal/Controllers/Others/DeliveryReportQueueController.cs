@@ -3,8 +3,6 @@ using EFunTech.Sms.Schema;
 using System.Linq;
 using EFunTech.Sms.Portal.Controllers.Common;
 using EFunTech.Sms.Portal.Models.Common;
-using JUtilSharp.Database;
-
 using System.Collections.Generic;
 using LinqKit;
 using System;
@@ -14,7 +12,7 @@ using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class DeliveryReportQueueController : AsyncCrudApiController<DeliveryReportQueueCriteriaModel, DeliveryReportQueueModel, DeliveryReportQueue, int>
+    public class DeliveryReportQueueController : AsyncCrudApiController<DeliveryReportQueueCriteriaModel, DeliveryReportQueueModel, DeliveryReportQueue, int>
 	{
         public DeliveryReportQueueController(DbContext context, ILogService logService)
             : base(context, logService)

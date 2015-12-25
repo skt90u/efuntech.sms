@@ -1,3 +1,15 @@
+### 20151225
+簡訊發送
+參數簡訊發送
+發送查詢
+(OK)聯絡人管理
+系統設定
+預約/週期簡訊維護
+子帳號管理
+子帳號點數管理
+報表管理
+(OK)其他功能
+
 ### 20151120 todo
 https://github.com/Textalk/angular-schema-form-datepicker
 

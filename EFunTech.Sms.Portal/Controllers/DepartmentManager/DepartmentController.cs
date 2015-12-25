@@ -97,6 +97,7 @@ namespace EFunTech.Sms.Portal.Controllers
                     entity.Name,
                     users.Count,
                     string.Join("、", users.Select(p => p.UserName)));
+
                 throw new Exception(error);
             }
 
