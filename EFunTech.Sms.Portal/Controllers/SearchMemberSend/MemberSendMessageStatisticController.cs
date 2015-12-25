@@ -12,23 +12,19 @@ using EFunTech.Sms.Portal.Models.Criteria;
 using System.Data;
 using System.ComponentModel;
 using EFunTech.Sms.Core;
+using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class MemberSendMessageStatisticController : CrudApiController<MemberSendMessageStatisticCriteriaModel, SendMessageStatisticModel, SendMessageStatistic, int>
+	public class MemberSendMessageStatisticController : AsyncCrudApiController<MemberSendMessageStatisticCriteriaModel, SendMessageStatisticModel, SendMessageStatistic, int>
 	{
-		public MemberSendMessageStatisticController(IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
+        public MemberSendMessageStatisticController(DbContext context, ILogService logService)
+            : base(context, logService)
+        {
+        }
+
+        protected override IQueryable<SendMessageStatistic> DoGetList(MemberSendMessageStatisticCriteriaModel criteria)
 		{
-		}
-
-		protected override IQueryable<SendMessageStatistic> DoGetList(MemberSendMessageStatisticCriteriaModel criteria)
-		{
-            // 目前使用者的資料
-            IQueryable<SendMessageStatistic> result = this.repository.GetAll();
-
-            var sendMessageHistoryRepository = this.unitOfWork.Repository<SendMessageHistory>();
-
             var predicate = PredicateBuilder.True<SendMessageStatistic>();
             predicate = predicate.And(p => p.CreatedUserId == CurrentUserId);
             predicate = predicate.And(p => p.SendTime >= criteria.StartDate);
@@ -82,45 +78,23 @@ namespace EFunTech.Sms.Portal.Controllers
                     }
                 }
 
-                var _result = sendMessageHistoryRepository.GetAll()
-                                                          .AsExpandable()
-                                                          .Where(innerPredicate)
-                                                          .Select(p => p.SendMessageQueueId)
-                                                          .Distinct();
-
-                var sendMessageQueueIds = _result.ToList();
+                var sendMessageQueueIds = context.Set<SendMessageHistory>()
+                                            .AsExpandable()
+                                            .Where(innerPredicate)
+                                            .Select(p => p.SendMessageQueueId)
+                                            .Distinct()
+                                            .ToList();
 
                 predicate = predicate.And(p => sendMessageQueueIds.Contains(p.SendMessageQueueId)); // 20151126 Norman, 避免StackOverFlow
             }
 
-            result = result.AsExpandable().Where(predicate);
+            // 目前使用者的資料
+            var result = context.Set<SendMessageStatistic>()
+                            .AsExpandable()
+                            .Where(predicate)
+                            .OrderByDescending(p => p.Id);
 
-            return result.OrderByDescending(p => p.Id);
-		}
-
-		protected override SendMessageStatistic DoGet(int id)
-		{
-            return this.repository.GetById(id);
-		}
-
-		protected override SendMessageStatistic DoCreate(SendMessageStatisticModel model, SendMessageStatistic entity, out int id)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoUpdate(SendMessageStatisticModel model, int id, SendMessageStatistic entity)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoRemove(int id)
-		{
-            throw new NotImplementedException();
-		}
-
-        protected override void DoRemove(int[] ids)
-		{
-            throw new NotImplementedException();
+            return result;
 		}
 
         //protected override IEnumerable<SendMessageStatisticModel> ConvertModel(IEnumerable<SendMessageStatisticModel> models)

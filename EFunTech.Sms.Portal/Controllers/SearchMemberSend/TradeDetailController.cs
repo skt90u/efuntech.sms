@@ -13,20 +13,23 @@ using System.ComponentModel;
 
 using System.Data;
 using EFunTech.Sms.Core;
+using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class TradeDetailController : CrudApiController<TradeDetailCriteriaModel, TradeDetailModel, TradeDetail, int>
+	public class TradeDetailController : AsyncCrudApiController<TradeDetailCriteriaModel, TradeDetailModel, TradeDetail, int>
 	{
-        public TradeDetailController(IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
-		{
-		}
+        protected TradeService tradeService;
 
-		protected override IQueryable<TradeDetail> DoGetList(TradeDetailCriteriaModel criteria)
-		{
-            IQueryable<TradeDetail> result = this.unitOfWork.Repository<TradeDetail>().GetAll();
+        public TradeDetailController(DbContext context, ILogService logService)
+            : base(context, logService)
+        {
+            this.tradeService = new TradeService(new UnitOfWork(context), logService);
+        }
 
+        protected override IQueryable<TradeDetail> DoGetList(TradeDetailCriteriaModel criteria)
+		{
 			var predicate = PredicateBuilder.True<TradeDetail>();
             predicate = predicate.And(p => p.OwnerId == CurrentUserId);
             predicate = predicate.And(p => p.TradeTime >= criteria.StartDate);
@@ -45,36 +48,19 @@ namespace EFunTech.Sms.Portal.Controllers
                 predicate = predicate.And(innerPredicate);
             }
 
-            result = result.AsExpandable().Where(predicate);
+            var result = context.Set<TradeDetail>()
+                            .AsExpandable()
+                            .Where(predicate)
+                            .OrderByDescending(p => p.Id);
 
-			return result.OrderByDescending(p => p.Id);
+			return result;
 		}
 
-		protected override TradeDetail DoGet(int id)
+        protected override async Task DoRemove(int id)
 		{
-            return this.unitOfWork.Repository<TradeDetail>().GetById(id);
-		}
-
-		protected override TradeDetail DoCreate(TradeDetailModel model, TradeDetail entity, out int id)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoUpdate(TradeDetailModel model, int id, TradeDetail entity)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoRemove(int id)
-		{
-            TradeDetail entity = DoGet(id);
+            TradeDetail entity = await DoGet(id);
 
             this.tradeService.DismissAllot(entity);
-		}
-
-        protected override void DoRemove(int[] ids)
-		{
-            throw new NotImplementedException();
 		}
 
         //protected override IEnumerable<TradeDetailModel> ConvertModel(IEnumerable<TradeDetailModel> models)

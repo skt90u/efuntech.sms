@@ -8,18 +8,20 @@ using LinqKit;
 using System;
 
 using EFunTech.Sms.Portal.Models.Criteria;
+using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class SendMessageRuleController : CrudApiController<SendMessageRuleCriteriaModel, SendMessageRuleModel, SendMessageRule, int>
+	public class SendMessageRuleController : AsyncCrudApiController<SendMessageRuleCriteriaModel, SendMessageRuleModel, SendMessageRule, int>
 	{
         private SendMessageRuleService sendMessageRuleService;
-        
-        public SendMessageRuleController(IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
-		{
-            this.sendMessageRuleService = new SendMessageRuleService(unitOfWork, logService);
-		}
+
+        public SendMessageRuleController(DbContext context, ILogService logService)
+            : base(context, logService)
+        {
+            this.sendMessageRuleService = new SendMessageRuleService(new UnitOfWork(context), logService);
+        }
 
 		protected override IQueryable<SendMessageRule> DoGetList(SendMessageRuleCriteriaModel criteria)
 		{
@@ -40,7 +42,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 predicate = predicate.And(innerPredicate);
             }
 
-            var result = this.repository.DbSet
+            var result = context.Set<SendMessageRule>()
                              .AsExpandable()
                              .Where(predicate)
                              .OrderByDescending(p => p.Id);
@@ -51,35 +53,35 @@ namespace EFunTech.Sms.Portal.Controllers
         #region DoCreate
 
 
-        protected override SendMessageRule DoCreate(SendMessageRuleModel model, SendMessageRule entity, out int id)
+        protected override Task<SendMessageRule> DoCreate(SendMessageRuleModel model, SendMessageRule entity)
 		{
             model.UpdateClientTimezoneOffset(ClientTimezoneOffset);
 
             var rules = this.sendMessageRuleService.CreateSendMessageRuleFromWeb(CurrentUser, model);
 
             entity = rules.FirstOrDefault();
-            id = entity.Id;
-            return entity;
+            
+            return Task.FromResult(entity);
 		}
 
         #endregion
 
         #region DoUpdate
         
-        protected override void DoUpdate(SendMessageRuleModel model, int id, SendMessageRule entity)
+        protected override async Task DoUpdate(SendMessageRuleModel model, int id, SendMessageRule entity)
 		{
-            model.UpdateClientTimezoneOffset(ClientTimezoneOffset);
+            await Task.Run(() => {
+                model.UpdateClientTimezoneOffset(ClientTimezoneOffset);
 
-            this.sendMessageRuleService.UpdateSendMessageRule(CurrentUser, model);
+                this.sendMessageRuleService.UpdateSendMessageRule(CurrentUser, model);
+            });
 		}
 
-        private void UpdateMessageReceivers(SendMessageRuleModel model)
+        private async Task UpdateMessageReceivers(SendMessageRuleModel model)
         {
             DateTime utcNow = DateTime.UtcNow;
 
-            var _repository = this.unitOfWork.Repository<MessageReceiver>();
-
-            var _entities = _repository.GetMany(p => p.SendMessageRuleId == model.Id).ToList();
+            var _entities = context.Set<MessageReceiver>().Where(p => p.SendMessageRuleId == model.Id).ToList();
 
             foreach (var _entity in _entities)
             {
@@ -94,7 +96,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 _entity.MessageCost = messageCostInfo.MessageCost;
                 _entity.MessageFormatError = messageCostInfo.MessageFormatError;
 
-                _repository.Update(_entity);
+                await context.UpdateAsync(_entity);
             }
         }
 
@@ -102,18 +104,20 @@ namespace EFunTech.Sms.Portal.Controllers
 
         #region DoRemove
 
-        protected override void DoRemove(int id)
+        protected override async Task DoRemove(int id)
 		{
-            this.sendMessageRuleService.RemoveSendMessageRule(CurrentUser, id);
+            await Task.Run(() => {
+                this.sendMessageRuleService.RemoveSendMessageRule(CurrentUser, id);
+            });
         }
 
         #endregion
 
-        protected override void DoRemove(int[] ids)
+        protected override async Task DoRemove(int[] ids)
 		{
             for (int i = 0; i < ids.Length; i++)
             {
-                DoRemove(ids[i]);
+                await DoRemove(ids[i]);
             }
 		}
 

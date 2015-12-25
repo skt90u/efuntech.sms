@@ -13,23 +13,22 @@ using System.Data;
 using System.ComponentModel;
 using EFunTech.Sms.Portal.Models.Mapper;
 using EFunTech.Sms.Core;
+using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class SectorSendMessageHistoryController : CrudApiController<SectorSendMessageHistoryCriteriaModel, SendMessageHistoryModel, SendMessageHistory, int>
+	public class SectorSendMessageHistoryController : AsyncCrudApiController<SectorSendMessageHistoryCriteriaModel, SendMessageHistoryModel, SendMessageHistory, int>
 	{
-		public SectorSendMessageHistoryController(IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
-		{
-		}
+        public SectorSendMessageHistoryController(DbContext context, ILogService logService)
+            : base(context, logService)
+        {
+        }
 
         /// <summary>
         /// 搜尋指定使用者在特定發送時間範圍的資料
         /// </summary>
 		protected override IQueryable<SendMessageHistory> DoGetList(SectorSendMessageHistoryCriteriaModel criteria)
 		{
-            IQueryable<SendMessageHistory> result = this.repository.GetAll();
-
             var predicate = PredicateBuilder.True<SendMessageHistory>();
 
             // 指定使用者
@@ -40,39 +39,17 @@ namespace EFunTech.Sms.Portal.Controllers
             predicate = predicate.And(p => p.SendTime >= criteria.StartDate);
             predicate = predicate.And(p => p.SendTime <= criteria.EndDate);
 
-            result = result.AsExpandable().Where(predicate);
+            var result = context.Set<SendMessageHistory>()
+                .AsExpandable()
+                .Where(predicate)
+                .OrderByDescending(p => p.Id);
 
-            return result.OrderByDescending(p => p.Id);
-		}
-
-		protected override SendMessageHistory DoGet(int id)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override SendMessageHistory DoCreate(SendMessageHistoryModel model, SendMessageHistory entity, out int id)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoUpdate(SendMessageHistoryModel model, int id, SendMessageHistory entity)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoRemove(int id)
-		{
-            throw new NotImplementedException();
-		}
-
-        protected override void DoRemove(int[] ids)
-		{
-            throw new NotImplementedException();
+            return result;
 		}
 
         protected override IEnumerable<SendMessageHistoryModel> ConvertModel(IEnumerable<SendMessageHistoryModel> models)
         {
-            return SendMessageHistoryProfile.ConvertModel(models, this.unitOfWork);
+            return SendMessageHistoryProfile.ConvertModel(models, new UnitOfWork(context));
         }
 
         protected override ReportDownloadModel ProduceFile(SectorSendMessageHistoryCriteriaModel criteria, IEnumerable<SendMessageHistoryModel> resultList)

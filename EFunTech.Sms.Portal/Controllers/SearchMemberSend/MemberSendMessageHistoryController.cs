@@ -11,17 +11,18 @@ using System;
 using EFunTech.Sms.Portal.Models.Criteria;
 using System.Data;
 using EFunTech.Sms.Core;
+using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class MemberSendMessageHistoryController : CrudApiController<MemberSendMessageHistoryCriteriaModel, SendMessageHistoryModel, SendMessageHistory, int>
+	public class MemberSendMessageHistoryController : AsyncCrudApiController<MemberSendMessageHistoryCriteriaModel, SendMessageHistoryModel, SendMessageHistory, int>
 	{
-		public MemberSendMessageHistoryController(IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
-		{
-		}
+        public MemberSendMessageHistoryController(DbContext context, ILogService logService)
+            : base(context, logService)
+        {
+        }
 
-		protected override IQueryable<SendMessageHistory> DoGetList(MemberSendMessageHistoryCriteriaModel criteria)
+        protected override IQueryable<SendMessageHistory> DoGetList(MemberSendMessageHistoryCriteriaModel criteria)
 		{
 			var predicate = PredicateBuilder.True<SendMessageHistory>();
 
@@ -46,37 +47,12 @@ namespace EFunTech.Sms.Portal.Controllers
                 }
             }
 
-            var result = this.repository.DbSet
+            var result = context.Set<SendMessageHistory>()
                             .AsExpandable()
                             .Where(predicate)
                             .OrderByDescending(p => p.Id);
 
 			return result;
-		}
-
-		protected override SendMessageHistory DoGet(int id)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override SendMessageHistory DoCreate(SendMessageHistoryModel model, SendMessageHistory entity, out int id)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoUpdate(SendMessageHistoryModel model, int id, SendMessageHistory entity)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoRemove(int id)
-		{
-            throw new NotImplementedException();
-		}
-
-        protected override void DoRemove(int[] ids)
-		{
-            throw new NotImplementedException();
 		}
 
         protected override ReportDownloadModel ProduceFile(MemberSendMessageHistoryCriteriaModel criteria, IEnumerable<SendMessageHistoryModel> resultList)

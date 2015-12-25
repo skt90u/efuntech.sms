@@ -6,17 +6,19 @@ using EFunTech.Sms.Portal.Models.Common;
 using JUtilSharp.Database;
 using LinqKit;
 using System;
+using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class SignatureController : CrudApiController<SearchTextCriteriaModel, SignatureModel, Signature, int>
+	public class SignatureController : AsyncCrudApiController<SearchTextCriteriaModel, SignatureModel, Signature, int>
 	{
-		public SignatureController(IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
-		{
-		}
+        public SignatureController(DbContext context, ILogService logService)
+            : base(context, logService)
+        {
+        }
 
-		protected override IQueryable<Signature> DoGetList(SearchTextCriteriaModel criteria)
+        protected override IQueryable<Signature> DoGetList(SearchTextCriteriaModel criteria)
 		{
 			var predicate = PredicateBuilder.True<Signature>();
             
@@ -33,13 +35,13 @@ namespace EFunTech.Sms.Portal.Controllers
                 predicate = predicate.And(innerPredicate);
 			}
 
-            return this.repository.DbSet
+            return context.Set<Signature>()
                        .AsExpandable()
                        .Where(predicate)
                        .OrderByDescending(p => p.Id);
 		}
 
-		protected override Signature DoCreate(SignatureModel model, Signature entity, out int id)
+        protected override async Task<Signature> DoCreate(SignatureModel model, Signature entity)
 		{
 			entity = new Signature();
 			entity.Subject = model.Subject;
@@ -47,28 +49,26 @@ namespace EFunTech.Sms.Portal.Controllers
             entity.UpdatedTime = DateTime.UtcNow;
             entity.CreatedUserId = CurrentUserId;
 
-			entity = this.repository.Insert(entity);
-			id = entity.Id;
+			entity = await context.InsertAsync(entity);
 
 			return entity;
 		}
 
-		protected override void DoUpdate(SignatureModel model, int id, Signature entity)
+        protected override async Task DoUpdate(SignatureModel model, int id, Signature entity)
 		{
             entity.UpdatedTime = DateTime.UtcNow;
 
-			this.repository.Update(entity);
+			await context.UpdateAsync(entity);
 		}
 
-        protected override void DoRemove(int id)
+        protected override async Task DoRemove(int id)
         {
-            this.repository.Delete(p => p.Id == id);
+            await context.DeleteAsync<Signature>(p => p.Id == id);
         }
 
-        protected override void DoRemove(int[] ids)
+        protected override async Task DoRemove(int[] ids)
         {
-            this.repository.Delete(p => ids.Contains(p.Id));
+            await context.DeleteAsync<Signature>(p => ids.Contains(p.Id));
         }
-
 	}
 }

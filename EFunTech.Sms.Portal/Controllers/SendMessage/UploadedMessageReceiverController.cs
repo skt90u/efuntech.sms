@@ -2,27 +2,31 @@
 using EFunTech.Sms.Schema;
 using System.Linq;
 using EFunTech.Sms.Portal.Controllers.Common;
+using EFunTech.Sms.Portal.Models.Common;
 using JUtilSharp.Database;
-
-using System.Collections.Generic;
 using LinqKit;
 using System;
+using System.Data.Entity;
+using System.Threading.Tasks;
 using EFunTech.Sms.Portal.Models.Criteria;
 using EFunTech.Sms.Core;
 
-
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class UploadedMessageReceiverController : CrudApiController<UploadedMessageReceiverCriteriaModel, UploadedMessageReceiverModel, UploadedMessageReceiver, int>
+    public class UploadedMessageReceiverController : AsyncCrudApiController<UploadedMessageReceiverCriteriaModel, UploadedMessageReceiverModel, UploadedMessageReceiver, int>
     {
-        public UploadedMessageReceiverController(IUnitOfWork unitOfWork, ILogService logService)
-            : base(unitOfWork, logService)
+        protected ValidationService validationService;
+
+        public UploadedMessageReceiverController(DbContext context, ILogService logService)
+            : base(context, logService)
         {
+            this.validationService = new ValidationService(new UnitOfWork(context), logService);
         }
 
         protected override IQueryable<UploadedMessageReceiver> DoGetList(UploadedMessageReceiverCriteriaModel criteria)
         {
             var predicate = PredicateBuilder.True<UploadedMessageReceiver>();
+
             predicate = predicate.And(p => p.UploadedSessionId == criteria.UploadedSessionId);
 
             var searchText = criteria.SearchText;
@@ -50,7 +54,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 predicate = predicate.And(innerPredicate);
             }
 
-            var result = this.repository.DbSet
+            var result = context.Set<UploadedMessageReceiver>()
                              .AsExpandable()
                              .Where(predicate)
                              .OrderBy(p => p.RowNo);
@@ -59,10 +63,10 @@ namespace EFunTech.Sms.Portal.Controllers
         }
 
         
-        protected override UploadedMessageReceiver DoCreate(UploadedMessageReceiverModel model, UploadedMessageReceiver entity, out int id)
+        protected override async Task<UploadedMessageReceiver> DoCreate(UploadedMessageReceiverModel model, UploadedMessageReceiver entity)
         {
             entity = new UploadedMessageReceiver();
-            entity.RowNo = this.repository.Count(p => p.UploadedSessionId == model.UploadedSessionId) + 1;
+            entity.RowNo = context.Set<UploadedMessageReceiver>().Count(p => p.UploadedSessionId == model.UploadedSessionId) + 1;
             entity.Name = model.Name;
             entity.Mobile = model.Mobile;
             entity.E164Mobile = MobileUtil.GetE164PhoneNumber(model.Mobile);
@@ -87,8 +91,7 @@ namespace EFunTech.Sms.Portal.Controllers
             var error = string.Empty;
             var isValid = this.validationService.Validate(entity, out error);
             // 目前就算驗證不過也沒關係，仍然可以存檔
-            entity = this.repository.Insert(entity);
-            id = entity.Id;
+            entity = await context.InsertAsync(entity);
 
             if (isValid)
             {
@@ -100,7 +103,7 @@ namespace EFunTech.Sms.Portal.Controllers
             }
         }
 
-        protected override void DoUpdate(UploadedMessageReceiverModel model, int id, UploadedMessageReceiver entity)
+        protected override async Task DoUpdate(UploadedMessageReceiverModel model, int id, UploadedMessageReceiver entity)
         {
             entity.SendTime = Converter.ToUniversalTime(model.SendTimeString, Converter.yyyyMMddHHmm, ClientTimezoneOffset);
             entity.ClientTimezoneOffset = ClientTimezoneOffset;
@@ -113,7 +116,7 @@ namespace EFunTech.Sms.Portal.Controllers
             var isValid = this.validationService.Validate(entity, out error);
            
             // 目前就算驗證不過也沒關係，仍然可以存檔
-            this.repository.Update(entity);
+            await context.UpdateAsync(entity);
 
             if (isValid)
             {
@@ -124,15 +127,14 @@ namespace EFunTech.Sms.Portal.Controllers
             }
         }
 
-        protected override void DoRemove(int id)
+        protected override async Task DoRemove(int id)
         {
-            this.repository.Delete(p=> p.Id == id);
+            await context.DeleteAsync<UploadedMessageReceiver>(p => p.Id == id);
         }
 
-        protected override void DoRemove(int[] ids)
+        protected override async Task DoRemove(int[] ids)
         {
-            this.repository.Delete(p => ids.Contains(p.Id));
+            await context.DeleteAsync<UploadedMessageReceiver>(p => ids.Contains(p.Id));
         }
-
     }
 }

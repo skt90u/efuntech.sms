@@ -15,22 +15,22 @@ using AutoMapper;
 using System.ComponentModel;
 using EFunTech.Sms.Core;
 using EFunTech.Sms.Portal.Models.Mapper;
+using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class SectorSendMessageStatisticController : CrudApiController<SectorSendMessageStatisticCriteriaModel, SendMessageStatisticModel, SendMessageStatistic, int>
+	public class SectorSendMessageStatisticController : AsyncCrudApiController<SectorSendMessageStatisticCriteriaModel, SendMessageStatisticModel, SendMessageStatistic, int>
 	{
-		public SectorSendMessageStatisticController(IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
-		{
-		}
+        protected ApiControllerHelper apiControllerHelper;
+
+        public SectorSendMessageStatisticController(DbContext context, ILogService logService)
+            : base(context, logService)
+        {
+            this.apiControllerHelper = new ApiControllerHelper(new UnitOfWork(context), logService);
+        }
 
         private IOrderedQueryable<SendMessageHistory> GetSendMessageHistory(SectorSendMessageStatisticCriteriaModel criteria)
         {
-            var sendMessageHistoryRepository = this.unitOfWork.Repository<SendMessageHistory>();
-
-            IQueryable<SendMessageHistory> result = sendMessageHistoryRepository.GetAll();
-
             var predicate = PredicateBuilder.True<SendMessageHistory>();
 
             //this.logService.Debug("SectorSendMessageStatistic.GetSendMessageHistory 查詢時間範圍 = {0} ~ {1}", Converter.DebugString(criteria.StartDate), Converter.DebugString(criteria.EndDate));
@@ -75,18 +75,17 @@ namespace EFunTech.Sms.Portal.Controllers
                     } break;
             }
 
-            result = result.AsExpandable().Where(predicate);
+            var result  = context.Set<SendMessageHistory>()
+                            .AsExpandable()
+                            .Where(predicate)
+                            .OrderByDescending(p => p.Id);
 
-            return result.OrderByDescending(p => p.Id);
+            return result;
         }
 
 		protected override IQueryable<SendMessageStatistic> DoGetList(SectorSendMessageStatisticCriteriaModel criteria)
 		{
             DateTime utcNow = DateTime.UtcNow;
-
-            IQueryable<SendMessageStatistic> result = this.repository.GetAll();
-
-            var sendMessageHistoryRepository = this.unitOfWork.Repository<SendMessageHistory>();
 
             var predicate = PredicateBuilder.True<SendMessageStatistic>();
 
@@ -135,7 +134,10 @@ namespace EFunTech.Sms.Portal.Controllers
                     } break;
             }
 
-            result = result.AsExpandable().Where(predicate);
+            var result = context.Set<SendMessageStatistic>()
+                            .AsExpandable()
+                            .Where(predicate)
+                            .OrderByDescending(p => p.Id);
 
             result = result.OrderByDescending(p => p.Id);
 
@@ -201,57 +203,17 @@ namespace EFunTech.Sms.Portal.Controllers
                 TotalTimeout = p.TotalTimeout,
                 // 資料建立時間
                 CreatedTime = p.CreatedTime,
-            }).AsQueryable();
+            })
+            .AsQueryable()
+            .OrderByDescending(p => p.Id);
 
-            return result.OrderByDescending(p => p.Id);
+            return result;
 		}
-
-		protected override SendMessageStatistic DoGet(int id)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override SendMessageStatistic DoCreate(SendMessageStatisticModel model, SendMessageStatistic entity, out int id)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoUpdate(SendMessageStatisticModel model, int id, SendMessageStatistic entity)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoRemove(int id)
-		{
-            throw new NotImplementedException();
-		}
-
-        protected override void DoRemove(int[] ids)
-		{
-            throw new NotImplementedException();
-		}
-
 
         protected override IEnumerable<SendMessageStatisticModel> ConvertModel(IEnumerable<SendMessageStatisticModel> models)
         {
-            //var deaprtmentRepository = this.unitOfWork.Repository<Department>();
-            //var userRepository = this.unitOfWork.Repository<ApplicationUser>();
-
-            //foreach (var model in models)
-            //{
-            //    if(model.DepartmentId.HasValue){
-            //        model.DepartmentName = deaprtmentRepository.GetById(model.DepartmentId.Value).Name;
-            //    }
-
-            //    model.FullName = userRepository.GetById(model.CreatedUserId).FullName;
-            //}
-
-            //return models;
-
-            //------------------------------------------------------
-
-            var departments = unitOfWork.Repository<Department>().GetAll().ToList();
-            var users = unitOfWork.Repository<ApplicationUser>().GetAll().ToList();
+            var departments = context.Set<Department>().ToList();
+            var users = context.Set<ApplicationUser>().ToList();
 
             foreach (var model in models)
             {
@@ -316,7 +278,7 @@ namespace EFunTech.Sms.Portal.Controllers
                         //    model.DeliveryStatusChineseString = model.DeliveryStatusString; // TODO: DeliveryStatus 中文說明
                         //}
 
-                        models = SendMessageHistoryProfile.ConvertModel(models, this.unitOfWork);
+                        models = SendMessageHistoryProfile.ConvertModel(models, new UnitOfWork(context));
 
                         ////////////////////////////////////////
 

@@ -9,22 +9,22 @@ using System.Collections.Generic;
 using LinqKit;
 using System;
 using EFunTech.Sms.Portal.Models.Criteria;
+using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class DepartmentUserController : CrudApiController<DepartmentUserCriteriaModel, ApplicationUserModel, ApplicationUser, string>
+	public class DepartmentUserController : AsyncCrudApiController<DepartmentUserCriteriaModel, ApplicationUserModel, ApplicationUser, string>
 	{
-        public DepartmentUserController(IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
-		{
-		}
+        protected ApiControllerHelper apiControllerHelper;
+
+        public DepartmentUserController(DbContext context, ILogService logService)
+            : base(context, logService)
+        {
+            this.apiControllerHelper = new ApiControllerHelper(new UnitOfWork(context), logService);
+        }
 
 		protected override IQueryable<ApplicationUser> DoGetList(DepartmentUserCriteriaModel criteria)
 		{
-            IQueryable<ApplicationUser> result = (criteria.DepartmentId == -1)
-                ? this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUser).AsQueryable()
-                : this.repository.GetMany(p => p.Department != null && p.Department.Id == criteria.DepartmentId);
-
 			var predicate = PredicateBuilder.True<ApplicationUser>();
 
 			var searchText = criteria.SearchText;
@@ -49,35 +49,26 @@ namespace EFunTech.Sms.Portal.Controllers
 
 				predicate = predicate.And(innerPredicate);
 			}
-			result = result.AsExpandable().Where(predicate);
 
-			return result.OrderByDescending(p => p.Id);
+            if (criteria.DepartmentId == -1)
+            {
+                return this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUser)
+                    .AsQueryable()
+                    .AsExpandable()
+                    .Where(predicate)
+                    .OrderByDescending(p => p.Id);
+            }
+            else
+            {
+                return context.Set<ApplicationUser>()
+                    .Where(p => p.Department != null && p.Department.Id == criteria.DepartmentId)
+                    .AsExpandable()
+                    .Where(predicate)
+                    .OrderByDescending(p => p.Id);
+            }
 		}
 
-		protected override ApplicationUser DoGet(string id)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override ApplicationUser DoCreate(ApplicationUserModel model, ApplicationUser entity, out string id)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoUpdate(ApplicationUserModel model, string id, ApplicationUser entity)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoRemove(string id)
-		{
-            throw new NotImplementedException();
-		}
-
-        protected override void DoRemove(string[] ids)
-		{
-            throw new NotImplementedException();
-		}
+		
 
 	}
 }

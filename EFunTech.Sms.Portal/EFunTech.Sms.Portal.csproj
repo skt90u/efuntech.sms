@@ -316,7 +316,6 @@
     <Compile Include="Controllers\BasicAuthApi\ReportController.cs" />
     <Compile Include="Controllers\DepartmentManager\DepartmentController.cs" />
     <Compile Include="Controllers\Others\LogItemController.cs" />
-    <Compile Include="Controllers\Notification\ValuesController1.cs" />
     <Compile Include="Controllers\SearchMemberSend\MemberSendMessageHistoryController.cs" />
     <Compile Include="Controllers\SearchMemberSend\MemberSendMessageStatisticController.cs" />
     <Compile Include="Controllers\SectorStatistics\DepartmentUserController.cs" />
