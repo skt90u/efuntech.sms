@@ -29,7 +29,7 @@ namespace EFunTech.Sms.Portal.Controllers
         }
 
         [System.Web.Http.HttpGet]
-        public virtual async Task<ApplicationUserModel> GetCurrentUser()
+        public async Task<ApplicationUserModel> GetCurrentUser()
         {
             var entity = await context.Set<ApplicationUser>().FindAsync(CurrentUserId);
 
@@ -39,11 +39,12 @@ namespace EFunTech.Sms.Portal.Controllers
         }
 
         [System.Web.Http.HttpPut]
-        public virtual async Task<HttpResponseMessage> UpdateCurrentUser(string id, [FromBody] ApplicationUserModel model)
+        public async Task<HttpResponseMessage> UpdateCurrentUser(string id, [FromBody] ApplicationUserModel model)
         {
             try
             {
                 var entity = await context.Set<ApplicationUser>().FindAsync(CurrentUserId);
+
                 if (entity == null)
                 {
                     throw new HttpResponseException(HttpStatusCode.NotFound);

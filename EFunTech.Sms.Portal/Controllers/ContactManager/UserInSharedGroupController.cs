@@ -2,19 +2,14 @@ using EFunTech.Sms.Portal.Models;
 using EFunTech.Sms.Schema;
 using System.Linq;
 using EFunTech.Sms.Portal.Controllers.Common;
-using EFunTech.Sms.Portal.Models.Common;
-using JUtilSharp.Database;
-
-using System.Collections.Generic;
 using LinqKit;
-using System;
 using EFunTech.Sms.Portal.Models.Criteria;
 using System.Data.Entity;
 using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class UserInSharedGroupController : AsyncCrudApiController<UserInSharedGroupCriteriaModel, ApplicationUserModel, ApplicationUser, string>
+    public class UserInSharedGroupController : AsyncCrudApiController<UserInSharedGroupCriteriaModel, ApplicationUserModel, ApplicationUser, string>
 	{
         public UserInSharedGroupController(DbContext context, ILogService logService)
 			: base(context, logService)
@@ -79,16 +74,11 @@ namespace EFunTech.Sms.Portal.Controllers
             return result != null ? result.ShareToUser : null;
         }
 
-		protected override async Task<int> DoUpdate(ApplicationUserModel model, string id, ApplicationUser entity)
+		protected override async Task DoUpdate(ApplicationUserModel model, string id, ApplicationUser entity)
 		{
             SharedGroupContact sharedGroupContact = await context.Set<SharedGroupContact>().FirstOrDefaultAsync(p => p.GroupId == model.SharedGroupId && p.ShareToUserId == model.Id);
             if (sharedGroupContact != null)
-                return await context.DeleteAsync(sharedGroupContact);
-            else
-                return 0;
-		}
-
-		
-
+                await context.DeleteAsync(sharedGroupContact);
+        }
 	}
 }

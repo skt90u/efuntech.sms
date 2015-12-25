@@ -14,15 +14,22 @@ using System.Net;
 using System.Transactions;
 using LinqKit;
 using System.Data.SqlTypes;
+using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class DepartmentPointManagerController : CrudApiController<DepartmentPointManagerCriteriaModel, ApplicationUserModel, ApplicationUser, string>
+	public class DepartmentPointManagerController : AsyncCrudApiController<DepartmentPointManagerCriteriaModel, ApplicationUserModel, ApplicationUser, string>
 	{
-		public DepartmentPointManagerController(IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
+        protected ApiControllerHelper apiControllerHelper;
+        protected TradeService tradeService;
+
+        public DepartmentPointManagerController(DbContext context, ILogService logService)
+			: base(context, logService)
 		{
-		}
+            this.apiControllerHelper = new ApiControllerHelper(new UnitOfWork(context), logService);
+            this.tradeService = new TradeService(new UnitOfWork(context), logService);
+        }
 
         //protected override IQueryable<ApplicationUser> DoGetList(DepartmentPointManagerCriteriaModel criteria)
         //{
@@ -52,12 +59,6 @@ namespace EFunTech.Sms.Portal.Controllers
         /// <returns></returns>
         protected override IQueryable<ApplicationUser> DoGetList(DepartmentPointManagerCriteriaModel criteria)
         {
-            // 尋找目前使用者以及目前使用者的子帳號或孫帳號
-            List<ApplicationUser> users = this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUser);
-
-            // 尋找目前使用者以及目前使用者的子帳號
-            var result = users.AsQueryable();
-
             var predicate = PredicateBuilder.True<ApplicationUser>();
             var fullName = criteria.FullName;
             var userName = criteria.UserName;
@@ -71,37 +72,19 @@ namespace EFunTech.Sms.Portal.Controllers
             {
                 predicate = predicate.And(p => p.UserName.Contains(userName));
             }
-            
-            result = result.AsExpandable().Where(predicate);
 
-            // 由大到小排列
-            return result.OrderByDescending(p => p.Level).ThenBy(p => p.Id);
+            // 尋找目前使用者以及目前使用者的子帳號或孫帳號
+            List<ApplicationUser> users = this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUser);
+
+            // 尋找目前使用者以及目前使用者的子帳號
+            var result = users.AsQueryable()
+                              .AsExpandable()
+                              .Where(predicate)
+                              .OrderByDescending(p => p.Level)
+                              .ThenBy(p => p.Id);
+
+            return result;
         }
-
-		protected override ApplicationUser DoGet(string id)
-		{
-            return this.unitOfWork.Repository<ApplicationUser>().GetById(id);
-		}
-
-		protected override ApplicationUser DoCreate(ApplicationUserModel model, ApplicationUser entity, out string id)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoUpdate(ApplicationUserModel model, string id, ApplicationUser entity)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoRemove(string id)
-		{
-            throw new NotImplementedException();
-		}
-
-        protected override void DoRemove(string[] ids)
-		{
-            throw new NotImplementedException();
-		}
 
         protected override IEnumerable<ApplicationUserModel> ConvertModel(IEnumerable<ApplicationUserModel> models)
         {
@@ -135,19 +118,23 @@ namespace EFunTech.Sms.Portal.Controllers
         /// </summary>
         [System.Web.Http.HttpPost]
         [Route("api/DepartmentPointManager/AllotPoint")]
-        public HttpResponseMessage AllotPoint([FromBody] AllotPointModel model)
+        public async Task<HttpResponseMessage> AllotPoint([FromBody] AllotPointModel model)
         {
             try
             {
-                using (TransactionScope scope = this.unitOfWork.CreateTransactionScope())
+                using (TransactionScope scope = context.CreateTransactionScope())
                 {
-                    var src = this.repository.GetById(CurrentUserId);
-                    var dsts = this.repository.GetMany(p => model.ids.Contains(p.Id)).ToList(); // 已經開啟一個與這個 Command 相關的 DataReader，必須先將它關閉
+                    var src = await context.Set<ApplicationUser>().FindAsync(CurrentUserId);
+                    var dsts = await context.Set<ApplicationUser>().Where(p => model.ids.Contains(p.Id)).ToListAsync();
+
                     this.tradeService.AllotPoint(src, dsts, model.point);
+
                     scope.Complete();
                 }
 
-                return Request.CreateResponse(HttpStatusCode.OK);
+                var response = this.Request.CreateResponse(HttpStatusCode.OK);
+
+                return response;
             }
             catch (Exception ex)
             {
@@ -162,15 +149,15 @@ namespace EFunTech.Sms.Portal.Controllers
         /// </summary>
         [System.Web.Http.HttpPost]
         [Route("api/DepartmentPointManager/CreateAllotSetting")]
-        public HttpResponseMessage CreateAllotSetting([FromBody] CreateAllotSettingModel model)
+        public async Task<HttpResponseMessage> CreateAllotSetting([FromBody] CreateAllotSettingModel model)
         {
             try
             {
-                using (TransactionScope scope = this.unitOfWork.CreateTransactionScope())
+                using (TransactionScope scope = context.CreateTransactionScope())
                 {
-                    this.unitOfWork.Repository<AllotSetting>().Delete(p => model.ids.Contains(p.Owner.Id));
+                    await context.DeleteAsync<AllotSetting>(p => model.ids.Contains(p.Owner.Id));
 
-                    var users = this.repository.GetMany(p => model.ids.Contains(p.Id)).ToList(); // 已經開啟一個與這個 Command 相關的 DataReader，必須先將它關閉
+                    var users = await context.Set<ApplicationUser>().Where(p => model.ids.Contains(p.Id)).ToListAsync(); 
 
                     foreach (var user in users)
                     {
@@ -184,8 +171,7 @@ namespace EFunTech.Sms.Portal.Controllers
                             Owner = user,
                         };
 
-                        
-                        this.unitOfWork.Repository<AllotSetting>().Insert(allotSetting);
+                        await context.InsertAsync<AllotSetting>(allotSetting);
                     }
 
                     scope.Complete();
@@ -206,13 +192,13 @@ namespace EFunTech.Sms.Portal.Controllers
         /// </summary>
         [System.Web.Http.HttpDelete]
         [Route("api/DepartmentPointManager/DeleteAllotSetting")]
-        public HttpResponseMessage DeleteAllotSetting([FromUri]string id)
+        public async Task<HttpResponseMessage> DeleteAllotSetting([FromUri]string id)
         {
             try
             {
-                using (TransactionScope scope = this.unitOfWork.CreateTransactionScope())
+                using (TransactionScope scope = context.CreateTransactionScope())
                 {
-                    this.unitOfWork.Repository<AllotSetting>().Delete(p => p.Owner.Id == id);
+                    await context.DeleteAsync<AllotSetting>(p => p.Owner.Id == id);
 
                     scope.Complete();
                 }
@@ -232,29 +218,17 @@ namespace EFunTech.Sms.Portal.Controllers
         /// </summary>
         [System.Web.Http.HttpDelete]
         [Route("api/DepartmentPointManager/RecoveryPoint")]
-        public virtual HttpResponseMessage RecoveryPoint([FromUri]string[] ids)
+        public async Task<HttpResponseMessage> RecoveryPoint([FromUri]string[] ids)
         {
             try
             {
-                List<ApplicationUser> entities = new List<ApplicationUser>();
-
-                foreach (var id in ids)
-                {
-                    ApplicationUser entity = this.repository.GetById(id);
-                    if (entity == null)
-                    {
-                        throw new HttpResponseException(HttpStatusCode.NotFound);
-                    }
-                    entities.Add(entity);
-                }
-
-                using (TransactionScope scope = this.unitOfWork.CreateTransactionScope())
+                using (TransactionScope scope = context.CreateTransactionScope())
                 {
                     // 由最下層的使用者開始取回
                     // select UserName from AspNetUsers Order By Level
-                    var users = entities.OrderBy(p => p.Level);
+                    var users = await context.Set<ApplicationUser>().Where(p => ids.Contains(p.Id)).OrderBy(p => p.Level).ToListAsync();
 
-                    foreach(var user in users)
+                    foreach (var user in users)
                     {
                         this.tradeService.RecoveryPoint(CurrentUser, user);
                     }

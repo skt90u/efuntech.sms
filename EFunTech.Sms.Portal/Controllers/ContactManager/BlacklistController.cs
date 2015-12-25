@@ -60,28 +60,28 @@ namespace EFunTech.Sms.Portal.Controllers
             entity.UpdatedUserName = CurrentUserName;
 
             entity = await context.InsertAsync(entity);
-            
+
             return entity;
         }
 
-        protected override async Task<int> DoUpdate(BlacklistModel model, int id, Blacklist entity)
+        protected override async Task DoUpdate(BlacklistModel model, int id, Blacklist entity)
         {
             entity.E164Mobile = MobileUtil.GetE164PhoneNumber(model.Mobile);
             entity.Region = MobileUtil.GetRegionName(model.Mobile);
             entity.UpdatedTime = DateTime.UtcNow;
             entity.UpdatedUserName = CurrentUserName;
 
-            return await context.UpdateAsync(entity);
+            await context.UpdateAsync(entity);
         }
 
-        protected override async Task<int> DoRemove(int id) 
+        protected override async Task DoRemove(int id) 
         {
-            return await context.DeleteAsync<Blacklist>(p => p.Id == id);
+            await context.DeleteAsync<Blacklist>(p => p.Id == id);
         }
 
-        protected override async Task<int> DoRemove(int[] ids) 
+        protected override async Task DoRemove(int[] ids) 
         {
-            return await context.DeleteAsync<Blacklist>(p => ids.Contains(p.Id));
+            await context.DeleteAsync<Blacklist>(p => ids.Contains(p.Id));
         }
     }
 }

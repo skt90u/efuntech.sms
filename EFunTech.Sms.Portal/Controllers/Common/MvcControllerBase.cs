@@ -18,6 +18,8 @@ namespace EFunTech.Sms.Portal.Controllers.Common
 {
     public abstract class MvcControllerBase : System.Web.Mvc.Controller
     {
+        protected DbContext context;
+
         protected IUnitOfWork unitOfWork;
         protected ILogService logService;
         protected ApiControllerHelper apiControllerHelper;
@@ -34,13 +36,15 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             this.apiControllerHelper = new ApiControllerHelper(unitOfWork, logService);
             this.validationService = new ValidationService(unitOfWork, logService);
             this.tradeService = new TradeService(unitOfWork, logService);
+
+            this.context = this.unitOfWork.DbContext;
         }
 
         public ApplicationUser CurrentUser
         {
             get
             {
-                return User.Identity.GetUser(unitOfWork.DbContext);
+                return User.Identity.GetUser(context);
             }
         }
 
@@ -48,7 +52,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         {
             get
             {
-                return User.Identity.GetUserRole(unitOfWork.DbContext);
+                return User.Identity.GetUserRole(context);
             }
         }
 
@@ -93,25 +97,39 @@ namespace EFunTech.Sms.Portal.Controllers.Common
 
         public List<MenuItemModel> GetMenuItems()
         {
-            using (var context = new ApplicationDbContext())
-            {
-                var role = CurrentUserRole;
+            var role = CurrentUserRole;
+            string roleName = role.ToString();
 
-                string roleName = role.ToString();
+            var models = context.Set<MenuItem>()
+                    .Include(p => p.WebAuthorization)
+                    .Where(p => p.WebAuthorization.Roles.Contains(roleName))
+                    .OrderBy(p => p.Order)
+                    .Project().To<MenuItemModel>()
+                    .FromCache(tags: new [] { "MenuItems", roleName })
+                    .ToList();
 
-                //var entities = context.MenuItems
-                var models = context.MenuItems
-                        .Include(p => p.WebAuthorization)
-                        .Where(p => p.WebAuthorization.Roles.Contains(roleName))
-                        .OrderBy(p => p.Order)
-                        .Project().To<MenuItemModel>()
-                        //.FromCache(tags: new [] { "MenuItems", roleName })
-                        .ToList();
+            return models;
 
-                //List<MenuItemModel> models = Mapper.Map<List<MenuItem>, List<MenuItemModel>>(entities);
+            //using (var context = new ApplicationDbContext())
+            //{
+            //    var context = this.unitOfWork.DbContext
+            //    var role = CurrentUserRole;
 
-                return models;
-            }
+            //    string roleName = role.ToString();
+
+            //    //var entities = context.MenuItems
+            //    var models = context.MenuItems
+            //            .Include(p => p.WebAuthorization)
+            //            .Where(p => p.WebAuthorization.Roles.Contains(roleName))
+            //            .OrderBy(p => p.Order)
+            //            .Project().To<MenuItemModel>()
+            //            //.FromCache(tags: new [] { "MenuItems", roleName })
+            //            .ToList();
+
+            //    //List<MenuItemModel> models = Mapper.Map<List<MenuItem>, List<MenuItemModel>>(entities);
+
+            //    return models;
+            //}
         }
 
         //private TimeSpan _ClientTimezoneOffset = TimeSpan.Zero;

@@ -3,7 +3,6 @@ using EFunTech.Sms.Schema;
 using System.Linq;
 using EFunTech.Sms.Portal.Controllers.Common;
 using EFunTech.Sms.Portal.Models.Common;
-
 using System.Collections.Generic;
 using LinqKit;
 using System;
@@ -81,12 +80,12 @@ namespace EFunTech.Sms.Portal.Controllers
 			return entity;
 		}
 
-        protected override async Task<int> DoUpdate(DepartmentModel model, int id, Department entity)
+        protected override async Task DoUpdate(DepartmentModel model, int id, Department entity)
 		{
-            return await context.UpdateAsync(entity);
+            await context.UpdateAsync(entity);
 		}
 
-        protected override async Task<int> DoRemove(int id) 
+        protected override async Task DoRemove(int id) 
 		{
             // 必須先刪除此部門下，所有使用者
             var users = await context.Set<ApplicationUser>().Where(p => p.Department != null && p.Department.Id == id).ToListAsync();
@@ -101,18 +100,15 @@ namespace EFunTech.Sms.Portal.Controllers
                 throw new Exception(error);
             }
 
-			return await context.DeleteAsync< Department>(p => p.Id == id);
+			await context.DeleteAsync< Department>(p => p.Id == id);
 		}
 
-        protected override async Task<int> DoRemove(int[] ids) 
+        protected override async Task DoRemove(int[] ids) 
 		{
-            int result = 0;
             for (var i = 0; i < ids.Length; i++)
             {
-                result += await DoRemove(ids[i]);
+                await DoRemove(ids[i]);
             }
-            return result;
-
         }
 
         protected override IEnumerable<DepartmentModel> ConvertModel(IEnumerable<DepartmentModel> models)

@@ -2,19 +2,14 @@ using EFunTech.Sms.Portal.Models;
 using EFunTech.Sms.Schema;
 using System.Linq;
 using EFunTech.Sms.Portal.Controllers.Common;
-using EFunTech.Sms.Portal.Models.Common;
-using JUtilSharp.Database;
-
-using System.Collections.Generic;
 using LinqKit;
 using EFunTech.Sms.Portal.Models.Criteria;
-using System;
 using System.Data.Entity;
 using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class UserNotInSharedGroupController : AsyncCrudApiController<UserNotInSharedGroupCriteriaModel, ApplicationUserModel, ApplicationUser, string>
+    public class UserNotInSharedGroupController : AsyncCrudApiController<UserNotInSharedGroupCriteriaModel, ApplicationUserModel, ApplicationUser, string>
 	{
         public UserNotInSharedGroupController(DbContext context, ILogService logService)
 			: base(context, logService)

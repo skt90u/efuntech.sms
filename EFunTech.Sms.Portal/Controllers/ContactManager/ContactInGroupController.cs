@@ -58,15 +58,15 @@ namespace EFunTech.Sms.Portal.Controllers
         /// <summary>
         /// 將聯絡人由指定群組中移除
         /// </summary>
-        protected override async Task<int> DoUpdate(ContactModel model, int id, Contact entity)
+        protected override async Task DoUpdate(ContactModel model, int id, Contact entity)
 		{
             // 將聯絡人由指定群組中移除
             await context.DeleteAsync<GroupContact>(p => p.ContactId == model.Id && p.GroupId == model.RemoveFromGroupId);
 
             // 更新群組快取
             entity.Groups = string.Join(",", context.Set<GroupContact>().Where(p => p.ContactId == model.Id).Select(p => p.Group.Name));
-            return await context.UpdateAsync(entity);
-		}
+            await context.UpdateAsync(entity);
+        }
 
 	}
 }

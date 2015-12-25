@@ -3,7 +3,6 @@ using EFunTech.Sms.Schema;
 using System.Linq;
 using EFunTech.Sms.Portal.Controllers.Common;
 using EFunTech.Sms.Portal.Models.Common;
-
 using System.Collections.Generic;
 using LinqKit;
 using System;
@@ -22,6 +21,7 @@ namespace EFunTech.Sms.Portal.Controllers
         protected override IQueryable<Contact> DoGetList(SearchTextCriteriaModel criteria)
         {
             var predicate = PredicateBuilder.True<Contact>();
+
             var searchText = criteria.SearchText;
             if (!string.IsNullOrEmpty(searchText))
             {
@@ -78,7 +78,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 .FirstOrDefault();
 
             if (group == null)
-                throw new Exception(string.Format("使用者{0}常用聯絡人群組尚未建立", CurrentUser.UserName));
+                throw new Exception(string.Format("使用者{0}常用聯絡人群組尚未建立", CurrentUserName));
 
             var groupContact = new GroupContact();
             groupContact.GroupId = group.Id;
@@ -88,24 +88,24 @@ namespace EFunTech.Sms.Portal.Controllers
             return entity;
         }
 
-        protected override async Task<int> DoUpdate(ContactModel model, int id, Contact entity)
+        protected override async Task DoUpdate(ContactModel model, int id, Contact entity)
         {
             entity.E164Mobile = MobileUtil.GetE164PhoneNumber(model.Mobile);
             entity.Region = MobileUtil.GetRegionName(model.Mobile);
 
-            return await context.UpdateAsync(entity);
+            await context.UpdateAsync(entity);
         }
 
-        protected override async Task<int> DoRemove(int id)
+        protected override async Task DoRemove(int id)
         {
             await context.DeleteAsync<GroupContact>(p => p.ContactId == id);
-            return await context.DeleteAsync<Contact>(p => p.Id == id);
+            await context.DeleteAsync<Contact>(p => p.Id == id);
         }
 
-        protected override async Task<int> DoRemove(int[] ids)
+        protected override async Task DoRemove(int[] ids)
         {
             await context.DeleteAsync<GroupContact>(p => ids.Contains(p.ContactId));
-            return await context.DeleteAsync<Contact>(p => ids.Contains(p.Id));
+            await context.DeleteAsync<Contact>(p => ids.Contains(p.Id));
         }
 
         protected override IEnumerable<ContactModel> ConvertModel(IEnumerable<ContactModel> models)

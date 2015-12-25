@@ -71,9 +71,9 @@ namespace EFunTech.Sms.Portal.Controllers
         /// <summary>
         /// 將聯絡人加入至指定群組中
         /// </summary>
-        protected override async Task<int> DoUpdate(ContactModel model, int id, Contact entity)
+        protected override async Task DoUpdate(ContactModel model, int id, Contact entity)
 		{
-            if(!context.Set<GroupContact>().Any(p => p.ContactId == model.Id && p.GroupId == model.JoinToGroupId))
+            if (!context.Set<GroupContact>().Any(p => p.ContactId == model.Id && p.GroupId == model.JoinToGroupId))
             {
                 // 將聯絡人加入至指定群組中
                 var groupContact = new GroupContact();
@@ -83,10 +83,8 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 // 更新群組快取
                 entity.Groups = string.Join(",", context.Set<GroupContact>().Where(p => p.ContactId == model.Id).Select(p => p.Group.Name));
-                return await context.UpdateAsync(entity);
+                await context.UpdateAsync(entity);
             }
-
-            return 0;
 		}
 	}
 }

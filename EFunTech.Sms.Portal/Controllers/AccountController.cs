@@ -545,12 +545,12 @@ namespace EFunTech.Sms.Portal.Controllers
                 predicate = predicate.And(p => p.PublishDate <= PublishDate);
                 predicate = predicate.And(p => p.IsVisible == true);
 
-                return context.SystemAnnouncements
+                return context.Set<SystemAnnouncement>()
                               .AsExpandable().Where(predicate)
                               .OrderByDescending(p => p.PublishDate)
                               .ThenByDescending(p => p.CreatedTime)
                               .Project().To<SystemAnnouncementModel>()
-                              //.FromCache(tags: new[] { "SystemAnnouncements" })
+                              .FromCache(tags: new[] { "SystemAnnouncements" })
                               .ToList();
             }
         }

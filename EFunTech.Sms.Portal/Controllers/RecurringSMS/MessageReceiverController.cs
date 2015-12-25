@@ -107,7 +107,7 @@ namespace EFunTech.Sms.Portal.Controllers
         /// <summary>
         /// 刪除指定收訊者
         /// </summary>
-        protected override async Task<int> DoRemove(int id) 
+        protected override async Task DoRemove(int id) 
 		{
             MessageReceiver entity = await DoGet(id);
 
@@ -128,7 +128,7 @@ namespace EFunTech.Sms.Portal.Controllers
             ////////////////////////////////////////
 
             if (!context.Set<SendMessageRule>().Any(p => p.Id == sendMessageRule.Id && p.CreatedUserId == CurrentUserId))
-                return 0;
+                return ;
 
             ////////////////////////////////////////
             // (2) 檢查目前簡訊狀態為 Ready 才可以執行刪除動作
@@ -157,7 +157,7 @@ namespace EFunTech.Sms.Portal.Controllers
             // (5) 刪除 簡訊收訊人 (MessageReceiver)
             ////////////////////////////////////////
 
-            int result = await context.DeleteAsync(entity);
+            await context.DeleteAsync(entity);
 
             ////////////////////////////////////////
             // (6) 設定目前簡訊狀態為 Ready 
@@ -173,19 +173,14 @@ namespace EFunTech.Sms.Portal.Controllers
             //{
 
             //}
-
-            return result;
         }
 
-        protected override async Task<int> DoRemove(int[] ids) 
+        protected override async Task DoRemove(int[] ids) 
 		{
-            int result = 0;
             for (var i = 0; i < ids.Length; i++)
             {
-                result += await DoRemove(ids[i]);
+                await DoRemove(ids[i]);
             }
-            return result;
-
         }
 
 	}

@@ -5,27 +5,19 @@ using System.Net;
 using System.Collections.Generic;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using JUtilSharp.Database;
 using System;
-
 using System.Transactions;
-using System.Net.Http.Formatting;
-
 using System.Net.Http.Headers;
 using OfficeOpenXml;
 using System.IO;
 using System.Data;
-using System.Reflection;
 using OfficeOpenXml.Style;
 using System.Drawing;
 using Ionic.Zip;
 using System.Threading.Tasks;
 using System.Text;
 using EFunTech.Sms.Core;
-using EFunTech.Sms.Schema;
 using EFunTech.Sms.Portal.Models.Common;
-using EntityFramework.Extensions;
-using EntityFramework.Caching;
 using System.Data.Entity;
 
 // http://aspnet.codeplex.com/SourceControl/changeset/view/7ce67a547fd0#Samples/WebApi/RelaySample/Controllers/RelayController.cs
@@ -211,6 +203,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                     {
                         FileName = reportDownloadModel.FileName
                     };
+
                     return response;
                 }
                 else
@@ -266,9 +259,9 @@ namespace EFunTech.Sms.Portal.Controllers.Common
 
         #region GetById
 
-        public virtual async Task<TEntity> DoGet(TIdentity id)
+        public virtual Task<TEntity> DoGet(TIdentity id)
         {
-            return await context.Set<TEntity>().FindAsync(id);
+            return context.Set<TEntity>().FindAsync(id);
         }
 
         [System.Web.Http.HttpGet]
@@ -280,6 +273,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             {
                 throw new HttpResponseException(HttpStatusCode.NotFound);
             }
+
             var model = Mapper.Map<TEntity, TModel>(entity);
 
             return model;
@@ -288,7 +282,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
 
         #region Create
 
-        protected virtual async Task<TEntity> DoCreate(TModel model, TEntity entity) 
+        protected virtual Task<TEntity> DoCreate(TModel model, TEntity entity) 
         {
             throw new NotImplementedException();
         }
@@ -309,11 +303,11 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                 using (TransactionScope scope = context.CreateTransactionScope())
                 {
                     entity = await DoCreate(model, entity);
+
                     scope.Complete();
                 }
 
-                var response = this.Request.CreateResponse(
-                                HttpStatusCode.Created, 
+                var response = this.Request.CreateResponse(HttpStatusCode.Created, 
                                 Mapper.Map<TEntity, TModel>(entity));
 
                 return response;
@@ -326,21 +320,15 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             }
         }
 
-        private HttpResponseMessage WrapPostResponseMessage<T>(T entity, string id)
-        {
-            HttpResponseMessage respMessage = this.Request.CreateResponse<T>(HttpStatusCode.Created, entity);
-
-            string uri = this.Url.Link("DefaultApi", new { id = id });
-            respMessage.Headers.Location = new Uri(uri);
-
-            return respMessage;
-        }
-
         #endregion
 
         #region Update
 
-        protected virtual async Task<int> DoUpdate(TModel model, TIdentity id, TEntity entity) { throw new NotImplementedException(); }
+        protected virtual Task DoUpdate(TModel model, TIdentity id, TEntity entity)
+        {
+            throw new NotImplementedException();
+        }
+
         // PUT api/<controller>/{id}
         /// <summary>
         /// 更新資料.
@@ -355,6 +343,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             try
             {
                 TEntity entity = await DoGet(id);
+
                 if (entity == null)
                 {
                     throw new HttpResponseException(HttpStatusCode.NotFound);
@@ -365,10 +354,12 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                 using (TransactionScope scope = context.CreateTransactionScope())
                 {
                     await DoUpdate(model, id, entity);
+
                     scope.Complete();
                 }
 
-                var response = Request.CreateResponse(HttpStatusCode.OK);
+                var response = this.Request.CreateResponse(HttpStatusCode.OK);
+
                 return response;
             }
             catch (Exception ex)
@@ -382,8 +373,16 @@ namespace EFunTech.Sms.Portal.Controllers.Common
 
         #region Delete
 
-        protected virtual async Task<int> DoRemove(TIdentity[] ids) { throw new NotImplementedException(); }
-        protected virtual async Task<int> DoRemove(TIdentity id) { throw new NotImplementedException(); }
+        protected virtual Task DoRemove(TIdentity[] ids)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected virtual Task DoRemove(TIdentity id)
+        {
+            throw new NotImplementedException();
+        }
+
         // DELETE api/<controller>/{idsWithComma}
         /// <summary>
         /// 刪除多筆資料.
@@ -396,10 +395,12 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                 using (TransactionScope scope = context.CreateTransactionScope())
                 {
                     await DoRemove(ids);
+
                     scope.Complete();
                 }
 
-                var response = Request.CreateResponse(HttpStatusCode.OK);
+                var response = this.Request.CreateResponse(HttpStatusCode.OK);
+
                 return response;
             }
             catch (Exception ex)
@@ -425,10 +426,12 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                 using (TransactionScope scope = context.CreateTransactionScope())
                 {
                     await DoRemove(id);
+
                     scope.Complete();
                 }
 
-                var response = Request.CreateResponse(HttpStatusCode.OK);
+                var response = this.Request.CreateResponse(HttpStatusCode.OK);
+
                 return response;
             }
             catch (Exception ex)

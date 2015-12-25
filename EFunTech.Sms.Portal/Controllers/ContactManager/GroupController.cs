@@ -69,12 +69,12 @@ namespace EFunTech.Sms.Portal.Controllers
 			return entity;
 		}
 
-        protected override async Task<int> DoUpdate(GroupModel model, int id, Group entity)
+        protected override async Task DoUpdate(GroupModel model, int id, Group entity)
 		{
-            return await context.UpdateAsync(entity);
+            await context.UpdateAsync(entity);
 		}
 
-        protected override async Task<int> DoRemove(int id)
+        protected override async Task DoRemove(int id)
 		{
             var groupId = id;
 
@@ -93,7 +93,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 await context.DeleteAsync<SharedGroupContact>(p => p.GroupId == groupId);
 
                 // 刪除群組
-                return await context.DeleteAsync<Group>(p => p.Id == groupId);
+                await context.DeleteAsync<Group>(p => p.Id == groupId);
             }
             else
             {
@@ -104,9 +104,9 @@ namespace EFunTech.Sms.Portal.Controllers
                 await context.DeleteAsync<SharedGroupContact>(p => p.GroupId == groupId);
 
                 // 刪除群組            
-                return await context.DeleteAsync<Group>(p => p.Id == groupId);
+                await context.DeleteAsync<Group>(p => p.Id == groupId);
             }
-		}
+        }
 
         protected override IEnumerable<GroupModel> ConvertModel(IEnumerable<GroupModel> models)
         {

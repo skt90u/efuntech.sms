@@ -2,8 +2,6 @@ using EFunTech.Sms.Portal.Models;
 using EFunTech.Sms.Schema;
 using System.Linq;
 using EFunTech.Sms.Portal.Controllers.Common;
-using EFunTech.Sms.Portal.Models.Common;
-using JUtilSharp.Database;
 
 using System.Collections.Generic;
 using System;
@@ -11,14 +9,22 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using EFunTech.Sms.Portal.Models.Criteria;
 using LinqKit;
+using System.Data.Entity;
+using System.Threading.Tasks;
+using JUtilSharp.Database;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class DepartmentManagerController : CrudApiController<DepartmentManagerCriteriaModel, ApplicationUserModel, ApplicationUser, string>
+    public class DepartmentManagerController : AsyncCrudApiController<DepartmentManagerCriteriaModel, ApplicationUserModel, ApplicationUser, string>
     {
-        public DepartmentManagerController(ISystemParameters systemParameters, IUnitOfWork unitOfWork, ILogService logService)
-            : base(unitOfWork, logService)
+        protected ApiControllerHelper apiControllerHelper;
+        protected TradeService tradeService;
+
+        public DepartmentManagerController(ISystemParameters systemParameters, DbContext context, ILogService logService)
+            : base(context, logService)
         {
+            this.apiControllerHelper = new ApiControllerHelper(new UnitOfWork(context), logService);
+            this.tradeService = new TradeService(new UnitOfWork(context), logService);
         }
 
         // 只能管理子帳號
@@ -53,7 +59,6 @@ namespace EFunTech.Sms.Portal.Controllers
             // 尋找目前使用者以及目前使用者的子帳號或孫帳號
             List<ApplicationUser> users = this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUser);
 
-
             // 尋找目前使用者以及目前使用者的子帳號
             var result = users.AsQueryable();
 
@@ -77,11 +82,6 @@ namespace EFunTech.Sms.Portal.Controllers
             return result.OrderByDescending(p => p.Level).ThenBy(p => p.Id);
         }
 
-        protected override ApplicationUser DoGet(string id)
-        {
-            return this.unitOfWork.Repository<ApplicationUser>().GetById(id);
-        }
-
         /// <summary>
         /// 建立子帳號
         /// </summary>
@@ -89,10 +89,10 @@ namespace EFunTech.Sms.Portal.Controllers
         /// <param name="entity"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        protected override ApplicationUser DoCreate(ApplicationUserModel model, ApplicationUser entity, out string id)
+        protected override async Task<ApplicationUser> DoCreate(ApplicationUserModel model, ApplicationUser entity)
         {
             // 確認帳號是否存在
-            if (this.unitOfWork.Repository<ApplicationUser>().Any(p => p.UserName == model.UserName))
+            if (context.Set<ApplicationUser>().Any(p => p.UserName == model.UserName))
                 throw new Exception(string.Format("帳號 {0} 已經存在", model.UserName));
 
             // 當角色是 DepartmentHead 或者 Employee，必須指定部門
@@ -101,7 +101,7 @@ namespace EFunTech.Sms.Portal.Controllers
             if (role == Role.DepartmentHead || role == Role.Employee)
             {
                 if (model.DepartmentId == 0)
-                    throw new Exception("當角色為部門主管或員工時，必須指定部門");
+                    throw new Exception("當角色為部門主管或員工時，必須指定所屬部門");
             }
 
             entity = new ApplicationUser();
@@ -111,16 +111,22 @@ namespace EFunTech.Sms.Portal.Controllers
             entity.FullName = model.FullName;
             entity.SmsBalance = 0M;
             entity.SmsBalanceExpireDate = DateTime.MaxValue;
-            entity.Department = model.DepartmentId == 0 ? null : this.unitOfWork.Repository<Department>().Get(p => p.Id == model.DepartmentId);
+            entity.Department = model.DepartmentId == 0 
+                ? null 
+                : context.Set<Department>().FirstOrDefault(p => p.Id == model.DepartmentId);
             entity.EmployeeNo = model.EmployeeNo;
             entity.PhoneNumber = model.PhoneNumber;
             entity.Email = model.Email;
             entity.Enabled = true;
 
-            var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(this.unitOfWork.DbContext));
+            var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
 
             // 建立帳號
-            var result = EFunTech.Sms.Core.AsyncHelper.RunSync<IdentityResult>(() => userManager.CreateAsync(entity, model.NewPassword));
+            var result = userManager.CreateAsync(
+                                        entity, 
+                                        model.NewPassword)
+                                    .GetAwaiter()
+                                    .GetResult();
             if (!result.Succeeded)
             {
                 string errors = string.Join(",", result.Errors.ToList());
@@ -128,9 +134,10 @@ namespace EFunTech.Sms.Portal.Controllers
             }
 
             // 加入腳色
-            userManager.AddToRoleAsync(entity.Id, this.apiControllerHelper.GetRoleName(model.RoleId)).Wait();
-
-            id = entity.Id;
+            userManager.AddToRoleAsync(
+                            entity.Id, 
+                            this.apiControllerHelper.GetRoleName(model.RoleId))
+                        .Wait();
 
             CreditWarning CreditWarning = new CreditWarning
             {
@@ -141,7 +148,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 NotifiedInterval = CreditWarning.DefaultValue_NotifiedInterval,
                 Owner = entity,
             };
-            this.unitOfWork.Repository<CreditWarning>().Insert(CreditWarning);
+            await context.InsertAsync(CreditWarning);
 
             ReplyCc ReplyCc = new ReplyCc
             {
@@ -150,7 +157,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 ByEmail = ReplyCc.DefaultValue_ByEmail,
                 Owner = entity,
             };
-            this.unitOfWork.Repository<ReplyCc>().Insert(ReplyCc);
+            await context.InsertAsync(ReplyCc);
 
             // 建立預設群組 [常用聯絡人]
             var group = new Group();
@@ -158,12 +165,12 @@ namespace EFunTech.Sms.Portal.Controllers
             group.Description = Group.CommonContactGroupName;
             group.Deletable = false;
             group.CreatedUser = entity;
-            group = this.unitOfWork.Repository<Group>().Insert(group);
+            await context.InsertAsync(group);
 
             return entity;
         }
 
-        protected override void DoUpdate(ApplicationUserModel model, string id, ApplicationUser entity)
+        protected override async Task DoUpdate(ApplicationUserModel model, string id, ApplicationUser entity)
         {
             // 當角色是 DepartmentHead 或者 Employee，必須指定部門
             var roleName = this.apiControllerHelper.GetRoleName(model.RoleId);
@@ -175,15 +182,15 @@ namespace EFunTech.Sms.Portal.Controllers
             }
 
             //設定部門
-            entity.Department = model.DepartmentId == 0 ? null : this.unitOfWork.Repository<Department>().Get(p => p.Id == model.DepartmentId);
+            entity.Department = model.DepartmentId == 0 ? null : context.Set<Department>().FirstOrDefault(p => p.Id == model.DepartmentId);
 
             //是否有修改角色
             var newRoleId = model.RoleId;
             var oldRoleId = this.apiControllerHelper.GetRoleId(model.Id);
             if (newRoleId != oldRoleId)
             {
-                var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(this.unitOfWork.DbContext));
-                var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(this.unitOfWork.DbContext));
+                var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
+                var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
 
                 string oldRoleName = this.apiControllerHelper.GetRoleName(oldRoleId);
                 if (!string.IsNullOrEmpty(oldRoleName))
@@ -196,15 +203,15 @@ namespace EFunTech.Sms.Portal.Controllers
             if (!string.IsNullOrEmpty(model.NewPassword))
             {
                 // http://stackoverflow.com/questions/19524111/asp-net-identity-reset-password
-                var store = new UserStore<ApplicationUser>(this.unitOfWork.DbContext);
+                var store = new UserStore<ApplicationUser>(context);
                 var userManager = new UserManager<ApplicationUser>(store);
-                var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(this.unitOfWork.DbContext));
+                var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
 
                 String hashedNewPassword = userManager.PasswordHasher.HashPassword(model.NewPassword);
-                var user = this.repository.GetById(model.Id);
+                var user = await DoGet(model.Id);
 
-                EFunTech.Sms.Core.AsyncHelper.RunSync(() => store.SetPasswordHashAsync(user, hashedNewPassword));
-                EFunTech.Sms.Core.AsyncHelper.RunSync(() => store.UpdateAsync(user));
+                store.SetPasswordHashAsync(user, hashedNewPassword).Wait();
+                store.UpdateAsync(user).Wait();
             }
 
             if (entity.Enabled)
@@ -218,7 +225,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 entity.LockoutEndDateUtc = DateTime.MaxValue;
             }
 
-            this.repository.Update(entity);
+            await context.UpdateAsync(entity);
         }
 
         //protected override void DoRemove(string id, ApplicationUser entity)
@@ -271,9 +278,9 @@ namespace EFunTech.Sms.Portal.Controllers
         //    this.tradeService.DeleteChildUser(currentUser, childUser);
         //}
 
-        protected override void DoRemove(string id)
+        protected override async Task DoRemove(string id) 
         {
-            ApplicationUser entity = this.repository.GetById(id);
+            ApplicationUser entity = await DoGet(id);
 
             // 刪除指定帳號必須確保該帳號所建立的所有使用者都已經刪除
 
@@ -289,41 +296,39 @@ namespace EFunTech.Sms.Portal.Controllers
 
             // 移除使用者相關資料
 
-            this.unitOfWork.Repository<Blacklist>().Delete(p => p.CreatedUser.Id == id);
-            this.unitOfWork.Repository<CommonMessage>().Delete(p => p.CreatedUser.Id == id);
-            this.unitOfWork.Repository<UploadedFile>().Delete(p => p.CreatedUser.Id == id);
-            this.unitOfWork.Repository<Signature>().Delete(p => p.CreatedUser.Id == id);
+            await context.DeleteAsync<Blacklist>(p => p.CreatedUser.Id == id);
+            await context.DeleteAsync<CommonMessage>(p => p.CreatedUser.Id == id);
+            await context.DeleteAsync<UploadedFile>(p => p.CreatedUser.Id == id);
+            await context.DeleteAsync<Signature>(p => p.CreatedUser.Id == id);
 
-            var sendMessageRuleRepository = this.unitOfWork.Repository<SendMessageRule>();
-            var sendMessageRules = sendMessageRuleRepository.GetMany(p => p.CreatedUser.Id == id);
+            var sendMessageRules = context.Set<SendMessageRule>().Where(p => p.CreatedUser.Id == id);
             var sendMessageRuleIds = sendMessageRules.Select(p => p.Id);
+
             // 刪除與 SendMessageRule 相依的 SendMessageQueue
-            this.unitOfWork.Repository<SendMessageQueue>().Delete(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+            await context.DeleteAsync<SendMessageQueue>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
             // 刪除 SendMessageRule 之前必須回補點數
             sendMessageRules.ForEach(p => this.tradeService.DeleteSendMessageRule(p));
-            this.unitOfWork.Repository<SendMessageRule>().Delete(p => p.CreatedUser.Id == id);
+            await context.DeleteAsync<SendMessageRule>(p => p.CreatedUser.Id == id);
 
-            var contactIds = this.unitOfWork.Repository<Contact>().GetMany(p => p.CreatedUser.Id == id).Select(p => p.Id);
-            this.unitOfWork.Repository<GroupContact>().Delete(p => contactIds.Contains(p.ContactId));
-            this.unitOfWork.Repository<Contact>().Delete(p => p.CreatedUser.Id == id);
+            var contactIds = context.Set<Contact>().Where(p => p.CreatedUser.Id == id).Select(p => p.Id);
+            await context.DeleteAsync<GroupContact>(p => contactIds.Contains(p.ContactId));
+            await context.DeleteAsync<Contact>(p => p.CreatedUser.Id == id);
 
-            var groupIds = this.unitOfWork.Repository<Group>().GetMany(p => p.CreatedUser.Id == id).Select(p => p.Id);
-            this.unitOfWork.Repository<GroupContact>().Delete(p => groupIds.Contains(p.GroupId));
-            this.unitOfWork.Repository<Group>().Delete(p => p.CreatedUser.Id == id);
+            var groupIds = context.Set<Group>().Where(p => p.CreatedUser.Id == id).Select(p => p.Id);
+            await context.DeleteAsync<GroupContact>(p => groupIds.Contains(p.GroupId));
+            await context.DeleteAsync<Group>(p => p.CreatedUser.Id == id);
 
-            this.unitOfWork.Repository<SharedGroupContact>().Delete(p => p.ShareToUserId == id);
-            
-            //FK_dbo.SharedGroupContacts_dbo.AspNetUsers_ShareToUserId
+            await context.DeleteAsync<SharedGroupContact>(p => p.ShareToUserId == id);
 
             // this.unitOfWork.Repository<TradeDetail>().Delete(p => p.OwnerId == childUser.Id); // 不確定是否需要刪除交易明細
 
-            this.unitOfWork.Repository<AllotSetting>().Delete(p => p.Owner.Id == id);
-            this.unitOfWork.Repository<CreditWarning>().Delete(p => p.Owner.Id == id);
-            this.unitOfWork.Repository<ReplyCc>().Delete(p => p.Owner.Id == id);
+            await context.DeleteAsync<AllotSetting>(p => p.Owner.Id == id);
+            await context.DeleteAsync<CreditWarning>(p => p.Owner.Id == id);
+            await context.DeleteAsync<ReplyCc>(p => p.Owner.Id == id);
 
             //是否有修改角色
             var childUserRoleId = this.apiControllerHelper.GetRoleId(id);
-            var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(this.unitOfWork.DbContext));
+            var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
 
             string childUserRoleName = this.apiControllerHelper.GetRoleName(childUserRoleId);
             if (!string.IsNullOrEmpty(childUserRoleName))
@@ -331,14 +336,14 @@ namespace EFunTech.Sms.Portal.Controllers
 
             this.tradeService.DeleteUser(entity);
 
-            this.repository.Delete(entity);
+            await context.DeleteAsync<ApplicationUser>(entity);
         }
 
-        protected override void DoRemove(string[] ids)
+        protected override async Task DoRemove(string[] ids) 
         {
             for (var i = 0; i < ids.Length; i++)
             {
-                DoRemove(ids[i]);
+                await DoRemove(ids[i]);
             }
         }
 
@@ -356,7 +361,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 model.NewPassword = string.Empty;
                 model.NewPasswordConfirmed = string.Empty;
 
-                var user = this.unitOfWork.Repository<ApplicationUser>().GetById(model.Id);
+                var user = DoGet(model.Id).GetAwaiter().GetResult();
                 if (user != null && user.Parent != null)
                     model.CreatedUserName = user.Parent.UserName;
             }

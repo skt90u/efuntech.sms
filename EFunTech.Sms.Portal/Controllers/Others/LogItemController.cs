@@ -75,14 +75,14 @@ namespace EFunTech.Sms.Portal.Controllers
             return result;
 		}
 
-        protected override async Task<int> DoRemove(int id)
+        protected override async Task DoRemove(int id)
         {
-            return await context.DeleteAsync<LogItem>(p => p.Id == id);
+            await context.DeleteAsync<LogItem>(p => p.Id == id);
         }
 
-        protected override async Task<int> DoRemove(int[] ids)
+        protected override async Task DoRemove(int[] ids)
         {
-            return await context.DeleteAsync<LogItem>(p => ids.Contains(p.Id));
+            await context.DeleteAsync<LogItem>(p => ids.Contains(p.Id));
         }
 
         private string GetString(string str, int maxLen = 1000)
