@@ -30,7 +30,7 @@ namespace EFunTech.Sms.Portal
             // CacheManager.Current.Expire("ApplicationUser");
             
             var identityRoles = context.Set<IdentityRole>()
-                .FromCache(tags: new[] { "GetUserRole-IdentityRole" })
+                .FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetUserRole-IdentityRole" })
                 .ToList();
 
             var identityRole = identityRoles.FirstOrDefault(p => p.Id == role.RoleId);
@@ -69,7 +69,7 @@ namespace EFunTech.Sms.Portal
                    .Include(p => p.Claims)
                    .Include(p => p.Logins)
                    .Include(p => p.Roles)
-                   .FromCache(tags: new[] { "GetUser-IdentityUser" })
+                   .FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetUser-IdentityUser" })
                    .ToList();
 
             string userId = identity.GetUserId();

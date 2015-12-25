@@ -15,12 +15,17 @@ using System.Net.Http;
 using System.Web.Http;
 using EntityFramework.Extensions;
 using EntityFramework.Caching;
+using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class LookupApiController : ApiControllerBase
+    public class LookupApiController : AsyncApiControllerBase
     {
-        public LookupApiController(IUnitOfWork unitOfWork, ILogService logService) : base(unitOfWork, logService) { }
+        public LookupApiController(DbContext context, ILogService logService)
+            : base(context, logService)
+        {
+        }
 
         /// <summary>
         /// 取得目前所有帳號，用來驗證輸入使用者是否已經建立，避免每次輸入一個字元都會透過AJAX去伺服器驗證
@@ -30,10 +35,9 @@ namespace EFunTech.Sms.Portal.Controllers
         [Route("api/LookupApi/GetExistentUserNames")]
         public IEnumerable<string> GetExistentUserNames()
         {
-            return this.unitOfWork.Repository<ApplicationUser>()
-                .GetAll()
+            return context.Set<ApplicationUser>()
                 .Select(p => p.UserName)
-                //.FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetExistentUserNames"})
+                .FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetExistentUserNames"})
                 ;
         }
 
@@ -102,11 +106,12 @@ namespace EFunTech.Sms.Portal.Controllers
                     } break;
             }
 
-            var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(this.unitOfWork.DbContext));
+            var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
 
             var result = roleManager.Roles
                 .Where(p => availableRoleNames.Contains(p.Name))
-                //.FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableRoles", role.ToString() })
+                .FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableRoles", role.ToString() })
+                .ToList()
                 .Select(p => new TitleMapModel<string, string>
                 {
                     name = AttributeHelper.GetColumnDescription((Role)(Enum.Parse(typeof(Role), p.Name))),
@@ -130,9 +135,8 @@ namespace EFunTech.Sms.Portal.Controllers
                 case Role.Administrator:
                     {
                         // Administrator 可選取所有部門
-                        var result = this.unitOfWork.Repository<Department>()
-                                         .GetAll()
-                                         //.FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableDepartments_DepartmentManager", role.ToString() })
+                        var result = context.Set<Department>()
+                                         .FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableDepartments_DepartmentManager", role.ToString() })
                                          .Select(p => new TitleMapModel<string, int>
                                          {
                                              name = p.Name,
@@ -151,9 +155,9 @@ namespace EFunTech.Sms.Portal.Controllers
                 case Role.Supervisor:
                     {
                         // Supervisor 建立的所有部門
-                        var result = this.unitOfWork.Repository<Department>()
-                                         .GetMany(p => p.CreatedUser.Id == CurrentUserId)
-                                         //.FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableDepartments_DepartmentManager", role.ToString() })
+                        var result = context.Set<Department>()
+                                         .Where(p => p.CreatedUser.Id == CurrentUserId)
+                                         .FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableDepartments_DepartmentManager", role.ToString() })
                                          .Select(p => new TitleMapModel<string, int>
                                          {
                                              name = p.Name,
@@ -239,10 +243,11 @@ namespace EFunTech.Sms.Portal.Controllers
                     }break;
             }
 
-            var result = this.unitOfWork.Repository<Department>().DbSet
+            var result = context.Set<Department>()
                             .AsExpandable()
                             .Where(predicate)
-                            //.FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableDepartments_ShareContact", role.ToString() })
+                            .FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableDepartments_ShareContact", role.ToString() })
+                            .ToList()
                             .Select(p => new TitleMapModel<string, int>
                             {
                                 name = p.Name,

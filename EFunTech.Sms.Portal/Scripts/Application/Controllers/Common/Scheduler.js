@@ -3,7 +3,8 @@
 
     angular.module('app').controller('Scheduler', ['$scope', '$log', '$interval', 'LookupApi', '$window', 'dialogs', 'CurrentUserManager', 'GlobalSettings',
         function ($scope, $log, $interval, LookupApi, $window, dialogs, CurrentUserManager, GlobalSettings) {
-
+            
+            window.LookupApi = LookupApi;
             return;
 
             var checkUserIntervals = GlobalSettings.schedulerOptions.checkUserIntervals;

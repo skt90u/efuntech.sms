@@ -174,7 +174,8 @@ namespace EFunTech.Sms.Portal.Controllers
                 TotalTimeout = g.Sum(p => p.TotalTimeout),
 
                 CreatedTime = utcNow
-            }).ToList()
+            })
+            .ToList()
             .Select(p => new SendMessageStatistic
             {
                 DepartmentId = p.DepartmentId,

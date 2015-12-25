@@ -19,6 +19,7 @@ using System.Text;
 using EFunTech.Sms.Core;
 using EFunTech.Sms.Portal.Models.Common;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 
 // http://aspnet.codeplex.com/SourceControl/changeset/view/7ce67a547fd0#Samples/WebApi/RelaySample/Controllers/RelayController.cs
 
@@ -47,7 +48,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         }
 
         #region ProduceFile
-        
+
         /// <summary>
         /// ProduceFile 預設行為是將查詢到的資料以 Excel 的格式輸出
         /// </summary>
@@ -69,7 +70,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         /// </example>
         protected ReportDownloadModel ProduceExcelFile<T>(string fileName, string sheetName, IEnumerable<T> models)
         {
-            return ProduceExcelFile(fileName, new Dictionary<string, DataTable> { 
+            return ProduceExcelFile(fileName, new Dictionary<string, DataTable> {
                 { sheetName, Converter.ToDataTable(models) }
             });
         }
@@ -154,13 +155,13 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                 }
 
                 var memStream = new MemoryStream();
-                zipFile.Save(memStream); 
+                zipFile.Save(memStream);
                 bytes = memStream.ToArray();
 
                 return new ReportDownloadModel(bytes, fileName);
             }
         }
-        
+
         #endregion
 
         #region GetAll
@@ -175,7 +176,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         }
 
         [System.Web.Http.HttpGet]
-        public virtual async Task<HttpResponseMessage> GetAll([FromUri] TCriteria criteria)
+        public async Task<HttpResponseMessage> GetAll([FromUri] TCriteria criteria)
         {
             try
             {
@@ -184,13 +185,16 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                 {
                     criteria = new TCriteria();
                 }
-                
+
                 IQueryable<TEntity> entities = DoGetList(criteria);
                 IQueryable<TModel> models = entities.Project().To<TModel>();
+                bool hasDbAsyncQueryProvider = models is IDbAsyncQueryProvider;
 
                 if (IsDownload(criteria))
                 {
-                    var result = ConvertModel(await models.ToListAsync());
+                    var result = ConvertModel(hasDbAsyncQueryProvider
+                        ? await models.ToListAsync()
+                        : models.ToList());
 
                     var reportDownloadModel = ProduceFile(criteria, result);
 
@@ -211,8 +215,13 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                     var aPagedCriteria = criteria as PagedCriteriaModel;
                     if (aPagedCriteria == null)
                     {
-                        var totalCount = await models.CountAsync();
-                        var result = ConvertModel(await models.ToListAsync());
+                        var totalCount = hasDbAsyncQueryProvider
+                            ? await models.CountAsync()
+                            : models.Count();
+
+                        var result = ConvertModel(hasDbAsyncQueryProvider
+                            ? await models.ToListAsync()
+                            : models.ToList());
 
                         var response = this.Request.CreateResponse(HttpStatusCode.OK, new
                         {
@@ -232,8 +241,13 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                         int pageIndex = aPagedCriteria.PageIndex;
                         int pageSize = aPagedCriteria.PageSize;
 
-                        var totalCount = await models.CountAsync();
-                        var result = ConvertModel(await models.ToListAsync());
+                        var totalCount = hasDbAsyncQueryProvider
+                            ? await models.CountAsync()
+                            : models.Count();
+
+                        var result = ConvertModel(hasDbAsyncQueryProvider
+                            ? await models.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync()
+                            : models.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList());
 
                         var response = this.Request.CreateResponse(HttpStatusCode.OK, new
                         {
@@ -255,6 +269,22 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             }
         }
 
+        private Tuple<int, List<TModel>> GetQueryResult(IQueryable<TModel> models)
+        {
+            if (models is IDbAsyncQueryProvider)
+            {
+                var totalCount = models.CountAsync().GetAwaiter().GetResult();
+                var result = models.ToListAsync().GetAwaiter().GetResult();
+                return new Tuple<int, List<TModel>>(totalCount, result);
+            }
+            else
+            {
+                var totalCount = models.Count();
+                var result = models.ToList();
+                return new Tuple<int, List<TModel>>(totalCount, result);
+            }
+        }
+
         #endregion
 
         #region GetById
@@ -265,7 +295,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         }
 
         [System.Web.Http.HttpGet]
-        public virtual async Task<TModel> GetById(TIdentity id)
+        public async Task<TModel> GetById(TIdentity id)
         {
             TEntity entity = await DoGet(id);
 
@@ -282,7 +312,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
 
         #region Create
 
-        protected virtual Task<TEntity> DoCreate(TModel model, TEntity entity) 
+        protected virtual Task<TEntity> DoCreate(TModel model, TEntity entity)
         {
             throw new NotImplementedException();
         }
@@ -294,7 +324,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         /// <param name="model">The model.</param>
         /// <returns></returns>
         [System.Web.Http.HttpPost]
-        public virtual async Task<HttpResponseMessage> Create([FromBody]TModel model)
+        public async Task<HttpResponseMessage> Create([FromBody]TModel model)
         {
             try
             {
@@ -307,12 +337,12 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                     scope.Complete();
                 }
 
-                var response = this.Request.CreateResponse(HttpStatusCode.Created, 
+                var response = this.Request.CreateResponse(HttpStatusCode.Created,
                                 Mapper.Map<TEntity, TModel>(entity));
 
                 return response;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 this.logService.Error(ex);
 
@@ -338,7 +368,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         /// <returns></returns>
         /// <exception cref="System.Web.Http.HttpResponseException"></exception>
         [System.Web.Http.HttpPut]
-        public virtual async Task<HttpResponseMessage> Update(TIdentity id, [FromBody]TModel model)
+        public async Task<HttpResponseMessage> Update(TIdentity id, [FromBody]TModel model)
         {
             try
             {
@@ -388,7 +418,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         /// 刪除多筆資料.
         /// </summary>
         [System.Web.Http.HttpDelete]
-        public virtual async Task<HttpResponseMessage> Delete([FromUri] TIdentity[] ids)
+        public async Task<HttpResponseMessage> Delete([FromUri] TIdentity[] ids)
         {
             try
             {
@@ -419,7 +449,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         /// <returns></returns>
         /// <exception cref="System.Web.Http.HttpResponseException"></exception>
         [System.Web.Http.HttpDelete]
-        public virtual async Task<HttpResponseMessage> Delete(TIdentity id)
+        public async Task<HttpResponseMessage> Delete(TIdentity id)
         {
             try
             {
@@ -441,10 +471,10 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                 throw;
             }
         }
-       
+
         #endregion
     }
 
-    
- 
+
+
 }
