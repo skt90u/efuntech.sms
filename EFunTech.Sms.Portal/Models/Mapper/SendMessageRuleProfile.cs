@@ -36,11 +36,10 @@ namespace EFunTech.Sms.Portal.Models.Mapper
                 .ForMember(dst => dst.CreatedTime, opt => opt.MapFrom(src => src.CreatedTime))
                 .ForMember(dst => dst.ClientTimezoneOffset, opt => opt.MapFrom(src => src.ClientTimezoneOffset))
                 .ForMember(dst => dst.SenderAddress, opt => opt.MapFrom(src => src.SenderAddress))
-                
-                .ForMember(dst => dst.SendTime, opt => opt.MapFrom(src => GetSendTime(src)))
-                .ForMember(dst => dst.StartDate, opt => opt.MapFrom(src => GetStartDate(src)))
-                .ForMember(dst => dst.EndDate, opt => opt.MapFrom(src => GetEndDate(src)))
-                .ForMember(dst => dst.CycleString, opt => opt.MapFrom(src => GetCycleString(src)))
+                //.ForMember(dst => dst.SendTime, opt => opt.MapFrom(src => GetSendTime(src)))
+                //.ForMember(dst => dst.StartDate, opt => opt.MapFrom(src => GetStartDate(src)))
+                //.ForMember(dst => dst.EndDate, opt => opt.MapFrom(src => GetEndDate(src)))
+                //.ForMember(dst => dst.CycleString, opt => opt.MapFrom(src => GetCycleString(src)))
                 ;
             
             CreateMap<SendMessageRuleModel, SendMessageRule>()
@@ -71,10 +70,22 @@ namespace EFunTech.Sms.Portal.Models.Mapper
                 ;
         }
 
-        private DateTime? GetSendTime(SendMessageRule rule)
+        public static SendMessageRuleModel ConvertModel(SendMessageRuleModel model)
         {
-            if (rule.SendTimeType == SendTimeType.Deliver)
+            model.SendTime = GetSendTime(model);
+            model.StartDate = GetStartDate(model);
+            model.EndDate = GetEndDate(model);
+            model.CycleString = GetCycleString(model);
+
+            return model;
+        }
+
+        public static DateTime? GetSendTime(SendMessageRuleModel model)
+        {
+            if (model.SendTimeType == SendTimeType.Deliver)
             {
+                var rule = AutoMapper.Mapper.Map<SendMessageRuleModel, SendMessageRule>(model);
+
                 return rule.GetSendTime();
             }
             else
@@ -85,25 +96,25 @@ namespace EFunTech.Sms.Portal.Models.Mapper
 
 
 
-        public static DateTime? GetStartDate(SendMessageRule rule)
+        public static DateTime? GetStartDate(SendMessageRuleModel model)
         {
-            if (rule.SendTimeType == SendTimeType.Cycle)
+            if (model.SendTimeType == SendTimeType.Cycle)
             {
-                if (rule.SendCycleEveryDay != null)
+                if (model.SendCycleEveryDay != null)
                 {
-                    return rule.SendCycleEveryDay.StartDate;
+                    return model.SendCycleEveryDay.StartDate;
                 }
-                else if (rule.SendCycleEveryWeek != null)
+                else if (model.SendCycleEveryWeek != null)
                 {
-                    return rule.SendCycleEveryWeek.StartDate;
+                    return model.SendCycleEveryWeek.StartDate;
                 }
-                else if (rule.SendCycleEveryMonth != null)
+                else if (model.SendCycleEveryMonth != null)
                 {
-                    return rule.SendCycleEveryMonth.StartDate;
+                    return model.SendCycleEveryMonth.StartDate;
                 }
-                else if (rule.SendCycleEveryYear != null)
+                else if (model.SendCycleEveryYear != null)
                 {
-                    return rule.SendCycleEveryYear.StartDate;
+                    return model.SendCycleEveryYear.StartDate;
                 }
                 else
                 {
@@ -116,25 +127,25 @@ namespace EFunTech.Sms.Portal.Models.Mapper
             }
         }
 
-        public static DateTime? GetEndDate(SendMessageRule rule)
+        public static DateTime? GetEndDate(SendMessageRuleModel model)
         {
-            if (rule.SendTimeType == SendTimeType.Cycle)
+            if (model.SendTimeType == SendTimeType.Cycle)
             {
-                if (rule.SendCycleEveryDay != null)
+                if (model.SendCycleEveryDay != null)
                 {
-                    return rule.SendCycleEveryDay.EndDate;
+                    return model.SendCycleEveryDay.EndDate;
                 }
-                else if (rule.SendCycleEveryWeek != null)
+                else if (model.SendCycleEveryWeek != null)
                 {
-                    return rule.SendCycleEveryWeek.EndDate;
+                    return model.SendCycleEveryWeek.EndDate;
                 }
-                else if (rule.SendCycleEveryMonth != null)
+                else if (model.SendCycleEveryMonth != null)
                 {
-                    return rule.SendCycleEveryMonth.EndDate;
+                    return model.SendCycleEveryMonth.EndDate;
                 }
-                else if (rule.SendCycleEveryYear != null)
+                else if (model.SendCycleEveryYear != null)
                 {
-                    return rule.SendCycleEveryYear.EndDate;
+                    return model.SendCycleEveryYear.EndDate;
                 }
                 else
                 {
@@ -162,32 +173,32 @@ namespace EFunTech.Sms.Portal.Models.Mapper
             }
         }
 
-        public static string GetCycleString(SendMessageRule rule)
+        public static string GetCycleString(SendMessageRuleModel model)
         {
             DateTime utcNow = DateTime.UtcNow;
 
-            if (rule.SendTimeType == SendTimeType.Cycle)
+            if (model.SendTimeType == SendTimeType.Cycle)
             {
-                if (rule.SendCycleEveryDay != null)
+                if (model.SendCycleEveryDay != null)
                 {
                     DateTime cycleDate = Converter.ToLocalTime(
-                        rule.SendCycleEveryDay.SendTime, 
-                        rule.SendCycleEveryDay.ClientTimezoneOffset); ;
+                        model.SendCycleEveryDay.SendTime, 
+                        model.SendCycleEveryDay.ClientTimezoneOffset); ;
 
                     return string.Format("每天的{0}點{1}分",
                         cycleDate.ToString("HH"),
                         cycleDate.ToString("mm"));
                 }
-                else if (rule.SendCycleEveryWeek != null)
+                else if (model.SendCycleEveryWeek != null)
                 {
                     DateTime cycleDate = Converter.ToLocalTime(
-                        rule.SendCycleEveryWeek.SendTime,
-                        rule.SendCycleEveryWeek.ClientTimezoneOffset);
+                        model.SendCycleEveryWeek.SendTime,
+                        model.SendCycleEveryWeek.ClientTimezoneOffset);
 
                     List<DayOfWeek> dayOfWeeks = Converter.ToLocalDayOfWeeks(
-                        rule.SendCycleEveryWeek.SendTime,
-                        rule.SendCycleEveryWeek.GetDayOfWeeks(),
-                        rule.SendCycleEveryWeek.ClientTimezoneOffset);
+                        model.SendCycleEveryWeek.SendTime,
+                        model.SendCycleEveryWeek.GetDayOfWeeks(),
+                        model.SendCycleEveryWeek.ClientTimezoneOffset);
 
                     // http://254698001.blog.51cto.com/2521548/711940
                     //return string.Format("每周({0})的{1}",
@@ -203,22 +214,22 @@ namespace EFunTech.Sms.Portal.Models.Mapper
                         cycleDate.ToString("HH"),
                         cycleDate.ToString("mm"));
                 }
-                else if (rule.SendCycleEveryMonth != null)
+                else if (model.SendCycleEveryMonth != null)
                 {
                     DateTime cycleDate = Converter.ToLocalTime(
-                        rule.SendCycleEveryMonth.SendTime,
-                        rule.SendCycleEveryMonth.ClientTimezoneOffset); ;
+                        model.SendCycleEveryMonth.SendTime,
+                        model.SendCycleEveryMonth.ClientTimezoneOffset); ;
 
                     return string.Format("每月的{0}號{1}點{2}分",
                         cycleDate.ToString("dd"),
                         cycleDate.ToString("HH"),
                         cycleDate.ToString("mm"));
                 }
-                else if (rule.SendCycleEveryYear != null)
+                else if (model.SendCycleEveryYear != null)
                 {
                     DateTime cycleDate = Converter.ToLocalTime(
-                        rule.SendCycleEveryYear.SendTime,
-                        rule.SendCycleEveryYear.ClientTimezoneOffset); ;
+                        model.SendCycleEveryYear.SendTime,
+                        model.SendCycleEveryYear.ClientTimezoneOffset); ;
 
                     return string.Format("每年的{0}月{1}號{2}點{3}分",
                         cycleDate.ToString("MM"),

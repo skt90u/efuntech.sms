@@ -13,6 +13,7 @@ using EntityFramework.Extensions;
 using EntityFramework.Caching;
 using System.Data.Entity;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace EFunTech.Sms.Portal.Controllers.Common
 {
@@ -33,26 +34,59 @@ namespace EFunTech.Sms.Portal.Controllers.Common
 
             this.unitOfWork = unitOfWork;
             this.logService = logService;
-            this.apiControllerHelper = new ApiControllerHelper(unitOfWork, logService);
+            this.apiControllerHelper = new ApiControllerHelper(context, logService);
             this.validationService = new ValidationService(unitOfWork, logService);
             this.tradeService = new TradeService(unitOfWork, logService);
 
             this.context = this.unitOfWork.DbContext;
         }
 
+        #region IdentityExtensions
+
+        private ApplicationUser _CurrentUser;
         public ApplicationUser CurrentUser
         {
             get
             {
-                return User.Identity.GetUser(context);
+                if (_CurrentUser == null)
+                {
+                    _CurrentUser = IdentityExtensions.GetUser(context, User.Identity.GetUserId());
+                }
+                return _CurrentUser;
             }
         }
 
+        public ApplicationUser GetUser(string userId)
+        {
+            return IdentityExtensions.GetUser(context, userId);
+        }
+
+        private IdentityRole _CurrentIdentityRole;
+        public IdentityRole CurrentIdentityRole
+        {
+            get
+            {
+                if (_CurrentIdentityRole == null)
+                {
+                    _CurrentIdentityRole = GetIdentityRole(User.Identity.GetUserId());
+                }
+                return _CurrentIdentityRole;
+            }
+        }
+
+        private Role _CurrentUserRole;
         public Role CurrentUserRole
         {
             get
             {
-                return User.Identity.GetUserRole(context);
+                if (_CurrentUserRole == Role.Unknown)
+                {
+                    if (CurrentIdentityRole != null)
+                        Enum.TryParse<Role>(CurrentIdentityRole.Name, out _CurrentUserRole);
+                    else
+                        _CurrentUserRole = Role.Unknown;
+                }
+                return _CurrentUserRole;
             }
         }
 
@@ -60,7 +94,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         {
             get
             {
-                return User.Identity.GetUserId();
+                return CurrentUser.Id;
             }
         }
 
@@ -68,9 +102,21 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         {
             get
             {
-                return User.Identity.GetUserName();
+                return CurrentUser.UserName;
             }
         }
+
+        public IdentityRole GetIdentityRole(string userId)
+        {
+            return IdentityExtensions.GetIdentityRole(context, userId);
+        }
+
+        public string GetRoleName(string roleId)
+        {
+            return IdentityExtensions.GetRoleName(context, roleId);
+        }
+
+        #endregion
 
         /// <summary>
         /// 目前只用在上傳失敗回傳失敗原因
@@ -109,83 +155,9 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                     .ToList();
 
             return models;
-
-            //using (var context = new ApplicationDbContext())
-            //{
-            //    var context = this.unitOfWork.DbContext
-            //    var role = CurrentUserRole;
-
-            //    string roleName = role.ToString();
-
-            //    //var entities = context.MenuItems
-            //    var models = context.MenuItems
-            //            .Include(p => p.WebAuthorization)
-            //            .Where(p => p.WebAuthorization.Roles.Contains(roleName))
-            //            .OrderBy(p => p.Order)
-            //            .Project().To<MenuItemModel>()
-            //            //.FromCache(tags: new [] { "MenuItems", roleName })
-            //            .ToList();
-
-            //    //List<MenuItemModel> models = Mapper.Map<List<MenuItem>, List<MenuItemModel>>(entities);
-
-            //    return models;
-            //}
         }
 
-        //private TimeSpan _ClientTimezoneOffset = TimeSpan.Zero;
-        //public TimeSpan ClientTimezoneOffset
-        //{
-        //    get
-        //    {
-        //        if (_ClientTimezoneOffset == TimeSpan.Zero)
-        //        {
-        //            TimeSpan defaultTimezoneOffset = TimeZoneInfo.Local.BaseUtcOffset;
-
-        //            try
-        //            {
-        //                string timeZoneString = Request.Headers.GetValues("TimezoneOffset").FirstOrDefault();
-
-        //                _ClientTimezoneOffset = !string.IsNullOrEmpty(timeZoneString)
-        //                    // http://stackoverflow.com/questions/8491071/how-could-i-convert-timezone-string-to-timespan-and-vice-versa
-        //                    ? TimeSpan.Parse(timeZoneString.Replace("+", ""))
-        //                    : defaultTimezoneOffset;
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                this.logService.Error(ex);
-
-        //                _ClientTimezoneOffset = defaultTimezoneOffset;
-        //            }
-
-        //        }
-
-        //        return _ClientTimezoneOffset;
-        //    }
-        //}
-        //public TimeSpan ClientTimezoneOffset
-        //{
-        //    get
-        //    {
-        //        TimeSpan defaultTimezoneOffset = TimeZoneInfo.Local.BaseUtcOffset;
-
-        //        try
-        //        {
-        //            // HttpContext.Current.Request.Headers.GetValues
-        //            string timeZoneString = Request.Headers.GetValues("TimezoneOffset").FirstOrDefault();
-
-        //            return !string.IsNullOrEmpty(timeZoneString)
-        //                // http://stackoverflow.com/questions/8491071/how-could-i-convert-timezone-string-to-timespan-and-vice-versa
-        //                ? TimeSpan.Parse(timeZoneString.Replace("+", ""))
-        //                : defaultTimezoneOffset;
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            this.logService.Error(ex);
-
-        //            return defaultTimezoneOffset;
-        //        }
-        //    }
-        //}
+      
         public TimeSpan ClientTimezoneOffset
         {
             get

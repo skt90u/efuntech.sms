@@ -269,21 +269,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             }
         }
 
-        private Tuple<int, List<TModel>> GetQueryResult(IQueryable<TModel> models)
-        {
-            if (models is IDbAsyncQueryProvider)
-            {
-                var totalCount = models.CountAsync().GetAwaiter().GetResult();
-                var result = models.ToListAsync().GetAwaiter().GetResult();
-                return new Tuple<int, List<TModel>>(totalCount, result);
-            }
-            else
-            {
-                var totalCount = models.Count();
-                var result = models.ToList();
-                return new Tuple<int, List<TModel>>(totalCount, result);
-            }
-        }
+       
 
         #endregion
 

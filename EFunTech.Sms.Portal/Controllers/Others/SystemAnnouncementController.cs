@@ -8,11 +8,16 @@ using EFunTech.Sms.Portal.Models.Criteria;
 using EntityFramework.Caching;
 using System.Data.Entity;
 using System.Threading.Tasks;
+using AutoMapper.QueryableExtensions;
+using System.Collections.Generic;
+using EntityFramework.Extensions;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
     public class SystemAnnouncementController : AsyncCrudApiController<SystemAnnouncementCriteriaModel, SystemAnnouncementModel, SystemAnnouncement, int>
 	{
+        public const string ExpireTag = "SystemAnnouncements";
+
         public SystemAnnouncementController(DbContext context, ILogService logService)
             : base(context, logService)
         {
@@ -50,7 +55,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
             entity = await context.InsertAsync(entity);
 
-            CacheManager.Current.Expire("SystemAnnouncements");
+            CacheManager.Current.Expire(ExpireTag);
 
 			return entity;
 		}
@@ -59,22 +64,23 @@ namespace EFunTech.Sms.Portal.Controllers
         {
             await context.UpdateAsync(entity);
 
-            CacheManager.Current.Expire("SystemAnnouncements");
+            CacheManager.Current.Expire(ExpireTag);
         }
 
         protected override async Task DoRemove(int id) 
         {
             await context.DeleteAsync<SystemAnnouncement>(p=> p.Id == id);
 
-            CacheManager.Current.Expire("SystemAnnouncements");
+            CacheManager.Current.Expire(ExpireTag);
         }
 
         protected override async Task DoRemove(int[] ids) 
         {
             await context.DeleteAsync<SystemAnnouncement>(p => ids.Contains(p.Id));
 
-            CacheManager.Current.Expire("SystemAnnouncements");
+            CacheManager.Current.Expire(ExpireTag);
         }
 
+        
     }
 }

@@ -14,46 +14,9 @@ namespace EFunTech.Sms.Portal
 {
     public static class IdentityExtensions
     {
-        public static Role GetUserRole(this IIdentity identity, DbContext context)
+        public static ApplicationUser GetUser(DbContext context, string userId)
         {
-            var user = GetUser(identity, context);
-            if (user == null)
-                return Role.Unknown;
-
-            IdentityUserRole role = user.Roles.FirstOrDefault();
-            if (role == null)
-                return Role.Unknown;
-
-            // 使用快取機制避免不太會異動的資料，重複性的被查詢
-            //
-            // 如需要取消快取時，請呼叫以下
-            // CacheManager.Current.Expire("ApplicationUser");
-            
-            var identityRoles = context.Set<IdentityRole>()
-                .FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetUserRole-IdentityRole" })
-                .ToList();
-
-            var identityRole = identityRoles.FirstOrDefault(p => p.Id == role.RoleId);
-            if (identityRole == null)
-                return Role.Unknown;
-            else
-            {
-                Role result = Role.Unknown;
-
-                if (Enum.TryParse<Role>(identityRole.Name, out result))
-                {
-                    return result;
-                }
-                else
-                {
-                    return Role.Unknown;
-                }
-            }
-        }
-
-        public static ApplicationUser GetUser(this IIdentity identity, DbContext context)
-        {
-            var identityUsers = context.Set<ApplicationUser>()
+            return context.Set<ApplicationUser>()
                    .Include(p => p.Parent)
                    .Include(p => p.Department)
                    .Include(p => p.CreditWarning)
@@ -69,13 +32,37 @@ namespace EFunTech.Sms.Portal
                    .Include(p => p.Claims)
                    .Include(p => p.Logins)
                    .Include(p => p.Roles)
-                   .FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetUser-IdentityUser" })
-                   .ToList();
-
-            string userId = identity.GetUserId();
-            return identityUsers.FirstOrDefault(p => p.Id == userId);
+                   //.FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "ApplicationUsers" })
+                   .FirstOrDefault(p => p.Id == userId);
         }
 
-        
+        public static IdentityRole GetIdentityRole(DbContext context, string userId)
+        {
+            var user = GetUser(context, userId);
+            if (user == null)
+                return null;
+
+            var role = user.Roles.FirstOrDefault();
+
+            if (role == null)
+                throw new Exception(string.Format("指定使用者 ({0}) 尚未指定任何角色", userId));
+
+            var identityRole = context.Set<IdentityRole>()
+                .FromCache(tags: new[] { "IdentityRoles" })
+                .FirstOrDefault(p => p.Id == role.RoleId);
+
+            return identityRole;
+        }
+
+        public static string GetRoleName(DbContext context, string roleId)
+        {
+            var identityRole = context.Set<IdentityRole>()
+                .FromCache(tags: new[] { "IdentityRoles" })
+                .FirstOrDefault(p => p.Id == roleId);
+
+            return identityRole == null
+                ? null
+                : identityRole.Name;
+        }
     }
 }

@@ -550,7 +550,7 @@ namespace EFunTech.Sms.Portal.Controllers
                               .OrderByDescending(p => p.PublishDate)
                               .ThenByDescending(p => p.CreatedTime)
                               .Project().To<SystemAnnouncementModel>()
-                              .FromCache(tags: new[] { "SystemAnnouncements" })
+                              .FromCache(tags: new[] { SystemAnnouncementController.ExpireTag })
                               .ToList();
             }
         }

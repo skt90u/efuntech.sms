@@ -16,6 +16,7 @@ using EFunTech.Sms.Core;
 using System.Data.Entity;
 using JUtilSharp.Database;
 using System.Threading.Tasks;
+using EFunTech.Sms.Portal.Models.Mapper;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -61,6 +62,8 @@ namespace EFunTech.Sms.Portal.Controllers
         {
             var sendMessageRule = context.Set<SendMessageRule>().Find(criteria.SendMessageRuleId);
             var sendMessageRuleModel = Mapper.Map<SendMessageRule, SendMessageRuleModel>(sendMessageRule);
+            sendMessageRuleModel = SendMessageRuleProfile.ConvertModel(sendMessageRuleModel);
+
             var sendTimeType = sendMessageRule.SendTimeType;
 
             switch (sendTimeType)

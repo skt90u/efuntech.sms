@@ -25,11 +25,60 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             this.logService = logService;
         }
 
+        #region IdentityExtensions
+
+        private ApplicationUser _CurrentUser;
+        public ApplicationUser CurrentUser
+        {
+            get
+            {
+                if (_CurrentUser == null)
+                {
+                    _CurrentUser = IdentityExtensions.GetUser(context, User.Identity.GetUserId());
+                }
+                return _CurrentUser;
+            }
+        }
+
+        public ApplicationUser GetUser(string userId)
+        {
+            return IdentityExtensions.GetUser(context, userId);
+        }
+
+        private IdentityRole _CurrentIdentityRole;
+        public IdentityRole CurrentIdentityRole
+        {
+            get
+            {
+                if (_CurrentIdentityRole == null)
+                {
+                    _CurrentIdentityRole = GetIdentityRole(User.Identity.GetUserId());
+                }
+                return _CurrentIdentityRole;
+            }
+        }
+
+        private Role _CurrentUserRole;
+        public Role CurrentUserRole
+        {
+            get
+            {
+                if (_CurrentUserRole == Role.Unknown)
+                {
+                    if (CurrentIdentityRole != null)
+                        Enum.TryParse<Role>(CurrentIdentityRole.Name, out _CurrentUserRole);
+                    else
+                        _CurrentUserRole = Role.Unknown;
+                }
+                return _CurrentUserRole;
+            }
+        }
+
         public string CurrentUserId
         {
             get
             {
-                return User.Identity.GetUserId();
+                return CurrentUser.Id;
             }
         }
 
@@ -37,25 +86,22 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         {
             get
             {
-                return User.Identity.GetUserName();
+                return CurrentUser.UserName;
             }
         }
 
-        public ApplicationUser CurrentUser
+        public IdentityRole GetIdentityRole(string userId)
         {
-            get
-            {
-                return User.Identity.GetUser(context);
-            }
+            return IdentityExtensions.GetIdentityRole(context, userId);
         }
 
-        public Role CurrentUserRole
+        public string GetRoleName(string roleId)
         {
-            get
-            {
-                return User.Identity.GetUserRole(context);
-            }
+            return IdentityExtensions.GetRoleName(context, roleId);
         }
+
+        #endregion
+
 
         public TimeSpan ClientTimezoneOffset
         {

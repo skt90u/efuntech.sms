@@ -12,6 +12,7 @@ using LinqKit;
 using System.Data.Entity;
 using System.Threading.Tasks;
 using JUtilSharp.Database;
+using EFunTech.Sms.Core;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -23,7 +24,7 @@ namespace EFunTech.Sms.Portal.Controllers
         public DepartmentManagerController(ISystemParameters systemParameters, DbContext context, ILogService logService)
             : base(context, logService)
         {
-            this.apiControllerHelper = new ApiControllerHelper(new UnitOfWork(context), logService);
+            this.apiControllerHelper = new ApiControllerHelper(context, logService);
             this.tradeService = new TradeService(new UnitOfWork(context), logService);
         }
 
@@ -57,7 +58,7 @@ namespace EFunTech.Sms.Portal.Controllers
         protected override IQueryable<ApplicationUser> DoGetList(DepartmentManagerCriteriaModel criteria)
         {
             // 尋找目前使用者以及目前使用者的子帳號或孫帳號
-            List<ApplicationUser> users = this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUser);
+            IEnumerable<ApplicationUser> users = this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUser);
 
             // 尋找目前使用者以及目前使用者的子帳號
             var result = users.AsQueryable();
@@ -96,7 +97,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 throw new Exception(string.Format("帳號 {0} 已經存在", model.UserName));
 
             // 當角色是 DepartmentHead 或者 Employee，必須指定部門
-            var roleName = this.apiControllerHelper.GetRoleName(model.RoleId);
+            var roleName = GetRoleName(model.RoleId);
             Role role = (Role)Enum.Parse(typeof(Role), roleName);
             if (role == Role.DepartmentHead || role == Role.Employee)
             {
@@ -122,11 +123,9 @@ namespace EFunTech.Sms.Portal.Controllers
             var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
 
             // 建立帳號
-            var result = userManager.CreateAsync(
+            var result = await userManager.CreateAsync(
                                         entity, 
-                                        model.NewPassword)
-                                    .GetAwaiter()
-                                    .GetResult();
+                                        model.NewPassword);
             if (!result.Succeeded)
             {
                 string errors = string.Join(",", result.Errors.ToList());
@@ -134,10 +133,9 @@ namespace EFunTech.Sms.Portal.Controllers
             }
 
             // 加入腳色
-            userManager.AddToRoleAsync(
+            await userManager.AddToRoleAsync(
                             entity.Id, 
-                            this.apiControllerHelper.GetRoleName(model.RoleId))
-                        .Wait();
+                            GetRoleName(model.RoleId));
 
             CreditWarning CreditWarning = new CreditWarning
             {
@@ -173,7 +171,7 @@ namespace EFunTech.Sms.Portal.Controllers
         protected override async Task DoUpdate(ApplicationUserModel model, string id, ApplicationUser entity)
         {
             // 當角色是 DepartmentHead 或者 Employee，必須指定部門
-            var roleName = this.apiControllerHelper.GetRoleName(model.RoleId);
+            var roleName = GetRoleName(model.RoleId);
             Role role = (Role)Enum.Parse(typeof(Role), roleName);
             if (role == Role.DepartmentHead || role == Role.Employee)
             {
@@ -186,17 +184,17 @@ namespace EFunTech.Sms.Portal.Controllers
 
             //是否有修改角色
             var newRoleId = model.RoleId;
-            var oldRoleId = this.apiControllerHelper.GetRoleId(model.Id);
+            var oldRoleId = GetIdentityRole(model.Id).Id;
             if (newRoleId != oldRoleId)
             {
                 var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
                 var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
 
-                string oldRoleName = this.apiControllerHelper.GetRoleName(oldRoleId);
+                string oldRoleName = GetRoleName(oldRoleId);
                 if (!string.IsNullOrEmpty(oldRoleName))
                     userManager.RemoveFromRoleAsync(model.Id, oldRoleName).Wait();
 
-                userManager.AddToRoleAsync(model.Id, this.apiControllerHelper.GetRoleName(newRoleId)).Wait();
+                userManager.AddToRoleAsync(model.Id, GetRoleName(newRoleId)).Wait();
             }
 
             //是否有修改密碼
@@ -285,11 +283,11 @@ namespace EFunTech.Sms.Portal.Controllers
             // 刪除指定帳號必須確保該帳號所建立的所有使用者都已經刪除
 
             var childUsers = this.apiControllerHelper.GetDescendingUsers(entity);
-            if (childUsers.Count != 0)
+            if (childUsers.Count() != 0)
             {
                 string error = string.Format("使用者【{0}】下還有 {1} 位使用者，分別是 {2}，請先刪除該此使用者下所有使用者，之後再刪除此使用者",
                     entity.UserName,
-                    childUsers.Count,
+                    childUsers.Count(),
                     string.Join("、", childUsers.Select(p => p.UserName)));
                 throw new Exception(error);
             }
@@ -327,10 +325,10 @@ namespace EFunTech.Sms.Portal.Controllers
             await context.DeleteAsync<ReplyCc>(p => p.Owner.Id == id);
 
             //是否有修改角色
-            var childUserRoleId = this.apiControllerHelper.GetRoleId(id);
+            var childUserRoleId = GetIdentityRole(id).Id;
             var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
 
-            string childUserRoleName = this.apiControllerHelper.GetRoleName(childUserRoleId);
+            string childUserRoleName = GetRoleName(childUserRoleId);
             if (!string.IsNullOrEmpty(childUserRoleName))
                 userManager.RemoveFromRoleAsync(id, childUserRoleName).Wait();
 
@@ -357,11 +355,11 @@ namespace EFunTech.Sms.Portal.Controllers
                 model.Maintainable = true; // 是否可以修改帳號設定
                 model.Deletable = !isCurrentUser; // 是否可以刪除帳號
                 model.DepartmentId = model.Department != null ? model.Department.Id : 0;
-                model.RoleId = this.apiControllerHelper.GetRoleId(model.Id);
+                model.RoleId = GetIdentityRole(model.Id).Id;
                 model.NewPassword = string.Empty;
                 model.NewPasswordConfirmed = string.Empty;
 
-                var user = DoGet(model.Id).GetAwaiter().GetResult();
+                var user = GetUser(model.Id);
                 if (user != null && user.Parent != null)
                     model.CreatedUserName = user.Parent.UserName;
             }

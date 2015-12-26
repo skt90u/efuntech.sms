@@ -63,12 +63,12 @@ namespace EFunTech.Sms.Portal.Controllers
 
         protected override async Task DoRemove(int id)
         {
-            await context.DeleteAsync<CommonMessageModel>(p => p.Id == id);
+            await context.DeleteAsync<CommonMessage>(p => p.Id == id);
         }
 
         protected override async Task DoRemove(int[] ids)
         {
-            await context.DeleteAsync<CommonMessageModel>(p => ids.Contains(p.Id));
+            await context.DeleteAsync<CommonMessage>(p => ids.Contains(p.Id));
         }
 	}
 }

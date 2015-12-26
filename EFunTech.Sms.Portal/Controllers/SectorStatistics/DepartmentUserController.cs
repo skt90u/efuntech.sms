@@ -20,7 +20,7 @@ namespace EFunTech.Sms.Portal.Controllers
         public DepartmentUserController(DbContext context, ILogService logService)
             : base(context, logService)
         {
-            this.apiControllerHelper = new ApiControllerHelper(new UnitOfWork(context), logService);
+            this.apiControllerHelper = new ApiControllerHelper(context, logService);
         }
 
 		protected override IQueryable<ApplicationUser> DoGetList(DepartmentUserCriteriaModel criteria)

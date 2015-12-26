@@ -10,11 +10,14 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers.Common
 {
     public abstract class ApiControllerBase : System.Web.Http.ApiController
     {
+        protected DbContext context;
+
         protected IUnitOfWork unitOfWork;
         protected ILogService logService;
         protected ApiControllerHelper apiControllerHelper;
@@ -28,57 +31,90 @@ namespace EFunTech.Sms.Portal.Controllers.Common
 
             this.unitOfWork = unitOfWork;
             this.logService = logService;
-            this.apiControllerHelper = new ApiControllerHelper(unitOfWork, logService);
+            this.apiControllerHelper = new ApiControllerHelper(context, logService);
             this.validationService = new ValidationService(unitOfWork, logService);
             this.tradeService = new TradeService(unitOfWork, logService);
+
+            this.context = this.unitOfWork.DbContext;
         }
 
+        #region IdentityExtensions
+
+        private ApplicationUser _CurrentUser;
         public ApplicationUser CurrentUser
         {
             get
             {
-                return User.Identity.GetUser(unitOfWork.DbContext);
+                if (_CurrentUser == null)
+                {
+                    _CurrentUser = IdentityExtensions.GetUser(context, User.Identity.GetUserId());
+                }
+                return _CurrentUser;
             }
         }
 
+        public ApplicationUser GetUser(string userId)
+        {
+            return IdentityExtensions.GetUser(context, userId);
+        }
+
+        private IdentityRole _CurrentIdentityRole;
+        public IdentityRole CurrentIdentityRole
+        {
+            get
+            {
+                if (_CurrentIdentityRole == null)
+                {
+                    _CurrentIdentityRole = GetIdentityRole(User.Identity.GetUserId());
+                }
+                return _CurrentIdentityRole;
+            }
+        }
+
+        private Role _CurrentUserRole;
         public Role CurrentUserRole
         {
             get
             {
-                return User.Identity.GetUserRole(unitOfWork.DbContext);
+                if (_CurrentUserRole == Role.Unknown)
+                {
+                    if (CurrentIdentityRole != null)
+                        Enum.TryParse<Role>(CurrentIdentityRole.Name, out _CurrentUserRole);
+                    else
+                        _CurrentUserRole = Role.Unknown;
+                }
+                return _CurrentUserRole;
             }
         }
 
-        //private TimeSpan _ClientTimezoneOffset = TimeSpan.Zero;
-        //public TimeSpan ClientTimezoneOffset
-        //{
-        //    get
-        //    {
-        //        if (_ClientTimezoneOffset == TimeSpan.Zero)
-        //        {
-        //            TimeSpan defaultTimezoneOffset = TimeZoneInfo.Local.BaseUtcOffset;
+        public string CurrentUserId
+        {
+            get
+            {
+                return CurrentUser.Id;
+            }
+        }
 
-        //            try
-        //            {
-        //                string timeZoneString = Request.Headers.GetValues("TimezoneOffset").FirstOrDefault();
+        public string CurrentUserName
+        {
+            get
+            {
+                return CurrentUser.UserName;
+            }
+        }
 
-        //                _ClientTimezoneOffset = !string.IsNullOrEmpty(timeZoneString)
-        //                    // http://stackoverflow.com/questions/8491071/how-could-i-convert-timezone-string-to-timespan-and-vice-versa
-        //                    ? TimeSpan.Parse(timeZoneString.Replace("+", ""))
-        //                    : defaultTimezoneOffset;
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                this.logService.Error(ex);
+        public IdentityRole GetIdentityRole(string userId)
+        {
+            return IdentityExtensions.GetIdentityRole(context, userId);
+        }
 
-        //                _ClientTimezoneOffset = defaultTimezoneOffset;
-        //            }
+        public string GetRoleName(string roleId)
+        {
+            return IdentityExtensions.GetRoleName(context, roleId);
+        }
 
-        //        }
+        #endregion
 
-        //        return _ClientTimezoneOffset;
-        //    }
-        //}
         public TimeSpan ClientTimezoneOffset
         {
             get
@@ -114,26 +150,5 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             }
         }
 
-        ////////////////////////////////////////
-
-        
-
-        public string CurrentUserId
-        {
-            get
-            {
-                return User.Identity.GetUserId();
-            }
-        }
-
-        public string CurrentUserName
-        {
-            get
-            {
-                return User.Identity.GetUserName();
-            }
-        }
-
-        
     }
 }

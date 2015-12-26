@@ -37,7 +37,7 @@ namespace EFunTech.Sms.Portal.Controllers
         {
             return context.Set<ApplicationUser>()
                 .Select(p => p.UserName)
-                .FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetExistentUserNames"})
+                //.FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetExistentUserNames"})
                 ;
         }
 
@@ -110,7 +110,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
             var result = roleManager.Roles
                 .Where(p => availableRoleNames.Contains(p.Name))
-                .FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableRoles", role.ToString() })
+                .FromCache(tags: new[] { "GetAvailableRoles", role.ToString() })
                 .ToList()
                 .Select(p => new TitleMapModel<string, string>
                 {
@@ -136,7 +136,7 @@ namespace EFunTech.Sms.Portal.Controllers
                     {
                         // Administrator 可選取所有部門
                         var result = context.Set<Department>()
-                                         .FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableDepartments_DepartmentManager", role.ToString() })
+                                         //.FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableDepartments_DepartmentManager", role.ToString() })
                                          .Select(p => new TitleMapModel<string, int>
                                          {
                                              name = p.Name,
@@ -157,7 +157,7 @@ namespace EFunTech.Sms.Portal.Controllers
                         // Supervisor 建立的所有部門
                         var result = context.Set<Department>()
                                          .Where(p => p.CreatedUser.Id == CurrentUserId)
-                                         .FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableDepartments_DepartmentManager", role.ToString() })
+                                         //.FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableDepartments_DepartmentManager", role.ToString() })
                                          .Select(p => new TitleMapModel<string, int>
                                          {
                                              name = p.Name,
@@ -246,7 +246,7 @@ namespace EFunTech.Sms.Portal.Controllers
             var result = context.Set<Department>()
                             .AsExpandable()
                             .Where(predicate)
-                            .FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableDepartments_ShareContact", role.ToString() })
+                            //.FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(30)), tags: new[] { "GetAvailableDepartments_ShareContact", role.ToString() })
                             .ToList()
                             .Select(p => new TitleMapModel<string, int>
                             {

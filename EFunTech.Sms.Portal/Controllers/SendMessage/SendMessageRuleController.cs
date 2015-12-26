@@ -10,6 +10,7 @@ using System;
 using EFunTech.Sms.Portal.Models.Criteria;
 using System.Data.Entity;
 using System.Threading.Tasks;
+using EFunTech.Sms.Portal.Models.Mapper;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -121,7 +122,15 @@ namespace EFunTech.Sms.Portal.Controllers
             }
 		}
 
-        
+        protected override IEnumerable<SendMessageRuleModel> ConvertModel(IEnumerable<SendMessageRuleModel> models)
+        {
+            foreach(var model in models)
+            {
+                SendMessageRuleProfile.ConvertModel(model);
+            }
+
+            return models;
+        }
 
     }
 }

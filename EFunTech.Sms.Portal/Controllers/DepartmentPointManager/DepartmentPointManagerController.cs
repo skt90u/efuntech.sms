@@ -27,7 +27,7 @@ namespace EFunTech.Sms.Portal.Controllers
         public DepartmentPointManagerController(DbContext context, ILogService logService)
 			: base(context, logService)
 		{
-            this.apiControllerHelper = new ApiControllerHelper(new UnitOfWork(context), logService);
+            this.apiControllerHelper = new ApiControllerHelper(context, logService);
             this.tradeService = new TradeService(new UnitOfWork(context), logService);
         }
 
@@ -74,7 +74,7 @@ namespace EFunTech.Sms.Portal.Controllers
             }
 
             // 尋找目前使用者以及目前使用者的子帳號或孫帳號
-            List<ApplicationUser> users = this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUser);
+            IEnumerable<ApplicationUser> users = this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUser);
 
             // 尋找目前使用者以及目前使用者的子帳號
             var result = users.AsQueryable()
