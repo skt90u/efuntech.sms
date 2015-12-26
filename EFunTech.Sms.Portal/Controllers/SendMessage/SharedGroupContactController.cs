@@ -6,15 +6,16 @@ using EFunTech.Sms.Portal.Models.Common;
 using JUtilSharp.Database;
 using LinqKit;
 using System;
+using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class SharedGroupContactController : CrudApiController<SearchTextCriteriaModel, SharedGroupContactModel, SharedGroupContact, int>
+    public class SharedGroupContactController : AsyncCrudApiController<SearchTextCriteriaModel, SharedGroupContactModel, SharedGroupContact, int>
 	{
-		public SharedGroupContactController(IUnitOfWork unitOfWork, ILogService logService)
-			: base(unitOfWork, logService)
-		{
-		}
+        public SharedGroupContactController(DbContext context, ILogService logService)
+            : base(context, logService)
+        {
+        }
 
 		protected override IQueryable<SharedGroupContact> DoGetList(SearchTextCriteriaModel criteria)
 		{
@@ -32,32 +33,12 @@ namespace EFunTech.Sms.Portal.Controllers
                 //predicate = predicate.And(innerPredicate);
 			}
 
-			var result = this.repository.DbSet
+            var result = context.Set <SharedGroupContact>()
                              .AsExpandable()
                              .Where(predicate)
                              .OrderByDescending(p => p.GroupId);
 
             return result.OrderByDescending(p => p.GroupId);
-		}
-
-		protected override SharedGroupContact DoCreate(SharedGroupContactModel model, SharedGroupContact entity, out int id)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoUpdate(SharedGroupContactModel model, int id, SharedGroupContact entity)
-		{
-            throw new NotImplementedException();
-		}
-
-		protected override void DoRemove(int id)
-		{
-            throw new NotImplementedException();
-		}
-
-        protected override void DoRemove(int[] ids)
-		{
-            throw new NotImplementedException();
 		}
 	}
 }

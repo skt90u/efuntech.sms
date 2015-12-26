@@ -31,7 +31,7 @@ using EntityFramework.Caching;
 
 namespace EFunTech.Sms.Portal.Controllers.Common
 {
-    public abstract class CrudApiController<TCriteria, TModel, TEntity, TIdentity> : ApiControllerBase
+    public abstract class _CrudApiController<TCriteria, TModel, TEntity, TIdentity> : ApiControllerBase
         where TCriteria : new()
         where TModel : new()
         where TEntity : class
@@ -39,7 +39,8 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         protected IRepository<TEntity> repository;
 
 
-        protected CrudApiController(IUnitOfWork unitOfWork, ILogService logService): base(unitOfWork, logService)
+        protected _CrudApiController(IUnitOfWork unitOfWork, ILogService logService)
+            : base(unitOfWork, logService)
         {
             this.repository = this.unitOfWork.Repository<TEntity>();
         }
