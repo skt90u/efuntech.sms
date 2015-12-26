@@ -304,11 +304,8 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\ApplicationDbContextInitializer.cs" />
     <Compile Include="Controllers\Common\ApiControllerBase.cs" />
-    <Compile Include="Controllers\Common\AsyncApiControllerBase.cs" />
     <Compile Include="Controllers\Common\AsyncCrudApiController.cs" />
-    <Compile Include="Controllers\Common\CrudApiController.cs" />
     <Compile Include="Controllers\Others\DeliveryReportQueueController.cs" />
-    <Compile Include="Controllers\Notification\InfobipNotificationController.cs" />
     <Compile Include="Controllers\BasicAuthApi\SendSMSController.cs" />
     <Compile Include="Controllers\BasicAuthApi\BalanceController.cs" />
     <Compile Include="Controllers\BasicAuthApi\EraseBookingController.cs" />
@@ -3960,6 +3957,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Controllers\Notification\" />
     <Folder Include="Scripts\Application\Modules\" />
     <Folder Include="Scripts\bower_components\pickadate\tests\dev\" />
     <Folder Include="Statics\" />

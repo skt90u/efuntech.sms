@@ -16,26 +16,13 @@ namespace EFunTech.Sms.Portal.Controllers.Common
 {
     public abstract class ApiControllerBase : System.Web.Http.ApiController
     {
+        protected ILogService logService;
         protected DbContext context;
 
-        protected IUnitOfWork unitOfWork;
-        protected ILogService logService;
-        protected ApiControllerHelper apiControllerHelper;
-        protected ValidationService validationService;
-        protected TradeService tradeService;
-        
-        protected ApiControllerBase(IUnitOfWork unitOfWork, ILogService logService)
+        protected ApiControllerBase(DbContext context, ILogService logService)
         {
-            System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
-            System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
-
-            this.unitOfWork = unitOfWork;
+            this.context = context;
             this.logService = logService;
-            this.apiControllerHelper = new ApiControllerHelper(context, logService);
-            this.validationService = new ValidationService(unitOfWork, logService);
-            this.tradeService = new TradeService(unitOfWork, logService);
-
-            this.context = this.unitOfWork.DbContext;
         }
 
         #region IdentityExtensions
@@ -115,6 +102,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
 
         #endregion
 
+
         public TimeSpan ClientTimezoneOffset
         {
             get
@@ -149,6 +137,5 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                 }
             }
         }
-
     }
 }

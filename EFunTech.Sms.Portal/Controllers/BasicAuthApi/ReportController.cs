@@ -15,6 +15,7 @@ using Every8dApi;
 using EFunTech.Sms.Portal.Filters;
 using BasicAuthentication.Filters;
 using EFunTech.Sms.Core;
+using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -23,10 +24,10 @@ namespace EFunTech.Sms.Portal.Controllers
     {
         private SendMessageRuleService sendMessageRuleService;
 
-        public ReportController(IUnitOfWork unitOfWork, ILogService logService)
-            : base(unitOfWork, logService) 
+        public ReportController(DbContext context, ILogService logService)
+            : base(context, logService)
         {
-            this.sendMessageRuleService = new SendMessageRuleService(unitOfWork, logService);
+            this.sendMessageRuleService = new SendMessageRuleService(new UnitOfWork(context), logService);
         }
 
         /// <summary>
@@ -58,9 +59,7 @@ namespace EFunTech.Sms.Portal.Controllers
                         CurrentUserName,
                         sendMessageRuleId));
 
-                var sendMessageHistoryRepository = this.unitOfWork.Repository<SendMessageHistory>();
-
-                var result = sendMessageHistoryRepository.GetMany(p => p.SendMessageRuleId == sendMessageRuleId).Select(p => new
+                var result = context.Set<SendMessageHistory>().Where(p => p.SendMessageRuleId == sendMessageRuleId).Select(p => new
                 {
                     sendTime = p.SendTime,
                     sendTitle = p.SendTitle,

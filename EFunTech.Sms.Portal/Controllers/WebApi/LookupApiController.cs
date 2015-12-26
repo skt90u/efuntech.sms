@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class LookupApiController : AsyncApiControllerBase
+    public class LookupApiController : ApiControllerBase
     {
         public LookupApiController(DbContext context, ILogService logService)
             : base(context, logService)

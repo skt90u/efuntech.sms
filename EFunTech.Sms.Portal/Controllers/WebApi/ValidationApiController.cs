@@ -11,6 +11,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using EFunTech.Sms.Portal.Controllers.Common;
+using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -19,16 +20,19 @@ namespace EFunTech.Sms.Portal.Controllers
     /// </summary>
     public class ValidationApiController : ApiControllerBase
     {
-        public ValidationApiController(IUnitOfWork unitOfWork, ILogService logService) : base(unitOfWork, logService) { }
+        public ValidationApiController(DbContext context, ILogService logService)
+            : base(context, logService)
+        {
+        }
 
         [HttpGet]
         [Route("api/ValidationApi/MakeSureUserNameNotExists")]
         public bool MakeSureUserNameNotExists(string UserName)
         {
-            var user = this.unitOfWork.Repository<ApplicationUser>().Get(p => p.UserName == UserName);
-
-            if (user != null)
+            if(context.Set<ApplicationUser>().Any(p => p.UserName == UserName))
+            {
                 throw new Exception(string.Format("帳號 {0} 已經存在", UserName));
+            }
 
             return true;
         }

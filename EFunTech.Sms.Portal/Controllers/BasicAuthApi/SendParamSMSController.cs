@@ -17,6 +17,7 @@ using BasicAuthentication.Filters;
 using EFunTech.Sms.Core;
 using System.Transactions;
 using Newtonsoft.Json;
+using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -32,11 +33,13 @@ namespace EFunTech.Sms.Portal.Controllers
     public class SendParamSMSController : ApiControllerBase
     {
         private SendMessageRuleService sendMessageRuleService;
-
-        public SendParamSMSController(IUnitOfWork unitOfWork, ILogService logService)
-            : base(unitOfWork, logService) 
+        private ValidationService validationService;
+        
+        public SendParamSMSController(DbContext context, ILogService logService)
+            : base(context, logService)
         {
-            this.sendMessageRuleService = new SendMessageRuleService(unitOfWork, logService);
+            this.sendMessageRuleService = new SendMessageRuleService(new UnitOfWork(context), logService);
+            this.validationService = new ValidationService(new UnitOfWork(context), logService);
         }
 
         /// <summary>
@@ -112,7 +115,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 List<string> ErrorMessages = new List<string>();
 
-                using (TransactionScope scope = this.unitOfWork.CreateTransactionScope())
+                using (TransactionScope scope = context.CreateTransactionScope())
                 {
                     bool isImmediately = !sendTime.HasValue;
 
@@ -124,7 +127,7 @@ namespace EFunTech.Sms.Portal.Controllers
                     entityUploadedFile.UploadedFileType = UploadedFileType.SendParamMessage;
                     entityUploadedFile.CreatedUser = CurrentUser;
                     entityUploadedFile.CreatedTime = DateTime.UtcNow;
-                    entityUploadedFile = this.unitOfWork.Repository<UploadedFile>().Insert(entityUploadedFile);
+                    entityUploadedFile = AsyncHelper.RunSync(() => context.InsertAsync(entityUploadedFile));
 
                     // Simulate Insert UploadedMessageReceivers
 
@@ -168,7 +171,7 @@ namespace EFunTech.Sms.Portal.Controllers
                             ErrorMessages.Add(string.Format("{0}: {1}", entity.Mobile, error));
 
                         // 目前就算驗證不過也沒關係，仍然可以存檔
-                        entity = this.unitOfWork.Repository<UploadedMessageReceiver>().Insert(entity);
+                        entity = AsyncHelper.RunSync(() => context.InsertAsync(entity));
                     }
 
                     SendMessageRuleModel model = new SendMessageRuleModel();

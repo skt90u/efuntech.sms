@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class SMS_SettingController : AsyncApiControllerBase
+    public class SMS_SettingController : ApiControllerBase
     {
         public SMS_SettingController(DbContext context, ILogService logService)
             : base(context, logService)

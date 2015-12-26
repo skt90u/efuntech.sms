@@ -17,6 +17,7 @@ using BasicAuthentication.Filters;
 using EFunTech.Sms.Core;
 using System.Transactions;
 using Newtonsoft.Json;
+using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -33,10 +34,10 @@ namespace EFunTech.Sms.Portal.Controllers
     {
         private SendMessageRuleService sendMessageRuleService;
 
-        public SendSMSController(IUnitOfWork unitOfWork, ILogService logService)
-            : base(unitOfWork, logService) 
+        public SendSMSController(DbContext context, ILogService logService)
+            : base(context, logService)
         {
-            this.sendMessageRuleService = new SendMessageRuleService(unitOfWork, logService);
+            this.sendMessageRuleService = new SendMessageRuleService(new UnitOfWork(context), logService);
         }
 
         /// <summary>
@@ -82,7 +83,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 HttpResponseMessage returnVal = null;
 
-                using (TransactionScope scope = this.unitOfWork.CreateTransactionScope())
+                using (TransactionScope scope = context.CreateTransactionScope())
                 {
                     bool isImmediately = !sendTime.HasValue;
 

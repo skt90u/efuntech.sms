@@ -15,6 +15,7 @@ using Every8dApi;
 using EFunTech.Sms.Portal.Filters;
 using BasicAuthentication.Filters;
 using EFunTech.Sms.Core;
+using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -23,10 +24,10 @@ namespace EFunTech.Sms.Portal.Controllers
     {
         private SendMessageRuleService sendMessageRuleService;
 
-        public BalanceController(IUnitOfWork unitOfWork, ILogService logService)
-            : base(unitOfWork, logService) 
+        public BalanceController(DbContext context, ILogService logService)
+            : base(context, logService)
         {
-            this.sendMessageRuleService = new SendMessageRuleService(unitOfWork, logService);
+            this.sendMessageRuleService = new SendMessageRuleService(new UnitOfWork(context), logService);
         }
 
         /// <summary>
