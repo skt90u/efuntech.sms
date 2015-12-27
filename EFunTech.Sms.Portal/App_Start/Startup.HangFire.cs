@@ -41,12 +41,12 @@ namespace EFunTech.Sms.Portal
     {
         public void ConfigureHangFire(IAppBuilder app) 
         {
-            //app.UseHangfireDashboard("/ds", new DashboardOptions
-            //{
-            //    AuthorizationFilters = new[] { new RolesAuthorizationFilter(new Role[]{
-            //        Role.Administrator
-            //    }) }
-            //});
+            app.UseHangfireDashboard("/ds", new DashboardOptions
+            {
+                AuthorizationFilters = new[] { new RolesAuthorizationFilter(new Role[]{
+                    Role.Administrator
+                }) }
+            });
         }
 	}
 

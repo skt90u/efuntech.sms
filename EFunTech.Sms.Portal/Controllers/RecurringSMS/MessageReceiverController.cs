@@ -20,7 +20,7 @@ using EFunTech.Sms.Portal.Models.Mapper;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class MessageReceiverController : AsyncCrudApiController<MessageReceiverCriteriaModel, MessageReceiverModel, MessageReceiver, int>
+    public class MessageReceiverController : CrudApiController<MessageReceiverCriteriaModel, MessageReceiverModel, MessageReceiver, int>
 	{
         protected TradeService tradeService;
 

@@ -10,7 +10,7 @@ using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class BlacklistController : AsyncCrudApiController<SearchTextCriteriaModel, BlacklistModel, Blacklist, int>
+    public class BlacklistController : CrudApiController<SearchTextCriteriaModel, BlacklistModel, Blacklist, int>
     {
         public BlacklistController(DbContext context, ILogService logService)
             : base(context, logService)

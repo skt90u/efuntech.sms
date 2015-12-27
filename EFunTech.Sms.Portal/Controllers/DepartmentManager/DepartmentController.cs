@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class DepartmentController : AsyncCrudApiController<SearchTextCriteriaModel, DepartmentModel, Department, int>
+    public class DepartmentController : CrudApiController<SearchTextCriteriaModel, DepartmentModel, Department, int>
 	{
         public DepartmentController(DbContext context, ILogService logService)
             : base(context, logService)

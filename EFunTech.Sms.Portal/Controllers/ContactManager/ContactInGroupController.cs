@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class ContactInGroupController : AsyncCrudApiController<ContactInGroupCriteriaModel, ContactModel, Contact, int>
+    public class ContactInGroupController : CrudApiController<ContactInGroupCriteriaModel, ContactModel, Contact, int>
 	{
         public ContactInGroupController(DbContext context, ILogService logService)
 			: base(context, logService)

@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class DepartmentPointManagerController : AsyncCrudApiController<DepartmentPointManagerCriteriaModel, ApplicationUserModel, ApplicationUser, string>
+	public class DepartmentPointManagerController : CrudApiController<DepartmentPointManagerCriteriaModel, ApplicationUserModel, ApplicationUser, string>
 	{
         protected ApiControllerHelper apiControllerHelper;
         protected TradeService tradeService;

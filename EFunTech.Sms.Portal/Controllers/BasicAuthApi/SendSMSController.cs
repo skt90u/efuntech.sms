@@ -18,6 +18,7 @@ using EFunTech.Sms.Core;
 using System.Transactions;
 using Newtonsoft.Json;
 using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -70,6 +71,7 @@ namespace EFunTech.Sms.Portal.Controllers
         ///     {"sendTime":"2015-10-16T10:34:27.8680576+08:00","subject":"S","content":"C","mobiles":["0921859698","0921859698","0921859698","0921859698"]}
         /// </example>
         [HttpPost]
+        //public async Task<HttpResponseMessage> Post([FromBody] SendSMSModel sendSMSModel)
         public HttpResponseMessage Post([FromBody] SendSMSModel sendSMSModel)
         {
             try

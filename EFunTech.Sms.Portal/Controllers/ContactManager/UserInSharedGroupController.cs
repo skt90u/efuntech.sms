@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class UserInSharedGroupController : AsyncCrudApiController<UserInSharedGroupCriteriaModel, ApplicationUserModel, ApplicationUser, string>
+    public class UserInSharedGroupController : CrudApiController<UserInSharedGroupCriteriaModel, ApplicationUserModel, ApplicationUser, string>
 	{
         public UserInSharedGroupController(DbContext context, ILogService logService)
 			: base(context, logService)

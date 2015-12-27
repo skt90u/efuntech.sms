@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class SignatureController : AsyncCrudApiController<SearchTextCriteriaModel, SignatureModel, Signature, int>
+	public class SignatureController : CrudApiController<SearchTextCriteriaModel, SignatureModel, Signature, int>
 	{
         public SignatureController(DbContext context, ILogService logService)
             : base(context, logService)

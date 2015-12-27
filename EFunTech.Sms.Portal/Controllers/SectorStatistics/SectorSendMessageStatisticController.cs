@@ -19,7 +19,7 @@ using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class SectorSendMessageStatisticController : AsyncCrudApiController<SectorSendMessageStatisticCriteriaModel, SendMessageStatisticModel, SendMessageStatistic, int>
+	public class SectorSendMessageStatisticController : CrudApiController<SectorSendMessageStatisticCriteriaModel, SendMessageStatisticModel, SendMessageStatistic, int>
 	{
         protected ApiControllerHelper apiControllerHelper;
 

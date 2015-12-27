@@ -11,7 +11,7 @@ using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class GroupController : AsyncCrudApiController<GroupCriteriaModel, GroupModel, Group, int>
+    public class GroupController : CrudApiController<GroupCriteriaModel, GroupModel, Group, int>
 	{
         private ISystemParameters systemParameters;
 

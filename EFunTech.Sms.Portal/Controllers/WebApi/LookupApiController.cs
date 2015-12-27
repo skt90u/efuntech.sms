@@ -110,7 +110,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
             var result = roleManager.Roles
                 .Where(p => availableRoleNames.Contains(p.Name))
-                .FromCache(tags: new[] { "GetAvailableRoles", role.ToString() })
+                //.FromCache(tags: new[] { "GetAvailableRoles", role.ToString() })
                 .ToList()
                 .Select(p => new TitleMapModel<string, string>
                 {

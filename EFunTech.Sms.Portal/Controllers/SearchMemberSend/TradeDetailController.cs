@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class TradeDetailController : AsyncCrudApiController<TradeDetailCriteriaModel, TradeDetailModel, TradeDetail, int>
+	public class TradeDetailController : CrudApiController<TradeDetailCriteriaModel, TradeDetailModel, TradeDetail, int>
 	{
         protected TradeService tradeService;
 

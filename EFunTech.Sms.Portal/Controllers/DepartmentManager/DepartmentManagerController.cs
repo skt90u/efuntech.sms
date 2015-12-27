@@ -16,7 +16,7 @@ using EFunTech.Sms.Core;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class DepartmentManagerController : AsyncCrudApiController<DepartmentManagerCriteriaModel, ApplicationUserModel, ApplicationUser, string>
+    public class DepartmentManagerController : CrudApiController<DepartmentManagerCriteriaModel, ApplicationUserModel, ApplicationUser, string>
     {
         protected ApiControllerHelper apiControllerHelper;
         protected TradeService tradeService;

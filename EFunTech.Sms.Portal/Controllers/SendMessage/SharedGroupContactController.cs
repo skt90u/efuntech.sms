@@ -10,7 +10,7 @@ using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class SharedGroupContactController : AsyncCrudApiController<SearchTextCriteriaModel, SharedGroupContactModel, SharedGroupContact, int>
+    public class SharedGroupContactController : CrudApiController<SearchTextCriteriaModel, SharedGroupContactModel, SharedGroupContact, int>
 	{
         public SharedGroupContactController(DbContext context, ILogService logService)
             : base(context, logService)

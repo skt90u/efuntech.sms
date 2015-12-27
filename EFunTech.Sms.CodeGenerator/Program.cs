@@ -18,8 +18,6 @@ namespace EFunTech.Sms.CodeGenerator
     {
         static void Main(string[] args)
         {
-           
-
 
             //foreach (var mobile in mobiles)
             //{

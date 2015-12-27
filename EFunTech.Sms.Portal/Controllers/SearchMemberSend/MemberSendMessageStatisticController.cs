@@ -16,7 +16,7 @@ using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class MemberSendMessageStatisticController : AsyncCrudApiController<MemberSendMessageStatisticCriteriaModel, SendMessageStatisticModel, SendMessageStatistic, int>
+	public class MemberSendMessageStatisticController : CrudApiController<MemberSendMessageStatisticCriteriaModel, SendMessageStatisticModel, SendMessageStatistic, int>
 	{
         public MemberSendMessageStatisticController(DbContext context, ILogService logService)
             : base(context, logService)

@@ -14,7 +14,7 @@ using EntityFramework.Extensions;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class SystemAnnouncementController : AsyncCrudApiController<SystemAnnouncementCriteriaModel, SystemAnnouncementModel, SystemAnnouncement, int>
+    public class SystemAnnouncementController : CrudApiController<SystemAnnouncementCriteriaModel, SystemAnnouncementModel, SystemAnnouncement, int>
 	{
         public const string ExpireTag = "SystemAnnouncements";
 

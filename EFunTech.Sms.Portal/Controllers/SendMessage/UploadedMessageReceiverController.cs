@@ -13,7 +13,7 @@ using EFunTech.Sms.Core;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class UploadedMessageReceiverController : AsyncCrudApiController<UploadedMessageReceiverCriteriaModel, UploadedMessageReceiverModel, UploadedMessageReceiver, int>
+    public class UploadedMessageReceiverController : CrudApiController<UploadedMessageReceiverCriteriaModel, UploadedMessageReceiverModel, UploadedMessageReceiver, int>
     {
         protected ValidationService validationService;
 

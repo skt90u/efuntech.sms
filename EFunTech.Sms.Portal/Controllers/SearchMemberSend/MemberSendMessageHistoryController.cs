@@ -15,7 +15,7 @@ using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class MemberSendMessageHistoryController : AsyncCrudApiController<MemberSendMessageHistoryCriteriaModel, SendMessageHistoryModel, SendMessageHistory, int>
+	public class MemberSendMessageHistoryController : CrudApiController<MemberSendMessageHistoryCriteriaModel, SendMessageHistoryModel, SendMessageHistory, int>
 	{
         public MemberSendMessageHistoryController(DbContext context, ILogService logService)
             : base(context, logService)

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class ContactNotInGroupController : AsyncCrudApiController<ContactNotInGroupCriteriaModel, ContactModel, Contact, int>
+    public class ContactNotInGroupController : CrudApiController<ContactNotInGroupCriteriaModel, ContactModel, Contact, int>
 	{
         private ISystemParameters systemParameters;
 

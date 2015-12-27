@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class CommonContactController : AsyncCrudApiController<SearchTextCriteriaModel, ContactModel, Contact, int>
+    public class CommonContactController : CrudApiController<SearchTextCriteriaModel, ContactModel, Contact, int>
     {
         public CommonContactController(DbContext context, ILogService logService)
             : base(context, logService)

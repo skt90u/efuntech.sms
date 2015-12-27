@@ -41,36 +41,40 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             this.context = this.unitOfWork.DbContext;
         }
 
+
         #region IdentityExtensions
 
-        private ApplicationUser _CurrentUser;
         public ApplicationUser CurrentUser
         {
             get
             {
-                if (_CurrentUser == null)
-                {
-                    _CurrentUser = IdentityExtensions.GetUser(context, User.Identity.GetUserId());
-                }
-                return _CurrentUser;
+                return GetUser(User.Identity.GetUserId());
             }
         }
 
+        private Dictionary<string, ApplicationUser> userDict;
         public ApplicationUser GetUser(string userId)
         {
-            return IdentityExtensions.GetUser(context, userId);
+            if (userDict == null)
+                userDict = new Dictionary<string, ApplicationUser>();
+
+            if (!userDict.ContainsKey(userId))
+            {
+                var user = IdentityExtensions.GetUser(context, userId);
+                if (user != null)
+                    userDict.Add(userId, user);
+            }
+
+            return userDict.ContainsKey(userId)
+                ? userDict[userId]
+                : null;
         }
 
-        private IdentityRole _CurrentIdentityRole;
         public IdentityRole CurrentIdentityRole
         {
             get
             {
-                if (_CurrentIdentityRole == null)
-                {
-                    _CurrentIdentityRole = GetIdentityRole(User.Identity.GetUserId());
-                }
-                return _CurrentIdentityRole;
+                return GetIdentityRole(User.Identity.GetUserId());
             }
         }
 
@@ -94,7 +98,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         {
             get
             {
-                return CurrentUser.Id;
+                return User.Identity.GetUserId();
             }
         }
 
@@ -102,13 +106,26 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         {
             get
             {
-                return CurrentUser.UserName;
+                return User.Identity.GetUserName();
             }
         }
 
+        private Dictionary<string, IdentityRole> roleDict;
         public IdentityRole GetIdentityRole(string userId)
         {
-            return IdentityExtensions.GetIdentityRole(context, userId);
+            if (roleDict == null)
+                roleDict = new Dictionary<string, IdentityRole>();
+
+            if (!roleDict.ContainsKey(userId))
+            {
+                var role = IdentityExtensions.GetIdentityRole(context, userId);
+                if (role != null)
+                    roleDict.Add(userId, role);
+            }
+
+            return roleDict.ContainsKey(userId)
+                ? roleDict[userId]
+                : null;
         }
 
         public string GetRoleName(string roleId)
@@ -117,6 +134,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         }
 
         #endregion
+
 
         /// <summary>
         /// 目前只用在上傳失敗回傳失敗原因
@@ -151,7 +169,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                     .Where(p => p.WebAuthorization.Roles.Contains(roleName))
                     .OrderBy(p => p.Order)
                     .Project().To<MenuItemModel>()
-                    .FromCache(tags: new [] { "MenuItems", roleName })
+                    //.FromCache(tags: new [] { "MenuItems", roleName })
                     .ToList();
 
             return models;

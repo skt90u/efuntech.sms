@@ -13,7 +13,7 @@ using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class DepartmentUserController : AsyncCrudApiController<DepartmentUserCriteriaModel, ApplicationUserModel, ApplicationUser, string>
+	public class DepartmentUserController : CrudApiController<DepartmentUserCriteriaModel, ApplicationUserModel, ApplicationUser, string>
 	{
         protected ApiControllerHelper apiControllerHelper;
 

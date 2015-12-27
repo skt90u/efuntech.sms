@@ -304,7 +304,7 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\ApplicationDbContextInitializer.cs" />
     <Compile Include="Controllers\Common\ApiControllerBase.cs" />
-    <Compile Include="Controllers\Common\AsyncCrudApiController.cs" />
+    <Compile Include="Controllers\Common\CrudApiController.cs" />
     <Compile Include="Controllers\Others\DeliveryReportQueueController.cs" />
     <Compile Include="Controllers\BasicAuthApi\SendSMSController.cs" />
     <Compile Include="Controllers\BasicAuthApi\BalanceController.cs" />
@@ -319,6 +319,7 @@
     <Compile Include="Controllers\SectorStatistics\SectorSendMessageHistoryController.cs" />
     <Compile Include="Controllers\SectorStatistics\SectorSendMessageStatisticController.cs" />
     <Compile Include="Controllers\Others\SystemAnnouncementController.cs" />
+    <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\DbContextExtensions.cs" />
     <Compile Include="Extensions\HttpRequestExtensions.cs" />

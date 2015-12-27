@@ -25,12 +25,12 @@ using System.Data.Entity.Infrastructure;
 
 namespace EFunTech.Sms.Portal.Controllers.Common
 {
-    public abstract class AsyncCrudApiController<TCriteria, TModel, TEntity, TIdentity> : ApiControllerBase
+    public abstract class CrudApiController<TCriteria, TModel, TEntity, TIdentity> : ApiControllerBase
         where TCriteria : new()
         where TModel : new()
         where TEntity : class
     {
-        protected AsyncCrudApiController(DbContext context, ILogService logService)
+        protected CrudApiController(DbContext context, ILogService logService)
             : base(context, logService)
         {
         }

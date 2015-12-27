@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class LogItemController : AsyncCrudApiController<LogItemCriteriaModel, LogItemModel, LogItem, int>
+    public class LogItemController : CrudApiController<LogItemCriteriaModel, LogItemModel, LogItem, int>
 	{
         public LogItemController(DbContext context, ILogService logService)
             : base(context, logService)

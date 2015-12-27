@@ -14,7 +14,7 @@ using EFunTech.Sms.Portal.Models.Mapper;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-	public class SendMessageRuleController : AsyncCrudApiController<SendMessageRuleCriteriaModel, SendMessageRuleModel, SendMessageRule, int>
+	public class SendMessageRuleController : CrudApiController<SendMessageRuleCriteriaModel, SendMessageRuleModel, SendMessageRule, int>
 	{
         private SendMessageRuleService sendMessageRuleService;
 

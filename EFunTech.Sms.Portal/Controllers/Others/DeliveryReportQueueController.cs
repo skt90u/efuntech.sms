@@ -12,7 +12,7 @@ using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
-    public class DeliveryReportQueueController : AsyncCrudApiController<DeliveryReportQueueCriteriaModel, DeliveryReportQueueModel, DeliveryReportQueue, int>
+    public class DeliveryReportQueueController : CrudApiController<DeliveryReportQueueCriteriaModel, DeliveryReportQueueModel, DeliveryReportQueue, int>
 	{
         public DeliveryReportQueueController(DbContext context, ILogService logService)
             : base(context, logService)
