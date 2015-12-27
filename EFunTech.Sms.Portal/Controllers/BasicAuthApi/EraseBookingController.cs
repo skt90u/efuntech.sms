@@ -17,6 +17,7 @@ using BasicAuthentication.Filters;
 using EFunTech.Sms.Core;
 using System.Transactions;
 using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -51,7 +52,8 @@ namespace EFunTech.Sms.Portal.Controllers
         ///     {"sendTime":"2015-10-16T10:34:27.8680576+08:00","subject":"S","content":"C","mobiles":["0921859698","0921859698","0921859698","0921859698"]}
         /// </example>
         [HttpDelete]
-        public HttpResponseMessage Delete(int id)
+        public async Task<HttpResponseMessage> Delete(int id)
+        //public HttpResponseMessage Delete(int id)
         {
             try
             {

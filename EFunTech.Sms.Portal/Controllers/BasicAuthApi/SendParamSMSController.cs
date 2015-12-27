@@ -18,6 +18,7 @@ using EFunTech.Sms.Core;
 using System.Transactions;
 using Newtonsoft.Json;
 using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -100,7 +101,8 @@ namespace EFunTech.Sms.Portal.Controllers
         ///     }
         /// </example>
         [HttpPost]
-        public HttpResponseMessage Post([FromBody] SendParamSMSModel sendParamSMSModel)
+        public async Task<HttpResponseMessage> Post([FromBody] SendParamSMSModel sendParamSMSModel)
+        //public HttpResponseMessage Post([FromBody] SendParamSMSModel sendParamSMSModel)
         {
             try
             {

@@ -16,6 +16,7 @@ using EFunTech.Sms.Portal.Filters;
 using BasicAuthentication.Filters;
 using EFunTech.Sms.Core;
 using System.Data.Entity;
+using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -42,7 +43,8 @@ namespace EFunTech.Sms.Portal.Controllers
         ///     Authorization = Basic YWRtaW46MTIzNDU2 (舉例說明)
         /// </example>
         [HttpGet]
-        public HttpResponseMessage Get()
+        public async Task<HttpResponseMessage> Get()
+        //public HttpResponseMessage Get()
         {
             try
             {
