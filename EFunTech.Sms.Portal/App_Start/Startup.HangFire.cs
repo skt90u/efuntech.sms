@@ -41,12 +41,15 @@ namespace EFunTech.Sms.Portal
     {
         public void ConfigureHangFire(IAppBuilder app) 
         {
-            app.UseHangfireDashboard("/ds", new DashboardOptions
+            if (HangfireBootstrapper.Instance.Started)
             {
-                AuthorizationFilters = new[] { new RolesAuthorizationFilter(new Role[]{
-                    Role.Administrator
-                }) }
-            });
+                app.UseHangfireDashboard("/ds", new DashboardOptions
+                {
+                    AuthorizationFilters = new[] { new RolesAuthorizationFilter(new Role[]{
+                        Role.Administrator
+                    }) }
+                });
+            }
         }
 	}
 
@@ -82,6 +85,11 @@ namespace EFunTech.Sms.Portal
 
         private HangfireBootstrapper()
         {
+        }
+
+        public bool Started
+        {
+            get { return _started; }
         }
 
         public void Start()

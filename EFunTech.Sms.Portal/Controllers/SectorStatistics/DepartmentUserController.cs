@@ -52,7 +52,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
             if (criteria.DepartmentId == -1)
             {
-                return this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUser)
+                return this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUserId)
                     .AsQueryable()
                     .AsExpandable()
                     .Where(predicate)

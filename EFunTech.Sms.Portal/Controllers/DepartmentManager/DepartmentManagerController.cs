@@ -58,7 +58,7 @@ namespace EFunTech.Sms.Portal.Controllers
         protected override IQueryable<ApplicationUser> DoGetList(DepartmentManagerCriteriaModel criteria)
         {
             // 尋找目前使用者以及目前使用者的子帳號或孫帳號
-            IEnumerable<ApplicationUser> users = this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUser);
+            IEnumerable<ApplicationUser> users = this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUserId);
 
             // 尋找目前使用者以及目前使用者的子帳號
             var result = users.AsQueryable();
@@ -144,7 +144,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 ByEmail = CreditWarning.DefaultValue_ByEmail,
                 LastNotifiedTime = null,
                 NotifiedInterval = CreditWarning.DefaultValue_NotifiedInterval,
-                Owner = entity,
+                OwnerId = entity.Id,
             };
             await context.InsertAsync(CreditWarning);
 
@@ -153,7 +153,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 Enabled = ReplyCc.DefaultValue_Enabled,
                 BySmsMessage = ReplyCc.DefaultValue_BySmsMessage,
                 ByEmail = ReplyCc.DefaultValue_ByEmail,
-                Owner = entity,
+                OwnerId = entity.Id,
             };
             await context.InsertAsync(ReplyCc);
 
@@ -226,63 +226,13 @@ namespace EFunTech.Sms.Portal.Controllers
             await context.UpdateAsync(entity);
         }
 
-        //protected override void DoRemove(string id, ApplicationUser entity)
-        //{
-        //    var currentUser = this.repository.GetById(CurrentUser.Id);
-        //    var childUser = this.repository.GetById(id);
-
-        //    // 只能移除子帳號
-        //    if (childUser.ParentId != currentUser.Id) return;
-
-
-        //    this.unitOfWork.Repository<Blacklist>().Delete(p => p.CreatedUser.Id == childUser.Id);
-        //    this.unitOfWork.Repository<CommonMessage>().Delete(p => p.CreatedUser.Id == childUser.Id);
-        //    this.unitOfWork.Repository<UploadedFile>().Delete(p => p.CreatedUser.Id == childUser.Id);
-        //    this.unitOfWork.Repository<Signature>().Delete(p => p.CreatedUser.Id == childUser.Id);
-
-        //    var sendMessageRuleRepository = this.unitOfWork.Repository<SendMessageRule>();
-        //    var sendMessageRules = sendMessageRuleRepository.GetMany(p => p.CreatedUser.Id == childUser.Id);
-        //    var sendMessageRuleIds = sendMessageRules.Select(p => p.Id);
-        //    // 刪除與 SendMessageRule 相依的 SendMessageQueue
-        //    this.unitOfWork.Repository<SendMessageQueue>().Delete(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
-        //    // 刪除 SendMessageRule 之前必須回補點數
-        //    sendMessageRules.ForEach(p => this.tradeService.DeleteSendMessageRule(p)); 
-        //    this.unitOfWork.Repository<SendMessageRule>().Delete(p => p.CreatedUser.Id == childUser.Id);
-
-        //    var contactIds = this.unitOfWork.Repository<Contact>().GetMany(p => p.CreatedUser.Id == childUser.Id).Select(p => p.Id);
-        //    this.unitOfWork.Repository<GroupContact>().Delete(p => contactIds.Contains(p.ContactId));
-        //    this.unitOfWork.Repository<Contact>().Delete(p => p.CreatedUser.Id == childUser.Id);
-
-        //    var groupIds = this.unitOfWork.Repository<Group>().GetMany(p => p.CreatedUser.Id == childUser.Id).Select(p => p.Id);
-        //    this.unitOfWork.Repository<GroupContact>().Delete(p => groupIds.Contains(p.GroupId));
-        //    this.unitOfWork.Repository<Group>().Delete(p => p.CreatedUser.Id == childUser.Id);
-
-        //    // this.unitOfWork.Repository<TradeDetail>().Delete(p => p.OwnerId == childUser.Id); // 不確定是否需要刪除交易明細
-
-        //    this.unitOfWork.Repository<AllotSetting>().Delete(p => p.Owner.Id == childUser.Id);
-        //    this.unitOfWork.Repository<CreditWarning>().Delete(p => p.Owner.Id == childUser.Id);
-        //    this.unitOfWork.Repository<ReplyCc>().Delete(p => p.Owner.Id == childUser.Id);
-
-        //    //是否有修改角色
-        //    var childUserRoleId = this.apiControllerHelper.GetRoleId(childUser.Id);
-        //    var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(this.unitOfWork.DbContext));
-
-        //    string childUserRoleName = this.apiControllerHelper.GetRoleName(childUserRoleId);
-        //    if (!string.IsNullOrEmpty(childUserRoleName))
-        //        userManager.RemoveFromRoleAsync(childUser.Id, childUserRoleName).Wait();
-
-        //    this.repository.Delete(childUser);
-
-        //    this.tradeService.DeleteChildUser(currentUser, childUser);
-        //}
-
         protected override async Task DoRemove(string id) 
         {
             ApplicationUser entity = await DoGet(id);
 
             // 刪除指定帳號必須確保該帳號所建立的所有使用者都已經刪除
 
-            var childUsers = this.apiControllerHelper.GetDescendingUsers(entity);
+            var childUsers = this.apiControllerHelper.GetDescendingUsers(entity.Id);
             if (childUsers.Count() != 0)
             {
                 string error = string.Format("使用者【{0}】下還有 {1} 位使用者，分別是 {2}，請先刪除該此使用者下所有使用者，之後再刪除此使用者",

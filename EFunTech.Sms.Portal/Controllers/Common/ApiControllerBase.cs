@@ -38,6 +38,9 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         private Dictionary<string, ApplicationUser> userDict;
         public ApplicationUser GetUser(string userId)
         {
+            if (string.IsNullOrEmpty(userId))
+                return null;
+
             if (userDict == null)
                 userDict = new Dictionary<string, ApplicationUser>();
 
@@ -96,6 +99,9 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         private Dictionary<string, IdentityRole> roleDict;
         public IdentityRole GetIdentityRole(string userId)
         {
+            if (string.IsNullOrEmpty(userId))
+                return null;
+
             if (roleDict == null)
                 roleDict = new Dictionary<string, IdentityRole>();
 

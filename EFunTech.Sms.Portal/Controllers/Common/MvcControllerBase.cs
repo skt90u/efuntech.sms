@@ -55,6 +55,9 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         private Dictionary<string, ApplicationUser> userDict;
         public ApplicationUser GetUser(string userId)
         {
+            if (string.IsNullOrEmpty(userId))
+                return null;
+
             if (userDict == null)
                 userDict = new Dictionary<string, ApplicationUser>();
 
@@ -113,6 +116,9 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         private Dictionary<string, IdentityRole> roleDict;
         public IdentityRole GetIdentityRole(string userId)
         {
+            if (string.IsNullOrEmpty(userId))
+                return null;
+
             if (roleDict == null)
                 roleDict = new Dictionary<string, IdentityRole>();
 
@@ -159,23 +165,42 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             });
         }
 
+        public static Lazy<Dictionary<Role, List<MenuItemModel>>> MenuItemMap = new Lazy<Dictionary<Role, List<MenuItemModel>>>(() =>
+        {
+            new Startup().ConfigureMapper(null); // .Project().To<MenuItemModel>()
+
+            var dict = new Dictionary<Role, List<MenuItemModel>>();
+
+            using (var context = new ApplicationDbContext())
+            {
+                var models = context.Set<MenuItem>()
+                        .Include(p => p.WebAuthorization)
+                        .OrderBy(p => p.Order)
+                        .Project().To<MenuItemModel>()
+                        .ToList();
+
+                foreach (Role role in Enum.GetValues(typeof(Role)))
+                {
+                    var menuItems = new List<MenuItemModel>();
+
+                    foreach (var model in models)
+                    {
+                        if (model.Roles.Contains(role.ToString()))
+                            menuItems.Add(model);
+                    }
+
+                    dict.Add(role, menuItems);
+                }
+
+                return dict;
+            }
+        });
+
         public List<MenuItemModel> GetMenuItems()
         {
-            var role = CurrentUserRole;
-            string roleName = role.ToString();
-
-            var models = context.Set<MenuItem>()
-                    .Include(p => p.WebAuthorization)
-                    .Where(p => p.WebAuthorization.Roles.Contains(roleName))
-                    .OrderBy(p => p.Order)
-                    .Project().To<MenuItemModel>()
-                    //.FromCache(tags: new [] { "MenuItems", roleName })
-                    .ToList();
-
-            return models;
+            return MenuItemMap.Value[CurrentUserRole];
         }
 
-      
         public TimeSpan ClientTimezoneOffset
         {
             get

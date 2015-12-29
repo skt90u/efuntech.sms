@@ -5,19 +5,65 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 
 using JSBeautifyLib;
 using System.Reflection;
 using EFunTech.Sms.Portal;
 using Every8dApi;
 using System.Diagnostics;
+using EFunTech.Sms.Portal.Models;
 
 namespace EFunTech.Sms.CodeGenerator
 {
     class Program
     {
+        public static void ConfigureMapper()
+        {
+            var profileType = typeof(Profile);
+            // Get an instance of each Profile in the executing assembly.
+            var profiles = Assembly.GetExecutingAssembly().GetTypes()
+                .Where(t => profileType.IsAssignableFrom(t)
+                    && t.GetConstructor(Type.EmptyTypes) != null)
+                .Select(Activator.CreateInstance)
+                //.Select(ServiceLocator.Current.GetInstance) // not working
+                .Cast<Profile>();
+
+            Mapper.Initialize(cfg => profiles.ToList().ForEach(cfg.AddProfile));
+
+            //Mapper.Initialize(cfg => {
+            //    cfg.ConstructServicesUsing(type => Activator.CreateInstance(type));
+            //    cfg.ConstructServicesUsing(type => ServiceLocator.Current.GetInstance(type));
+            //});
+        }
+
+        static void EfTest()
+        {
+            ConfigureMapper();
+
+            using (var context = new ApplicationDbContext())
+            {
+                var n = 0;
+
+                //var a0 = context.Set<ApplicationUser>().Project().To<ApplicationUserModel>().ToList();
+                var a1 = context.Set<ApplicationUser>().Project().To<ApplicationUserModel1>().ToList();
+
+                foreach (var c in a1)
+                {
+                    Console.WriteLine(c.FullName);
+                }
+                //var a2 = context.Set<ApplicationUser>().Project().To<ApplicationUserModel2>().ToList();
+                //var a3 = context.Set<ApplicationUser>().Project().To<ApplicationUserModel3>().ToList();
+
+                var b = 0;
+            }
+        }
+
         static void Main(string[] args)
         {
+            EfTest();
+            return;
 
             //foreach (var mobile in mobiles)
             //{

@@ -20,14 +20,14 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             this.logService = logService;
         }
 
-        public IEnumerable<ApplicationUser> GetDescendingUsersAndUser(ApplicationUser user)
+        public IEnumerable<ApplicationUser> GetDescendingUsersAndUser(string userId)
         {
-            return IdentityExtensions.GetDescendingUsersAndUser(context, user);
+            return IdentityExtensions.GetDescendingUsersAndUser(context, userId);
         }
 
-        public IEnumerable<ApplicationUser> GetDescendingUsers(ApplicationUser user)
+        public IEnumerable<ApplicationUser> GetDescendingUsers(string userId)
         {
-            return IdentityExtensions.GetDescendingUsers(context, user);
+            return IdentityExtensions.GetDescendingUsers(context, userId);
         }
       
     }

@@ -30,6 +30,11 @@ namespace EFunTech.Sms.Schema
         //public string Href { get; set; }
 
         [Required]
+        [ColumnDescription("指定需要特殊權限的Action")]
+        [ForeignKey("WebAuthorization")]
+        [Index("IX_MenuItem_WebAuthorizationId")]
+        public int WebAuthorizationId { get; set; }
+
         public virtual WebAuthorization WebAuthorization { get; set; }
     }
 }

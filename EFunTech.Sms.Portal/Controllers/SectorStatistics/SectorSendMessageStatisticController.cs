@@ -57,7 +57,7 @@ namespace EFunTech.Sms.Portal.Controllers
                             else
                             {
                                 // 取得目前帳號以及所有
-                                var users = this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUser);
+                                var users = this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUserId);
 
                                 var userIds = users.Select(p => p.Id);
 
@@ -113,7 +113,7 @@ namespace EFunTech.Sms.Portal.Controllers
                             else
                             {
                                 // 取得目前帳號以及所有
-                                var users = this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUser);
+                                var users = this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUserId);
 
                                 var userIds = users.Select(p => p.Id);
 

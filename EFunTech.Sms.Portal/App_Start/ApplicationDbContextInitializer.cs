@@ -416,7 +416,7 @@ namespace EFunTech.Sms.Portal
                 var foundMenuItem = context.MenuItems.FirstOrDefault(p => p.Name == foundWebAuthorization.Remark);
                 if (foundMenuItem == null)
                 {
-                    data.menuItem.WebAuthorization = foundWebAuthorization;
+                    data.menuItem.WebAuthorizationId = foundWebAuthorization.Id;
                     foundMenuItem = context.MenuItems.Add(data.menuItem);
                     context.SaveChanges();
                 }

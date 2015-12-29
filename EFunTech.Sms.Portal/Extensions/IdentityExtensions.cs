@@ -17,21 +17,21 @@ namespace EFunTech.Sms.Portal
         public static IEnumerable<ApplicationUser> GetUsers(DbContext context)
         {
             return context.Set<ApplicationUser>()
-                   .Include(p => p.Parent)
-                   .Include(p => p.Department)
-                   .Include(p => p.CreditWarning)
-                   .Include(p => p.ReplyCc)
-                   .Include(p => p.Blacklists)
-                   .Include(p => p.CommonMessages)
-                   .Include(p => p.UploadedFiles)
-                   .Include(p => p.Signatures)
-                   .Include(p => p.SendMessageRules)
-                   .Include(p => p.Contacts)
-                   .Include(p => p.Groups)
-                   .Include(p => p.AllotSetting)
-                   .Include(p => p.Claims)
-                   .Include(p => p.Logins)
-                   .Include(p => p.Roles)
+                   //.Include(p => p.Parent)
+                   //.Include(p => p.Department)
+                   //.Include(p => p.CreditWarning)
+                   //.Include(p => p.ReplyCc)
+                   //.Include(p => p.Blacklists)
+                   //.Include(p => p.CommonMessages)
+                   //.Include(p => p.UploadedFiles)
+                   //.Include(p => p.Signatures)
+                   //.Include(p => p.SendMessageRules)
+                   //.Include(p => p.Contacts)
+                   //.Include(p => p.Groups)
+                   //.Include(p => p.AllotSetting)
+                   //.Include(p => p.Claims)
+                   //.Include(p => p.Logins)
+                   //.Include(p => p.Roles)
                     //.FromCache(CachePolicy.WithDurationExpiration(TimeSpan.FromSeconds(5)), tags: new[] { "ApplicationUsers" })
                    ;
         }
@@ -77,23 +77,14 @@ namespace EFunTech.Sms.Portal
                 : identityRole.Name;
         }
 
-        public static IEnumerable<ApplicationUser> GetDescendingUsersAndUser(DbContext context, ApplicationUser user)
+        public static IEnumerable<ApplicationUser> GetDescendingUsersAndUser(DbContext context, string userId)
         {
             var users = GetUsers(context).ToList();
 
-            var result = _GetDescendingUsers(users, user);
+            var result = _GetDescendingUsers(users, userId);
 
+            var user = users.FirstOrDefault(p => p.Id == userId);
             result = result.Union(new List<ApplicationUser> { user });
-
-            // 由小到大排列
-            return result.OrderBy(p => p.Level).ThenBy(p => p.Id);
-        }
-
-        public static IEnumerable<ApplicationUser> GetDescendingUsers(DbContext context, ApplicationUser user)
-        {
-            var users = GetUsers(context).ToList();
-
-            var result = _GetDescendingUsers(users, user);
 
             // 由小到大排列
             return result.OrderBy(p => p.Level).ThenBy(p => p.Id);
@@ -101,16 +92,28 @@ namespace EFunTech.Sms.Portal
 
         private static IEnumerable<ApplicationUser> _GetDescendingUsers(
             IEnumerable<ApplicationUser> users,
-            ApplicationUser user)
+            string userId)
         {
-            var childUsers = users.Where(p => p.ParentId == user.Id);
+            var childUsers = users.Where(p => p.ParentId == userId);
 
             foreach (var childUser in childUsers)
             {
-                childUsers = childUsers.Union(_GetDescendingUsers(users, childUser));
+                childUsers = childUsers.Union(_GetDescendingUsers(users, childUser.Id));
             }
 
             return childUsers.Distinct();
         }
+
+        public static IEnumerable<ApplicationUser> GetDescendingUsers(DbContext context, string userId)
+        {
+            var users = GetUsers(context).ToList();
+
+            var result = _GetDescendingUsers(users, userId);
+
+            // 由小到大排列
+            return result.OrderBy(p => p.Level).ThenBy(p => p.Id);
+        }
+
+        
     }
 }

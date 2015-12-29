@@ -24,9 +24,13 @@ namespace EFunTech.Sms.Portal.Controllers
                 {
                     //return RedirectToAction("SectorStatistics", "Home");
 
+                    //return RedirectToAction(
+                    //    menuItem.WebAuthorization.ActionName, 
+                    //    menuItem.WebAuthorization.ControllerName);
+
                     return RedirectToAction(
-                        menuItem.WebAuthorization.ActionName, 
-                        menuItem.WebAuthorization.ControllerName);
+                        menuItem.ActionName,
+                        menuItem.ControllerName);
                 }
                 else
                 {

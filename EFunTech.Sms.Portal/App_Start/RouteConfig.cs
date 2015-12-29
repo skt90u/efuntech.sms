@@ -1,10 +1,9 @@
 ﻿using EFunTech.Sms.Schema;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using System.Data.Entity;
+using EFunTech.Sms.Portal.Controllers.Common;
 
 namespace EFunTech.Sms.Portal
 {
@@ -23,18 +22,29 @@ namespace EFunTech.Sms.Portal
             // http://stackoverflow.com/questions/1003350/why-is-chrome-searching-for-my-favicon-ico-when-i-serve-up-a-file-from-asp-net-m
             // routes.MapRoute("ignore-favicon", "{*path}", null, new { path = ".*/favicon\\.ico" });
 
-            using (var context = new ApplicationDbContext())
+            
+
+            foreach (var keyValue in MvcControllerBase.MenuItemMap.Value)
             {
-                foreach (var menuItem in context.MenuItems.ToList())
+                var role = keyValue.Key;
+                var menuItems = keyValue.Value;
+
+                foreach (var menuItem in menuItems)
                 {
-                    if (!string.IsNullOrEmpty(menuItem.MapRouteUrl))
-                    {
-                        routes.MapRoute(
+                    if (string.IsNullOrEmpty(menuItem.MapRouteUrl)) continue;
+
+                    if (routes[menuItem.Name] != null) continue;
+
+                    routes.MapRoute(
                             name: menuItem.Name,
-                            url: menuItem.MapRouteUrl, 
-                            defaults: new { controller = menuItem.WebAuthorization.ControllerName, action = menuItem.WebAuthorization.ActionName, id = UrlParameter.Optional }
+                            url: menuItem.MapRouteUrl,
+                            defaults: new
+                            {
+                                controller = menuItem.ControllerName,
+                                action = menuItem.ActionName,
+                                id = UrlParameter.Optional
+                            }
                         );
-                    }
                 }
             }
 

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace EFunTech.Sms.Schema
 {
     /// <summary>
-    /// 需要特殊權限的Action，必須指定
+    /// 指定需要特殊權限的Action
     /// </summary>
     [TableDescription("WebAuthorization")]
     public class WebAuthorization

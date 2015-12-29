@@ -74,7 +74,7 @@ namespace EFunTech.Sms.Portal.Controllers
             }
 
             // 尋找目前使用者以及目前使用者的子帳號或孫帳號
-            IEnumerable<ApplicationUser> users = this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUser);
+            IEnumerable<ApplicationUser> users = this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUserId);
 
             // 尋找目前使用者以及目前使用者的子帳號
             var result = users.AsQueryable()

@@ -16,9 +16,14 @@ namespace EFunTech.Sms.Portal
 {
     public partial class Startup
     {
+        protected static bool MapperConfigureed = false;
+
         // 如需設定驗證的詳細資訊，請瀏覽 http://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureMapper(IAppBuilder app)
         {
+            if (MapperConfigureed == true) return;
+            MapperConfigureed = true;
+
             var profileType = typeof(Profile);
             // Get an instance of each Profile in the executing assembly.
             var profiles = Assembly.GetExecutingAssembly().GetTypes()
