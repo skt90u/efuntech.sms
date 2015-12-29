@@ -167,12 +167,20 @@ namespace EFunTech.Sms.Portal
 
             string controllersDir = Path.Combine(applicationPhysicalDir, @"Scripts\Application\Controllers");
 
+            var allControllers = new ScriptBundle("~/bundles/allControllers");
+
             foreach (string dir in Directory.GetDirectories(controllersDir))
             {
                 string folderName = Path.GetFileName(dir); // 這樣就只會取到資料夾名稱，而非全路徑
 
-                bundles.Add(new ScriptBundle("~/bundles/" + folderName).Include(GetControllerScripts(folderName).ToArray()));
+                var paths = GetControllerScripts(folderName).ToArray();
+
+                bundles.Add(new ScriptBundle("~/bundles/" + folderName).Include(paths));
+
+                allControllers.Include(paths);
             }
+
+            bundles.Add(allControllers);
         }
 
         private static List<string> GetControllerScripts(string controllerName)

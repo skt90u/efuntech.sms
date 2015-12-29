@@ -1,31 +1,85 @@
-﻿@{
-    ViewBag.Title = "Home Page";
+﻿@section scripts {
+    @Scripts.Render("~/bundles/allControllers")
 }
 
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="http://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+@section styles {
+    
+    <style>
+        .box-content-top1 [class*="col-xs-"],
+        .box-content-top1 [class*="col-sm-"],
+        .box-content-top1 [class*="col-md-"],
+        .box-content-top1 [class*="col-lg-"] {
+            padding-right: 0px;
+        }
+
+        #SendBody::-webkit-input-placeholder::before {
+            color:#666;
+            content: '輸入簡訊內容\A \A 　說明：\A 　１．支援『長簡訊』之發送，每則簡訊字數最多可\A 　　　達333（中文）字。\A 　２．超過333字仍可發送，系統將自動進行拆則。\A 　３．為使簡訊內容正常呈現於手機中，請勿在簡訊\A 　　　內容中填入~ ` ^ { } [ ] | < >等特殊符號';
+        }
+
+        /* 手動輸入說明 */
+        /*
+        #ManualInput::-webkit-input-placeholder::before {
+            color:#666;
+            content: '手動輸入說明\A \A 　說明：\A 　１．請直接於將收訊人手機號碼輸入於下方輸入欄位中。\A 　２．亦可將Excel中同一欄位資料複製貼入於網頁手機號碼輸入欄位中。\A 　３．台灣地區號碼輸入範例：0912345678\A 　４．國際地區(含大陸地區)：+886912345678。\A 　５．多筆請以逗點","分隔：0912345678,0912345679,.........\A';
+        }
+        */
+
+        /* 收訊人設定 tabs 圖案 */
+        .RecipientFromType > .nav > li > a {
+            padding:0px;
+        }
+
+        /* 插入內容 */
+        .InsertWord li:hover{
+            color: #930;
+	        background-color: #FFC;
+        }
+    </style>
+
+}
+
+<div ng-controller="Spa">
+    
+<div ng-show="selectedView == 'SendMessage'" ng-if="_.contains(availableViews, 'SendMessage')">
+    @Html.Partial("SendMessage")
 </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-    </div>
+<div ng-show="selectedView == 'SendParamMessage'" ng-if="_.contains(availableViews, 'SendParamMessage')">
+    @Html.Partial("SendParamMessage")
+</div>
+
+<div ng-show="selectedView == 'SearchMemberSend'" ng-if="_.contains(availableViews, 'SearchMemberSend')">
+    @Html.Partial("SearchMemberSend")
+</div>
+
+<div ng-show="selectedView == 'ContactManager'" ng-if="_.contains(availableViews, 'ContactManager')">
+    @Html.Partial("ContactManager")
+</div>
+
+<div ng-show="selectedView == 'SMS_Setting'" ng-if="_.contains(availableViews, 'SMS_Setting')">
+    @Html.Partial("SMS_Setting")
+</div>
+
+<div ng-show="selectedView == 'RecurringSMS'" ng-if="_.contains(availableViews, 'RecurringSMS')">
+    @Html.Partial("RecurringSMS")
+</div>
+
+
+<div ng-show="selectedView == 'DepartmentManager'" ng-if="_.contains(availableViews, 'DepartmentManager')">
+    @Html.Partial("DepartmentManager")
+</div>
+
+<div ng-show="selectedView == 'DepartmentPointManager'" ng-if="_.contains(availableViews, 'DepartmentPointManager')">
+    @Html.Partial("DepartmentPointManager")
+</div>
+
+<div ng-show="selectedView == 'SectorStatistics'" ng-if="_.contains(availableViews, 'SectorStatistics')">
+    @Html.Partial("SectorStatistics")
+</div>
+
+<div ng-show="selectedView == 'Others'" ng-if="_.contains(availableViews, 'Others')">
+    @Html.Partial("Others")
+</div>
+
 </div>

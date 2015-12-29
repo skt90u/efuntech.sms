@@ -22,6 +22,8 @@ namespace EFunTech.Sms.Portal.Controllers
                 MenuItemModel menuItem = GetMenuItems().FirstOrDefault();
                 if (menuItem != null)
                 {
+                    return View();
+
                     //return RedirectToAction("SectorStatistics", "Home");
 
                     //return RedirectToAction(
@@ -47,7 +49,6 @@ namespace EFunTech.Sms.Portal.Controllers
             
         }
 
-        
         public ActionResult SendMessage() 
         { 
             if(GetMenuItems().Count == 0)

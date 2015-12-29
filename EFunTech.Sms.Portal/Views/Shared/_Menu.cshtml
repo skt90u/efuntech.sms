@@ -13,10 +13,11 @@
                      <table width="100%" border="0" cellspacing="0" cellpadding="0">
                          <tbody>
                              <tr>
-                                 <td style="padding-top:20px; padding-left:20px">
+                                 <td id="menu" style="padding-top:20px; padding-left:20px">
                                      @foreach (var menuItem in menuItems)
                                      {
-                                        <a href="@menuItem.MapRouteUrl" class="@(menuItem.MapRouteUrl.Contains(Convert.ToString(ViewContext.RouteData.Values["Action"])) ? "menu-active" : "menu")">@menuItem.Name</a>
+                                        @*<a href="@menuItem.MapRouteUrl" class="@(menuItem.MapRouteUrl.Contains(Convert.ToString(ViewContext.RouteData.Values["Action"])) ? "menu-active" : "menu")">@menuItem.Name</a>*@
+                                         <a href="#@menuItem.MapRouteUrl" class="@(menuItem.MapRouteUrl.Contains(Convert.ToString(ViewContext.RouteData.Values["Action"])) ? "menu-active" : "menu")">@menuItem.Name</a>
                                      }
 
                                      @*
