@@ -1,3 +1,11 @@
+### 20151229
+SectorStatistics Bug
+
+找到多個符合下列要求的動作: 
+↵型別 EFunTech.Sms.Portal.Controllers.SectorSendMessageHistoryController 上的 GetUser
+↵型別 EFunTech.Sms.Portal.Controllers.SectorSendMessageHistoryController 上的 GetIdentityRole"
+ExceptionType: "System.InvalidOperationException"
+
 ### 20151225
 簡訊發送
 參數簡訊發送
