@@ -11,6 +11,8 @@
         var pageSizes = [10, 50, 100, 200]; // 尚未測試200筆數，在進行多筆刪除時是否會發生錯誤(100筆是OK的)
         return {
 
+            isSPA: true, // is single page application
+
             tokenSeparators: [
                 ',',
                 '，',

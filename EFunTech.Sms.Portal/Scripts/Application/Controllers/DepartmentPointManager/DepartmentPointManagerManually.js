@@ -157,8 +157,17 @@
             $scope.fullName = '';
             $scope.userName = '';
             
-            $scope.search();
-
+            if (GlobalSettings.isSPA) {
+                $scope.$on('menu.onSelect', function (event, menuName) {
+                    if (menuName !== 'DepartmentPointManager') return;
+                    var tabName = $scope.$parent.tabName;
+                    if (tabName !== 'DepartmentPointManagerManually') return;
+                    $scope.search();
+                });
+            }
+            else {
+                $scope.search();
+            }
         }]);
 
 })(window, document);

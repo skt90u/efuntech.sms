@@ -113,8 +113,16 @@
         //========================================
         // Initialize
         //========================================
-        
-        $scope.search();
+
+        if (GlobalSettings.isSPA) {
+            $scope.$on('menu.onSelect', function (event, menuName) {
+                if (menuName !== 'SMS_Setting') return;
+                $scope.search();
+            });
+        }
+        else {
+            $scope.search();
+        }
 
         // $scope.CurrentUser.EditProfile = !form.$valid; // TODO: how to get form object
     }]);

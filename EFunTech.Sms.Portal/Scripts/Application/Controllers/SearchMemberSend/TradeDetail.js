@@ -267,7 +267,14 @@
             $scope.TradeTypes = TradeType;
             $scope.TradeType = TradeTypeOptions.All;
 
-            //$scope.search();
+            if (GlobalSettings.isSPA) {
+                $scope.$on('menu.onSelect', function (event, menuName) {
+                    if (menuName !== 'SearchMemberSend') return;
+                    var tabName = $scope.$parent.tabName;
+                    if (tabName !== 'TradeDetail') return;
+                    $scope.search();
+                });
+            }
 
         }]);
 

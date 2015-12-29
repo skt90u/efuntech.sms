@@ -402,7 +402,16 @@
             $scope.GroupManager = new GroupManager();
             $scope.ContactInGroupManager = new ContactInGroupManager();
             $scope.ContactNotInGroupManager = new ContactNotInGroupManager();
-           
+
+
+            if (GlobalSettings.isSPA) {
+                $scope.$on('menu.onSelect', function (event, menuName) {
+                    if (menuName !== 'ContactManager') return;
+                    var tabName = $scope.$parent.tabName;
+                    if (tabName !== 'ContactGroup') return;
+                    $scope.search();
+                });
+            }
         }]);
 
 })(window, document);

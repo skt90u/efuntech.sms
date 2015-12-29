@@ -244,7 +244,15 @@
             EndDateOpend: false,
         };
 
-        $scope.search();
+        if (GlobalSettings.isSPA) {
+            $scope.$on('menu.onSelect', function (event, menuName) {
+                if (menuName !== 'Others') return;
+                $scope.search();
+            });
+        }
+        else {
+            $scope.search();
+        }
 
     }]);
 

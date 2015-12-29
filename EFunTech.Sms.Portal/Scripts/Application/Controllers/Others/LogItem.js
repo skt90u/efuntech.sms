@@ -269,9 +269,6 @@
             StartDateOpend: false,
             EndDateOpend: false,
         };
-
-        $scope.search();
-
     }]);
 
 })(window, document);

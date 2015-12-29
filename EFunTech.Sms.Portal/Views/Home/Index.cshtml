@@ -1,4 +1,12 @@
-﻿@section scripts {
+﻿@using EFunTech.Sms.Portal.Models
+
+@{
+    ViewBag.Title = "Home Page";
+
+    List<MenuItemModel> menuItems = ViewBag.MenuItems as List<MenuItemModel> ?? new List<MenuItemModel>();
+}
+
+@section scripts {
     @Scripts.Render("~/bundles/allControllers")
 }
 
@@ -41,45 +49,11 @@
 
 <div ng-controller="Spa">
     
-<div ng-show="selectedView == 'SendMessage'" ng-if="_.contains(availableViews, 'SendMessage')">
-    @Html.Partial("SendMessage")
-</div>
-
-<div ng-show="selectedView == 'SendParamMessage'" ng-if="_.contains(availableViews, 'SendParamMessage')">
-    @Html.Partial("SendParamMessage")
-</div>
-
-<div ng-show="selectedView == 'SearchMemberSend'" ng-if="_.contains(availableViews, 'SearchMemberSend')">
-    @Html.Partial("SearchMemberSend")
-</div>
-
-<div ng-show="selectedView == 'ContactManager'" ng-if="_.contains(availableViews, 'ContactManager')">
-    @Html.Partial("ContactManager")
-</div>
-
-<div ng-show="selectedView == 'SMS_Setting'" ng-if="_.contains(availableViews, 'SMS_Setting')">
-    @Html.Partial("SMS_Setting")
-</div>
-
-<div ng-show="selectedView == 'RecurringSMS'" ng-if="_.contains(availableViews, 'RecurringSMS')">
-    @Html.Partial("RecurringSMS")
-</div>
-
-
-<div ng-show="selectedView == 'DepartmentManager'" ng-if="_.contains(availableViews, 'DepartmentManager')">
-    @Html.Partial("DepartmentManager")
-</div>
-
-<div ng-show="selectedView == 'DepartmentPointManager'" ng-if="_.contains(availableViews, 'DepartmentPointManager')">
-    @Html.Partial("DepartmentPointManager")
-</div>
-
-<div ng-show="selectedView == 'SectorStatistics'" ng-if="_.contains(availableViews, 'SectorStatistics')">
-    @Html.Partial("SectorStatistics")
-</div>
-
-<div ng-show="selectedView == 'Others'" ng-if="_.contains(availableViews, 'Others')">
-    @Html.Partial("Others")
-</div>
+@foreach (var menuItem in menuItems)
+{
+    <div ng-show="selectedView == '@menuItem.MapRouteUrl'" ng-if="_.contains(availableViews, '@menuItem.MapRouteUrl')">
+        @Html.Partial(@menuItem.MapRouteUrl)
+    </div>    
+}
 
 </div>

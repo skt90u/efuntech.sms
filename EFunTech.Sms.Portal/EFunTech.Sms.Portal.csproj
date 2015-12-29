@@ -611,6 +611,7 @@
     <Content Include="ApplicationInsights.config" />
     <Content Include="Scripts\Application\app.js" />
     <Content Include="Scripts\Application\Configs\configDialogs.js" />
+    <Content Include="Scripts\Application\Configs\configLogProvider.js" />
     <Content Include="Scripts\Application\Constants\Enum.js" />
     <Content Include="sass\site.sass" />
     <Content Include="Docs\index.md" />

@@ -292,9 +292,9 @@
 
             if (result.valid)
             {
-                $log.log('phone: ' + phone);
-                $log.log('regionCode: ' + regionCode);
-                $log.log(result);
+                $log.debug('phone: ' + phone);
+                $log.debug('regionCode: ' + regionCode);
+                $log.debug(result);
             }
 
             return result;

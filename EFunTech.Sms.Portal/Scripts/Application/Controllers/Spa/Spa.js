@@ -13,7 +13,6 @@
                 var view = angular.element(link).attr('href').replace('#', '');
                 views.push(view);
             });
-            console.log(views);
             return views;
         }
         
@@ -25,6 +24,8 @@
             var view = tokens[tokens.length - 1];
             if (_.contains($scope.availableViews, view)) {
                 $scope.selectedView = view;
+
+                $scope.$broadcast('menu.onSelect', view);
             }
         });
 

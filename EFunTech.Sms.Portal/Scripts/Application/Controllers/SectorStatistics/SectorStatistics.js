@@ -154,7 +154,15 @@
         // Initialize
         //========================================
         
-        $scope.search();
+        if (GlobalSettings.isSPA) {
+            $scope.$on('menu.onSelect', function (event, menuName) {
+                if (menuName !== 'SectorStatistics') return;
+                $scope.search();
+            });
+        }
+        else {
+            $scope.search();
+        }
         
 
     }]);

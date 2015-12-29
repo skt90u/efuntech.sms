@@ -44,7 +44,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
 
         #region IdentityExtensions
 
-        public ApplicationUser CurrentUser
+        protected ApplicationUser CurrentUser
         {
             get
             {
@@ -53,7 +53,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         }
 
         private Dictionary<string, ApplicationUser> userDict;
-        public ApplicationUser GetUser(string userId)
+        protected ApplicationUser GetUser(string userId)
         {
             if (string.IsNullOrEmpty(userId))
                 return null;
@@ -73,7 +73,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                 : null;
         }
 
-        public IdentityRole CurrentIdentityRole
+        protected IdentityRole CurrentIdentityRole
         {
             get
             {
@@ -82,7 +82,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         }
 
         private Role _CurrentUserRole;
-        public Role CurrentUserRole
+        protected Role CurrentUserRole
         {
             get
             {
@@ -97,7 +97,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             }
         }
 
-        public string CurrentUserId
+        protected string CurrentUserId
         {
             get
             {
@@ -105,7 +105,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             }
         }
 
-        public string CurrentUserName
+        protected string CurrentUserName
         {
             get
             {
@@ -114,7 +114,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         }
 
         private Dictionary<string, IdentityRole> roleDict;
-        public IdentityRole GetIdentityRole(string userId)
+        protected IdentityRole GetIdentityRole(string userId)
         {
             if (string.IsNullOrEmpty(userId))
                 return null;
@@ -134,7 +134,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                 : null;
         }
 
-        public string GetRoleName(string roleId)
+        protected string GetRoleName(string roleId)
         {
             return IdentityExtensions.GetRoleName(context, roleId);
         }
