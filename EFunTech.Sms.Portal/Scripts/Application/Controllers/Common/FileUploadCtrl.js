@@ -23,15 +23,18 @@
                     $modalInstance.dismiss('cancel');
                 };
 
-                $scope.selectFile = function () {
-                    $('input[type=file]').click();
+                $scope.selectFile = function (target) {
+                    var file = angular.element(target).parent('div').find('input[type=file]');
+                    file.click();
+                    //$('input[type=file]').click(); // 在 SinglePageApplication ，這種方式會出錯
                 };
 
-                $scope.uploadFile = function () {
+                $scope.uploadFile = function (target) {
                     //var $scope = angular.element($file).scope();
                     // 由於這個function的呼叫是來自 angular.element(this).scope().fileNameChanged()，必須要使用 $scope.$apply 才能達到 $scope two way binding
                     $scope.$apply(function () {
-                        var $file = $('input[type=file]');
+                        var $file = angular.element(target);
+                        //var $file = $('input[type=file]'); // 在 SinglePageApplication ，這種方式會出錯
 
                         if (!FileManagerApi.checkFile($file, extensionPattern)) {
                             $file.val(""); // 清空 input[type=file]，避免對同一個檔案上傳無法觸發onchange事件

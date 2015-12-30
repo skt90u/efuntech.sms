@@ -652,7 +652,6 @@
     <Content Include="Scripts\Application\Controllers\SendParamMessage\SendParamMessage.js" />
     <Content Include="Scripts\Application\Controllers\Others\SystemAnnouncement.js" />
     <Content Include="Scripts\Application\Controllers\Spa\Spa.js" />
-    <Content Include="Scripts\Application\Controllers\Spa\Menu.js" />
     <Content Include="Scripts\Application\Factories\MobileUtil.js" />
     <Content Include="Scripts\Application\Factories\DateUtil.js" />
     <Content Include="Scripts\Application\Factories\MessageCostInfo.js" />

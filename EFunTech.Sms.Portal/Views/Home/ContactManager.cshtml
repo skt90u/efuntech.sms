@@ -85,8 +85,8 @@
                             <div class="container-fluid">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <div ng-class="!uploading ? 'fileUpload' : 'fileUploading'" onclick="angular.element(this).scope().selectFile()"></div>
-                                        <input type="file" class="hide" onchange="angular.element(this).scope().uploadFile()" />
+                                        <div ng-class="!uploading ? 'fileUpload' : 'fileUploading'" onclick="angular.element(this).scope().selectFile(this)"></div>
+                                        <input type="file" class="hide" onchange="angular.element(this).scope().uploadFile(this)" />
                                     </div>
                                     <div class="col-md-6">
                                         可上傳格式為：
@@ -107,7 +107,7 @@
                         </div>
                         <div class="modal-footer">
                             <div class="btn-group">
-                                <button class="btn btn-warning" ng-click="cancel()">取消</button>
+                                <button class="btn btn-warning" ng-click="cancel()">離開</button>
                             </div>
                         </div>
                     </div>
@@ -380,8 +380,8 @@
                             <div class="container-fluid">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <div ng-class="!uploading ? 'fileUpload' : 'fileUploading'" onclick="angular.element(this).scope().selectFile()"></div>
-                                        <input type="file" class="hide" onchange="angular.element(this).scope().uploadFile()" />
+                                        <div ng-class="!uploading ? 'fileUpload' : 'fileUploading'" onclick="angular.element(this).scope().selectFile(this)"></div>
+                                        <input type="file" class="hide" onchange="angular.element(this).scope().uploadFile(this)" />
                                     </div>
                                     <div class="col-md-6">
                                         可上傳格式為：
@@ -402,7 +402,7 @@
                         </div>
                         <div class="modal-footer">
                             <div class="btn-group">
-                                <button class="btn btn-warning" ng-click="cancel()">取消</button>
+                                <button class="btn btn-warning" ng-click="cancel()">離開</button>
                             </div>
                         </div>
                     </div>

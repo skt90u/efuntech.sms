@@ -146,8 +146,8 @@
                          <div class="container-fluid pt-20">
                              <div class="row">
                                  <div class="col-md-6">
-                                     <div ng-class="!uploading ? 'fileUpload' : 'fileUploading'" onclick="angular.element(this).scope().FileUploadManager.selectFile()" class="fileUpload"></div>
-                                     <input type="file" class="hide" onchange="angular.element(this).scope().FileUploadManager.uploadFile()">
+                                     <div ng-class="!uploading ? 'fileUpload' : 'fileUploading'" onclick="angular.element(this).scope().FileUploadManager.selectFile(this)" class="fileUpload"></div>
+                                     <input type="file" class="hide" onchange="angular.element(this).scope().FileUploadManager.uploadFile(this)">
                                  </div>
                                  <div class="col-md-6">
                                      <div>
@@ -168,7 +168,7 @@
                                              <div class="pull-right">
                                                  <div class="btn-group">
                                                      <button class="btn btn-primary" ng-click="FileUploadManager.editValidList()">編輯</button>
-                                                     <button class="btn btn-danger" ng-click="FileUploadManager.cancel()">取消</button>
+                                                     <button class="btn btn-danger" ng-click="FileUploadManager.cancel()">離開</button>
                                                  </div>
                                              </div>
                                          </div>

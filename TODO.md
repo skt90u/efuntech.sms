@@ -1,3 +1,5 @@
+$('input[type=file]').click();
+
 Mapper.Map(model, entity);
 
 modalForm 指定欄位不存在 - NewPasswordConfirmed
