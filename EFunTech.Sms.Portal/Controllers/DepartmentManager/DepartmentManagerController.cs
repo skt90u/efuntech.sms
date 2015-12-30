@@ -168,9 +168,90 @@ namespace EFunTech.Sms.Portal.Controllers
             return entity;
         }
 
+        //protected override async Task DoUpdate(ApplicationUserModel model, string id, ApplicationUser entity)
+        //{
+        //    // 當角色是 DepartmentHead 或者 Employee，必須指定部門
+        //    var roleName = GetRoleName(model.RoleId);
+        //    Role role = (Role)Enum.Parse(typeof(Role), roleName);
+        //    if (role == Role.DepartmentHead || role == Role.Employee)
+        //    {
+        //        if (model.DepartmentId == 0)
+        //            throw new Exception("當角色為部門主管或員工時，必須指定部門");
+        //    }
+
+        //    //設定部門
+        //    entity.Department = model.DepartmentId == 0 ? null : context.Set<Department>().FirstOrDefault(p => p.Id == model.DepartmentId);
+
+        //    //是否有修改角色
+        //    var newRoleId = model.RoleId;
+        //    var oldRoleId = GetIdentityRole(model.Id).Id;
+        //    if (newRoleId != oldRoleId)
+        //    {
+        //        var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
+        //        var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
+
+        //        string oldRoleName = GetRoleName(oldRoleId);
+        //        if (!string.IsNullOrEmpty(oldRoleName))
+        //            userManager.RemoveFromRoleAsync(model.Id, oldRoleName).Wait();
+
+        //        userManager.AddToRoleAsync(model.Id, GetRoleName(newRoleId)).Wait();
+        //    }
+
+        //    //是否有修改密碼
+        //    if (!string.IsNullOrEmpty(model.NewPassword))
+        //    {
+        //        // http://stackoverflow.com/questions/19524111/asp-net-identity-reset-password
+        //        var store = new UserStore<ApplicationUser>(context);
+        //        var userManager = new UserManager<ApplicationUser>(store);
+        //        var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
+
+        //        String hashedNewPassword = userManager.PasswordHasher.HashPassword(model.NewPassword);
+        //        var user = await DoGet(model.Id);
+
+        //        store.SetPasswordHashAsync(user, hashedNewPassword).Wait();
+        //        store.UpdateAsync(user).Wait();
+        //    }
+
+        //    if (entity.Enabled)
+        //    {
+        //        entity.LockoutEnabled = false;
+        //        entity.LockoutEndDateUtc = null;
+        //    }
+        //    else
+        //    {
+        //        entity.LockoutEnabled = true;
+        //        entity.LockoutEndDateUtc = DateTime.MaxValue;
+        //    }
+
+        //    await context.UpdateAsync(entity);
+        //}
+
+
         protected override async Task DoUpdate(ApplicationUserModel model, string id, ApplicationUser entity)
         {
-            // 當角色是 DepartmentHead 或者 Employee，必須指定部門
+            // 使用 Single Page Application 開發後，如果使用 Mapper.Map 有可能更新到畫面上沒有的欄位，例如：目前可用餘額(SmsBalance)
+            entity = await DoGet(id);
+
+            // 啟用 | 關閉
+            entity.Enabled = model.Enabled;
+            if (entity.Enabled)
+            {
+                entity.LockoutEnabled = false;
+                entity.LockoutEndDateUtc = null;
+            }
+            else
+            {
+                entity.LockoutEnabled = true;
+                entity.LockoutEndDateUtc = DateTime.MaxValue;
+            }
+
+            // 姓名
+            entity.FullName = model.FullName;
+
+            // 部門
+            entity.Department = model.DepartmentId == 0 ? null : context.Set<Department>().FirstOrDefault(p => p.Id == model.DepartmentId);
+
+            // 角色
             var roleName = GetRoleName(model.RoleId);
             Role role = (Role)Enum.Parse(typeof(Role), roleName);
             if (role == Role.DepartmentHead || role == Role.Employee)
@@ -179,10 +260,6 @@ namespace EFunTech.Sms.Portal.Controllers
                     throw new Exception("當角色為部門主管或員工時，必須指定部門");
             }
 
-            //設定部門
-            entity.Department = model.DepartmentId == 0 ? null : context.Set<Department>().FirstOrDefault(p => p.Id == model.DepartmentId);
-
-            //是否有修改角色
             var newRoleId = model.RoleId;
             var oldRoleId = GetIdentityRole(model.Id).Id;
             if (newRoleId != oldRoleId)
@@ -197,7 +274,16 @@ namespace EFunTech.Sms.Portal.Controllers
                 userManager.AddToRoleAsync(model.Id, GetRoleName(newRoleId)).Wait();
             }
 
-            //是否有修改密碼
+            // 員工編號
+            entity.EmployeeNo = model.EmployeeNo;
+
+            // 行動電話
+            entity.PhoneNumber = model.PhoneNumber;
+
+            // 電子郵件
+            entity.Email = model.Email;
+
+            // 重設密碼
             if (!string.IsNullOrEmpty(model.NewPassword))
             {
                 // http://stackoverflow.com/questions/19524111/asp-net-identity-reset-password
@@ -212,19 +298,9 @@ namespace EFunTech.Sms.Portal.Controllers
                 store.UpdateAsync(user).Wait();
             }
 
-            if (entity.Enabled)
-            {
-                entity.LockoutEnabled = false;
-                entity.LockoutEndDateUtc = null;
-            }
-            else
-            {
-                entity.LockoutEnabled = true;
-                entity.LockoutEndDateUtc = DateTime.MaxValue;
-            }
-
             await context.UpdateAsync(entity);
         }
+
 
         protected override async Task DoRemove(string id) 
         {

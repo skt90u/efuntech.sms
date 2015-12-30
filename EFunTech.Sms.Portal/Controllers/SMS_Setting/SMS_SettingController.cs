@@ -43,7 +43,28 @@ namespace EFunTech.Sms.Portal.Controllers
                     throw new HttpResponseException(HttpStatusCode.NotFound);
                 }
 
-                Mapper.Map(model, entity);
+                // 點數預警設定
+                entity.CreditWarning.Enabled = model.CreditWarning.Enabled;
+                entity.CreditWarning.BySmsMessage = model.CreditWarning.BySmsMessage;
+                entity.CreditWarning.ByEmail = model.CreditWarning.ByEmail;
+                entity.CreditWarning.SmsBalance = model.CreditWarning.SmsBalance;
+
+                // 開啟國際簡訊發送
+                entity.ForeignSmsEnabled = model.ForeignSmsEnabled;
+
+                // 個人資料維護
+                entity.FullName = model.FullName;
+                entity.PhoneNumber = model.PhoneNumber;
+                entity.ContactPhone = model.ContactPhone;
+                entity.ContactPhoneExt = model.ContactPhoneExt;
+                entity.Email = model.Email;
+                entity.Gender = model.Gender;
+                entity.AddressCountry = model.AddressCountry;
+                entity.AddressArea = model.AddressArea;
+                entity.AddressZip = model.AddressZip;
+                entity.AddressStreet = model.AddressStreet;
+
+                //Mapper.Map(model, entity); 使用 Single Page Application 開發後，如果使用 Mapper.Map 有可能更新到畫面上沒有的欄位，例如：目前可用餘額(SmsBalance)
 
                 using (TransactionScope scope = context.CreateTransactionScope())
                 {

@@ -13,10 +13,11 @@
                 passwordNotMatch: function (value) {
                     var NewPassword = value;
                     var NewPasswordConfirmed = SchemaFormHelper.getViewValue('NewPasswordConfirmed');
+                    if (NewPassword == null) NewPassword = '';
+                    if (NewPasswordConfirmed == null) NewPasswordConfirmed = '';
                     if (NewPassword === NewPasswordConfirmed) {
                         SchemaFormHelper.$broadcast('schemaForm.error.NewPasswordConfirmed', 'passwordNotMatch', true);
                         SchemaFormHelper.$broadcast('schemaForm.error.NewPasswordConfirmed', '302', true); // 首先輸入[再次輸入密碼]，之後才輸入[密碼]，都會出現此為必填欄位，目前不知道怎麼解決。
-                        SchemaFormHelper.$broadcast('schemaForm.error.NewPasswordConfirmed', 302, true); // 首先輸入[再次輸入密碼]，之後才輸入[密碼]，都會出現此為必填欄位，目前不知道怎麼解決。
                     }
                     else {
                         SchemaFormHelper.$broadcast('schemaForm.error.NewPasswordConfirmed', 'passwordNotMatch', false); // false -> 表示 NewPasswordConfirmed 的 passwordNotMatch 驗證不通過
@@ -29,6 +30,8 @@
                 passwordNotMatch: function (value) {
                     var NewPassword = SchemaFormHelper.getViewValue('NewPassword');
                     var NewPasswordConfirmed = value;
+                    if (NewPassword == null) NewPassword = '';
+                    if (NewPasswordConfirmed == null) NewPasswordConfirmed = '';
                     return NewPassword === NewPasswordConfirmed;
                 },
             },
@@ -120,9 +123,9 @@
                 $scope.search();
             });
         }
-        else {
-            $scope.search();
-        }
+        
+        // 載入完成後，需直接呼叫，避免直接透過 hashbang 連結系統設定功能，導致功能不正常。
+        $scope.search(); 
 
         // $scope.CurrentUser.EditProfile = !form.$valid; // TODO: how to get form object
     }]);

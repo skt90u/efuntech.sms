@@ -217,9 +217,9 @@
                     $scope.search();
                 });
             }
-            else {
-                $scope.search();
-            }
+            
+            // 載入完成後，需直接呼叫，避免直接透過 hashbang 連結系統設定功能，導致功能不正常。
+            $scope.search();
 
         }]);
 

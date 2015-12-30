@@ -10,12 +10,16 @@
             var views = [];
             var links = angular.element('#menu').find('a');
             angular.forEach(links, function (link, idx) {
-                var view = angular.element(link).attr('href').replace('#', '');
+                var view = angular.element(link).attr('href');
+                // #/SMS_Setting -> SMS_Setting
+                view = view.replace('#', ''); 
                 views.push(view);
             });
             return views;
         }
         
+        $scope.availableViews = getAvailableViews();
+
         $scope.$watch(function () {
             return location.hash;
         }, function (value) {
@@ -26,15 +30,38 @@
                 $scope.selectedView = view;
 
                 $scope.$broadcast('menu.onSelect', view);
+
+                // 設定哪個選單被點選
+                var links = angular.element('#menu').find('a');
+                angular.forEach(links, function (link) {
+                    link = angular.element(link);
+                    var href = link.attr('href'); // #SectorStatistics
+                    if (href == '#' + view) {
+                        link.addClass('menu-active');
+                        link.removeClass('menu');
+                    }
+                    else {
+                        link.addClass('menu');
+                        link.removeClass('menu-active');
+                    }
+                });
             }
         });
 
-        $scope.availableViews = getAvailableViews();
-
-        if ($scope.availableViews.length != 0) {
-            location.hash = '#' + $scope.availableViews[0];
+        if (location.hash !== '') {
+            var value = location.hash;
+            var tokens = value.split('/');
+            var view = tokens[tokens.length - 1];
+            if (!_.contains($scope.availableViews, view)) {
+                location.hash = '#' + $scope.availableViews[0];
+            }
         }
-        
+        else {
+            if ($scope.availableViews.length != 0) {
+                location.hash = '#' + $scope.availableViews[0];
+            }
+        }
+
         $scope._ = _;
 
     }]);
