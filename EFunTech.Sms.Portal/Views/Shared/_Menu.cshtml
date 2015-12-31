@@ -14,12 +14,15 @@
                          <tbody>
                              <tr>
                                  <td style="padding-top:20px; padding-left:20px">
-                                     <div id="menu">
+                                     <div id="menu" ng-controller="MenuCtrl">
                                      @foreach (var menuItem in menuItems)
                                      {
                                         @*<a href="@menuItem.MapRouteUrl" class="@(menuItem.MapRouteUrl.Contains(Convert.ToString(ViewContext.RouteData.Values["Action"])) ? "menu-active" : "menu")">@menuItem.Name</a>*@
                                          @*<a href="#@menuItem.MapRouteUrl" class="@(menuItem.MapRouteUrl.Contains(Convert.ToString(ViewContext.RouteData.Values["Action"])) ? "menu-active" : "menu")">@menuItem.Name</a>*@
-                                         <a href="#@menuItem.MapRouteUrl" class="menu">@menuItem.Name</a>
+                                         @*<a href="#@menuItem.MapRouteUrl" class="menu">@menuItem.Name</a>*@
+                                         <a href="#!/@menuItem.MapRouteUrl" class="menu">@menuItem.Name</a>
+                                         @*<a href="#!/@menuItem.MapRouteUrl" ng-class="{'menu': false, 'menu-active': this.href !== '#!/@menuItem.MapRouteUrl' }">@menuItem.Name</a>*@
+                                         @*<a href="#!/@menuItem.MapRouteUrl" ng-class="[getBackgroundColour()]">@menuItem.Name</a>*@
                                      }
                                      </div>
                                      @*

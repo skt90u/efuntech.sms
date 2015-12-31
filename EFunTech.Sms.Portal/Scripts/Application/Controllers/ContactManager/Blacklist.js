@@ -213,15 +213,6 @@
             //========================================
 
             $scope.searchText = '';
-
-            if (GlobalSettings.isSPA) {
-                $scope.$on('menu.onSelect', function (event, menuName) {
-                    if (menuName !== 'ContactManager') return;
-                    var tabName = $scope.$parent.tabName;
-                    if (tabName !== 'Blacklist') return;
-                    $scope.search();
-                });
-            }
         }]);
 
 })(window, document);

@@ -3,7 +3,10 @@
 
     // Single Page Application using location.hash
     // reference: http://demo.tutorialzine.com/2015/02/single-page-app-without-a-framework/#
-    angular.module('app').controller('Spa', ['$scope', '$log', function ($scope, $log) {
+    angular.module('app').controller('MenuCtrl', ['$scope', '$log', function ($scope, $log) {
+
+        // 20151231 Norman, 
+        // 這個功能廢棄了，使用 configRouter.js 設定 Client 端的 routing
 
         // 取得目前使用者可以選擇的選單
         function getAvailableViews() {

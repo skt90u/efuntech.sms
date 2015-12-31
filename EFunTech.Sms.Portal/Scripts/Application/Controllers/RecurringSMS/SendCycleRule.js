@@ -273,16 +273,6 @@
         //========================================
 
         $scope.searchText = '';
-
-        if (GlobalSettings.isSPA) {
-            $scope.$on('menu.onSelect', function (event, menuName) {
-                if (menuName !== 'RecurringSMS') return;
-                var tabName = $scope.$parent.tabName;
-                if (tabName !== 'SendCycleRule') return;
-                $scope.search();
-            });
-        }
-
     }]);
 
 })(window, document);

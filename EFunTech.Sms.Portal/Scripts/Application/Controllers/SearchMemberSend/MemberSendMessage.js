@@ -174,18 +174,7 @@
             $scope.ReceiptStatus = array.join(',');
         };
 
-        if (GlobalSettings.isSPA) {
-            $scope.$on('menu.onSelect', function (event, menuName) {
-                if (menuName !== 'SearchMemberSend') return;
-                var tabName = $scope.$parent.tabName;
-                if (tabName !== 'MemberSendMessage') return;
-                $scope.search();
-            });
-        }
-        
-        // 載入完成後，需直接呼叫，避免直接透過 hashbang 連結系統設定功能，導致功能不正常。
         $scope.search();
-
     }]);
 
 })(window, document);

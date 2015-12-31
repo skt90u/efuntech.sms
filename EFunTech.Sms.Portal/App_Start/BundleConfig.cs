@@ -95,6 +95,7 @@ namespace EFunTech.Sms.Portal
                 "~/Scripts/bower_components/angular/angular.js",
                 "~/Scripts/bower_components/angular-i18n/angular-locale_zh-tw.js",
                 "~/Scripts/bower_components/angular-animate/angular-animate.js",
+                "~/Scripts/bower_components/angular-route/angular-route.js",
                 "~/Scripts/bower_components/angular-cookies/angular-cookies.js",
                 "~/Scripts/bower_components/angular-bootstrap/ui-bootstrap-tpls.js",
                 "~/Scripts/bower_components/angular-ui-grid/ui-grid.js",

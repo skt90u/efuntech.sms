@@ -1,0 +1,202 @@
+﻿<style>
+    .box-content-top1 [class*="col-xs-"],
+    .box-content-top1 [class*="col-sm-"],
+    .box-content-top1 [class*="col-md-"],
+    .box-content-top1 [class*="col-lg-"] {
+        padding-right: 0px;
+    }
+
+    #SendBody::-webkit-input-placeholder::before {
+        color:#666;
+        content: '輸入簡訊內容\A \A 　說明：\A 　１．支援『長簡訊』之發送，每則簡訊字數最多可\A 　　　達333（中文）字。\A 　２．超過333字仍可發送，系統將自動進行拆則。\A 　３．為使簡訊內容正常呈現於手機中，請勿在簡訊\A 　　　內容中填入~ ` ^ { } [ ] | < >等特殊符號';
+    }
+
+    #ManualInput::-webkit-input-placeholder::before {
+        color:#666;
+        content: '手動輸入說明\A \A 　說明：\A 　１．請直接於將收訊人手機號碼輸入於下方輸入欄位中。\A 　２．亦可將Excel中同一欄位資料複製貼入於網頁手機號碼輸入欄位中。\A 　３．台灣地區號碼輸入範例：0912345678\A 　４．國際地區(含大陸地區)：+886912345678。\A 　５．多筆請以逗點","分隔：0912345678,0912345679,.........\A';
+    }
+
+    /* 收訊人設定 tabs 圖案 */
+    .RecipientFromType > .nav > li > a {
+        padding:0px;
+    }
+
+    /* 插入內容 */
+    .InsertWord li:hover{
+        color: #930;
+	    background-color: #FFC;
+    }
+</style>    
+
+<div ng-controller="SendParamMessage" class="pl-10">
+    <div class="row">
+        <div class="fl">
+            <div class="box-heading-top1"></div>
+            <div class="box-content-top1">
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">簡訊類別描述</label>
+                        <div class="col-sm-10">
+                            <input 
+                                type="text" 
+                                    placeholder="發送紀錄查詢時參考用，可不填"
+                                    class="form-control"
+                                    ng-model="SendMessageRule.SendTitle" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">發送內容</label>
+					    <div class="col-sm-10">
+                            <textarea class="form-control"
+                                      cols="50"
+                                      rows="9"
+                                      placeholder="."
+                                      id="SendBody"
+                                      style="overflow:auto;height:100%; width:98%; max-width:98%; max-height:100%" border="0"
+                                      ng-change="checkSendBody()"
+                                      ng-model="SendMessageRule.SendBody"></textarea>
+                            <div class="clearfix">
+                                <div class="pull-right pt-10 pr-20">
+                                    一共輸入了
+                                    <span class="font-red">{{SendMessageRule.MessageLength}}</span>
+                                    個字，需要 
+                                    <span class="font-red">{{SendMessageRule.MessageNum}}</span>
+                                    則、 
+                                    <span class="font-red">{{SendMessageRule.MessageCost}}</span>
+                                    點
+                                </div>
+                            </div>
+					    </div>
+                    </div>
+                    <div class="form-group">
+					    <div class="col-sm-offset-2 col-sm-10">
+                            <button class="add-to-commonmessage" ng-click="CommonMessageManager.save(SendMessageRule.SendTitle, SendMessageRule.SendBody)"></button>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="form-group">
+                        <label for="SendTitle" class="col-sm-2 control-label">
+                            插入內容
+                        </label>
+                        <div class="col-sm-10">
+                            <button class="commonmessage-manager" ng-click="SignatureManager.visible=false; CommonMessageManager.show()"></button>
+                            <button class="signature-manager" ng-click="CommonMessageManager.visible=false; SignatureManager.show()"></button>
+                        </div>
+                    </div>
+
+                    <div class="form-group InsertWord">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <div collapse="!CommonMessageManager.visible">
+                                <div>
+                                    <div ng-show="!CommonMessageManager.dataResult.length">查無資料</div>
+                                    <ul style="max-height: 80px; height: 80px; overflow: auto;">
+                                        <li ng-repeat="commonMessage in CommonMessageManager.dataResult"
+                                            ng-click="SendMessageRule.SendBody = SendMessageRule.SendBody + commonMessage.Content; checkSendBody();"
+                                            popover-animation="true"
+                                            popover-placement="top"
+                                            popover="{{commonMessage.Content}}"
+                                            popover-trigger="mouseenter">{{commonMessage.Subject}}</li>
+                                    </ul>
+                                    <div class="btn-group">
+                                        <button class="btn btn-primary" ng-click="CommonMessageManager.editCommonMessages()">編輯常用簡訊</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div collapse="!SignatureManager.visible">
+                                <div>
+                                    <div ng-show="!SignatureManager.dataResult.length">查無資料</div>
+                                    <ul style="max-height: 80px; height: 80px; overflow: auto;">
+                                        <li ng-repeat="signature in SignatureManager.dataResult"
+                                            ng-click="SendMessageRule.SendBody = SendMessageRule.SendBody + signature.Content; checkSendBody();"
+                                            popover-animation="true"
+                                            popover-placement="top"
+                                            popover="{{signature.Content}}"
+                                            popover-trigger="mouseenter">{{signature.Subject}}</li>
+                                    </ul>
+                                    <div class="btn-group">
+                                        <button class="btn btn-primary" ng-click="SignatureManager.editSignatures()">編輯簽名檔</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+        <div class="fl">
+            <div class="box-heading-top2"></div>
+            <div class="box-content-top2">
+                
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">參數簡訊上傳</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div ng-class="!uploading ? 'fileUpload' : 'fileUploading'" onclick="angular.element(this).scope().FileUploadManager.selectFile(this)" class="fileUpload"></div>
+                                    <input type="file" class="hide" onchange="angular.element(this).scope().FileUploadManager.uploadFile(this)">
+                                </div>
+                                <div class="col-md-6">
+                                    <div>
+                                        <a href="/Download/參數發送範例檔.xlsx"><span style="color: Red; font-weight: 900; font-size:14pt;text-decoration:none">下載參數發送範例檔</span></a>
+                                    </div>
+                                    <div>
+                                        <span style="font-size:13pt;">範例檔編輯完成直接上傳</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row animate-show" collapse="FileUploadManager.uploadedMessageReceiverListResult == null">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading clearfix">
+                                        <h3 class="panel-title pull-left">
+                                            上傳結果
+                                        </h3>
+                                         <div class="clearfix">
+                                        <div class="pull-right">
+                                            <div class="btn-group">
+                                                <button class="btn btn-primary" ng-click="FileUploadManager.editValidList()">編輯</button>
+                                                <button class="btn btn-danger" ng-click="FileUploadManager.cancel()">離開</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                     </div>
+                                    <div class="panel-body">
+                                        <ul>
+                                            <li>
+                                                已上傳完成
+                                                <strong>{{FileUploadManager.uploadedMessageReceiverListResult.FileName}}</strong>
+                                            </li>
+                                            <li>
+                                                有效名單：
+                                                <span><a ng-click="FileUploadManager.editValidList()">{{FileUploadManager.uploadedMessageReceiverListResult.ValidCount}}</a></span>
+                                                筆
+                                            </li>
+                                            <li>
+                                                無效名單：
+                                                <span><a ng-click="FileUploadManager.editInvalidList()">{{FileUploadManager.uploadedMessageReceiverListResult.InvalidCount}}</a></span>
+                                                筆
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="clearfix">
+                    <div class="pull-right">
+                        <button class="btn_next" ng-click="editSendTime()"></button>
+                    </div>
+                </div>
+             </div>
+        </div>
+    </div>
+ </div>

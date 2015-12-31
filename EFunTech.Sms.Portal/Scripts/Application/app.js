@@ -6,6 +6,7 @@
 
     var moduleNames = [
         'ngAnimate',
+        'ngRoute',
         'ngCookies',
         'angular-underscore',
         'toaster',

@@ -210,15 +210,6 @@
             $scope.selectedRows = [];
             $scope.fullName = '';
             $scope.userName = '';
-
-            if (GlobalSettings.isSPA) {
-                $scope.$on('menu.onSelect', function (event, menuName) {
-                    if (menuName !== 'DepartmentPointManager') return;
-                    var tabName = $scope.$parent.tabName;
-                    if (tabName !== 'DepartmentPointManagerPeriod') return;
-                    $scope.search();
-                });
-            }
         }]);
 
 })(window, document);

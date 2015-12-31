@@ -1,0 +1,151 @@
+﻿<style>
+    div[ng-controller="DepartmentPointManager"] [class*="col-xs-"],
+    div[ng-controller="DepartmentPointManager"] [class*="col-sm-"],
+    div[ng-controller="DepartmentPointManager"] [class*="col-md-"],
+    div[ng-controller="DepartmentPointManager"] [class*="col-lg-"] {
+        padding-left: 0px;
+    }
+</style>
+
+<div ng-controller="DepartmentPointManager">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="panel panel-warning">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            公司組織
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <!--<div class="row" 
+                             ng-if="CompanyDeaprtmentManager.CanEditDepartment" ng-click="CompanyDeaprtmentManager.editRow(null)">
+                            <div class="col-sm-offset-1 col-md-11">
+                                <a><img class="add2" /><span style="padding-left:5px">新增部門</span></a>
+                                <hr />
+                            </div>
+                        </div>-->
+
+                        <div class="row" 
+                             ng-click="CompanyDeaprtmentManager.collapse = !CompanyDeaprtmentManager.collapse">
+                            <div class="col-sm-offset-1 col-md-11">
+                                <a>
+                                    <img ng-class="CompanyDeaprtmentManager.collapse ? 'add_16' : 'add_17'" />
+                                    <span style="padding-left:5px">{{CompanyDeaprtmentManager.UserName}}</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="row" collapse="CompanyDeaprtmentManager.collapse">
+                            <div class="col-sm-offset-2 col-md-10" ng-repeat="Deaprtment in CompanyDeaprtmentManager.Deaprtments">
+                                <div class="clearfix">
+                                    <div class="pull-left">
+                                        <span>{{Deaprtment.Summary}}</span>
+                                    </div>
+                                    
+                                    <!--<div class="pull-right">
+                                        <img class="gg01" 
+                                             ng-click="CompanyDeaprtmentManager.editRow(Deaprtment)"
+                                             ng-if="CompanyDeaprtmentManager.CanEditDepartment" />
+                                        <img class="gg02" 
+                                             ng-click="CompanyDeaprtmentManager.deleteRow(Deaprtment)"
+                                             ng-if="CompanyDeaprtmentManager.CanEditDepartment" />
+                                    </div>-->
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="panel panel-warning">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            快速查詢
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <div>
+                            <tabset justified="false">
+                                <tab heading="手動撥點" ng-click="onSelect('DepartmentPointManagerManually')">
+                                    <div ng-controller="DepartmentPointManagerManually">
+                                        <div class="search-area">
+                                            <label>姓名：</label>
+                                            <input type="text" ng-model="fullName" placeholder="姓名搜尋" />
+                                            <label>帳號：</label>
+                                            <input type="text" ng-model="userName" placeholder="帳號搜尋" />
+                                            <div class="btn-group">
+                                                <button class="btn btn-primary" ng-click="search()">搜尋</button>
+                                                <button class="btn btn-info" ng-click="edit()">設定</button>
+                                            </div>
+                                        </div>
+                                        <div class="grid"
+                                             ui-grid="gridOptions"
+                                             ui-grid-pagination
+                                             ui-grid-resize-columns
+                                             ui-grid-move-columns
+                                             ui-grid-pinning
+                                             ui-grid-exporter
+                                             ui-grid-auto-resize>
+                                            <div class="watermark" ng-show="!gridOptions.data.length">查無資料</div>
+                                        </div>
+                                    </div>
+                                </tab>
+                                <tab heading="播點設定" ng-click="onSelect('DepartmentPointManagerPeriod')">
+                                    <div ng-controller="DepartmentPointManagerPeriod">
+                                        <div class="search-area">
+                                            <label>姓名：</label>
+                                            <input type="text" ng-model="fullName" placeholder="姓名搜尋" />
+                                            <label>帳號：</label>
+                                            <input type="text" ng-model="userName" placeholder="帳號搜尋" />
+                                            <div class="btn-group">
+                                                <button class="btn btn-primary" ng-click="search()">搜尋</button>
+                                                <button class="btn btn-info" ng-click="edit()">設定</button>
+                                            </div>
+                                        </div>
+                                        <div class="grid"
+                                             ui-grid="gridOptions"
+                                             ui-grid-pagination
+                                             ui-grid-resize-columns
+                                             ui-grid-move-columns
+                                             ui-grid-pinning
+                                             ui-grid-exporter
+                                             ui-grid-auto-resize>
+                                            <div class="watermark" ng-show="!gridOptions.data.length">查無資料</div>
+                                        </div>
+                                    </div>
+                                </tab>
+                                <tab heading="回收點數" ng-click="onSelect('DepartmentPointManagerRecovery')">
+                                    <div ng-controller="DepartmentPointManagerRecovery">
+                                        <div class="search-area">
+                                            <label>姓名：</label>
+                                            <input type="text" ng-model="fullName" placeholder="姓名搜尋" />
+                                            <label>帳號：</label>
+                                            <input type="text" ng-model="userName" placeholder="帳號搜尋" />
+                                            <div class="btn-group">
+                                                <button class="btn btn-primary" ng-click="search()">搜尋</button>
+                                                <button class="btn btn-info" ng-click="edit()">回收</button>
+                                            </div>
+                                        </div>
+                                        <div class="grid"
+                                             ui-grid="gridOptions"
+                                             ui-grid-pagination
+                                             ui-grid-resize-columns
+                                             ui-grid-move-columns
+                                             ui-grid-pinning
+                                             ui-grid-exporter
+                                             ui-grid-auto-resize>
+                                            <div class="watermark" ng-show="!gridOptions.data.length">查無資料</div>
+                                        </div>
+                                    </div>
+                                </tab>
+
+                            </tabset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

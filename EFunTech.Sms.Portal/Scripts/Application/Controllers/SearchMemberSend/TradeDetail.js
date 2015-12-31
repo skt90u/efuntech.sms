@@ -266,16 +266,6 @@
             $scope.TradeTypeOptions = TradeTypeOptions;
             $scope.TradeTypes = TradeType;
             $scope.TradeType = TradeTypeOptions.All;
-
-            if (GlobalSettings.isSPA) {
-                $scope.$on('menu.onSelect', function (event, menuName) {
-                    if (menuName !== 'SearchMemberSend') return;
-                    var tabName = $scope.$parent.tabName;
-                    if (tabName !== 'TradeDetail') return;
-                    $scope.search();
-                });
-            }
-
         }]);
 
 })(window, document);

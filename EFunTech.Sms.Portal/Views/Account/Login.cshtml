@@ -7,6 +7,10 @@
     List<SystemAnnouncementModel> systemAnnouncements = ((AccountController)this.ViewContext.Controller).GetSystemAnnouncements();
 }
 
+@{
+    Layout = "~/Views/Shared/_LayoutOrigin.cshtml";
+}
+
 @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" })) 
 { 
 @Html.AntiForgeryToken()

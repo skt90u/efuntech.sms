@@ -81,8 +81,7 @@
         @Html.Partial("_Menu")
 
         <div class="container body-content">
-
-            <ng-view></ng-view>
+            @RenderBody()
 
             <div ng-controller="Scheduler" style="display:none"></div>
 
@@ -136,7 +135,5 @@
         //}
     </script>
     <script src="~/Scripts/bower_components/nanoScrollerJS/javascripts/main.js"></script>
-
 </body>
 </html>
-

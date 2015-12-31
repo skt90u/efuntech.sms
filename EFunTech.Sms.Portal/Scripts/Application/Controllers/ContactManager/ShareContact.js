@@ -403,15 +403,6 @@
             $scope.GroupManager = new GroupManager();
             $scope.UserNotInSharedGroupManager = new UserNotInSharedGroupManager();
             $scope.UserInSharedGroupManager = new UserInSharedGroupManager();
-
-            if (GlobalSettings.isSPA) {
-                $scope.$on('menu.onSelect', function (event, menuName) {
-                    if (menuName !== 'ContactManager') return;
-                    var tabName = $scope.$parent.tabName;
-                    if (tabName !== 'ShareContact') return;
-                    $scope.search();
-                });
-            }
         }]);
 
 })(window, document);

@@ -1,0 +1,408 @@
+﻿<style>
+    .panel  .search-area {
+        padding:0px;
+        margin:0px;
+    }
+</style>
+
+<style>
+    div[ng-controller=ContactGroup] .panel-heading h3 {
+        padding-top: 7.5px;
+    }
+
+    div[ng-controller=ContactGroup] .search-area {
+        margin: 0px;
+    }
+
+    div[ng-controller=ContactGroup] .row .panel-body {
+        padding: 0px;
+    }
+</style>
+
+<style>
+    div[ng-controller=ShareContact] .panel-heading h3 {
+        padding-top: 7.5px;
+    }
+
+    div[ng-controller=ShareContact] .search-area {
+        margin: 0px;
+    }
+
+    div[ng-controller=ShareContact] .row .panel-body {
+        padding: 0px;
+    }
+</style>
+
+<div class="box-heading-top5">
+    <img class="icon_people icon"><span class="font-h3">聯絡人管理</span>
+</div>
+<div class="box-content-top5">
+    <div ng-controller="ContactManager">
+        <tabset justified="false">
+            <tab heading="所有聯絡人" ng-click="onSelect('AllContact')">
+                <tab-heading><div><img class="icon_chat absmiddle" />所有聯絡人</div></tab-heading>
+                <div ng-controller="AllContact">
+                    <div class="search-area">
+                        <div class="input-group add-on">
+                            <input type="text" class="form-control" ng-model="searchText" placeholder="關鍵字搜尋" />
+                            <div class="input-group-btn">
+                                <button class="btn btn-default" ng-click="search()"><i class="glyphicon glyphicon-search"></i></button>
+                                <button class="btn btn-info" ng-click="editRow(null)">新增</button>
+                                <button class="btn btn-danger" ng-click="deleteSelection()">刪除</button>
+                                <button class="btn btn-warning" ng-click="import()">匯入</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid"
+                         ui-grid="gridOptions"
+                         ui-grid-selection
+                         ui-grid-pagination
+                         ui-grid-resize-columns
+                         ui-grid-move-columns
+                         ui-grid-pinning
+                         ui-grid-exporter
+                         ui-grid-auto-resize>
+                        <div class="watermark" ng-show="!gridOptions.data.length">查無資料</div>
+                    </div>
+                </div>
+                <script type="text/ng-template" id="template/modal/uploadContact.html">
+                    <div id="uploadBlacklist">
+                        <div class="modal-header">
+                            <h3 class="modal-title">
+                                <span><img src="/Content/images/administrative-docs.png" /></span>
+                                從檔案匯入聯絡人
+                            </h3>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div ng-class="!uploading ? 'fileUpload' : 'fileUploading'" onclick="angular.element(this).scope().selectFile(this)"></div>
+                                        <input type="file" class="hide" onchange="angular.element(this).scope().uploadFile(this)" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        可上傳格式為：
+                                        <ol>
+                                            <li>Excel格式檔案(*.xlsx)</li>
+                                            <li>多國語言格式( *.csv)</li>
+                                            <li>將以上檔案壓縮(*.zip)</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <span><img alt="" class="info" width="30" height="30"></span>
+                                        <span><a href="/Download/通訊錄匯入範例檔(新版).xlsx">Excel上傳說明</a></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="btn-group">
+                                <button class="btn btn-warning" ng-click="cancel()">離開</button>
+                            </div>
+                        </div>
+                    </div>
+                </script>
+            </tab>
+            <tab heading="常用聯絡人" ng-click="onSelect('CommonContact')">
+                <tab-heading><div><img class="star absmiddle" />常用聯絡人</div></tab-heading>
+
+                <div ng-controller="CommonContact">
+                    <div class="search-area">
+                        <div class="input-group add-on">
+                            <input type="text" class="form-control" ng-model="searchText" placeholder="關鍵字搜尋" />
+                            <div class="input-group-btn">
+                                <button class="btn btn-default" ng-click="search()"><i class="glyphicon glyphicon-search"></i></button>
+                                <button class="btn btn-info" ng-click="editRow(null)">新增</button>
+                                <button class="btn btn-danger" ng-click="deleteSelection()">刪除</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid"
+                         ui-grid="gridOptions"
+                         ui-grid-selection
+                         ui-grid-pagination
+                         ui-grid-resize-columns
+                         ui-grid-move-columns
+                         ui-grid-pinning
+                         ui-grid-exporter
+                         ui-grid-auto-resize>
+                        <div class="watermark" ng-show="!gridOptions.data.length">查無資料</div>
+                    </div>
+                </div>
+            </tab>
+            <tab heading="編輯群組" ng-click="onSelect('ContactGroup')">
+                <tab-heading><div><img class="icno_write absmiddle" />編輯群組</div></tab-heading>
+                <div ng-controller="ContactGroup">
+                    <div class="panel panel-default">
+                        <div class="panel-heading clearfix">
+                            <h3 class="panel-title pull-left">
+                                所有群組
+                            </h3>
+                            <div class="btn-group pull-right">
+                                <button class="btn btn-primary" ng-click="ContactManager.editRow(null)">新增聯絡人</button>
+                                <button class="btn btn-info" ng-click="GroupManager.editRow(null)">新增群組</button>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div ng-show="!GroupManager.dataResult.length">查無資料</div>
+                            <chips ng-model="GroupManager.dataResult" multi-select="false" chip-select-change="chipSelectChange(selectedItems)">
+                                <chip-content>
+                                    <span>
+                                        <strong>{{$chip.Name}}</strong>
+                                    </span>
+                                </chip-content>
+                                <chip-action>
+                                    <button ng-show="$chip.Editable" ng-click="chips.appScope.GroupManager.editRow($chip)"><i class="glyphicon glyphicon-pencil"></i></button>
+                                    <button ng-show="$chip.Deletable" ng-click="chips.appScope.GroupManager.deleteRow($chip)"><i class="glyphicon glyphicon-remove"></i></button>
+                                </chip-action>
+                            </chips>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="panel panel-default">
+                                <div class="panel-heading clearfix">
+                                    <h3 class="panel-title pull-left">
+                                        編輯群組: {{GroupManager.selectedGroup.Name}}
+                                    </h3>
+                                    <div class="search-area pull-right">
+                                        <div class="input-group add-on">
+                                            <input type="text" class="form-control" ng-model="ContactInGroupManager.searchText" placeholder="關鍵字搜尋" />
+                                            <div class="input-group-btn">
+                                                <button class="btn btn-default" ng-click="ContactInGroupManager.search()"><i class="glyphicon glyphicon-search"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="grid"
+                                         ui-grid="ContactInGroupManager.gridOptions"
+                                         ui-grid-pagination
+                                         ui-grid-resize-columns
+                                         ui-grid-move-columns
+                                         ui-grid-pinning
+                                         ui-grid-exporter
+                                         ui-grid-auto-resize>
+                                        <div class="watermark" ng-show="!ContactInGroupManager.gridOptions.data.length">查無資料</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="panel panel-default">
+                                <div class="panel-heading clearfix">
+                                    <h3 class="panel-title pull-left">
+                                        所有聯絡人
+                                    </h3>
+                                    <div class="search-area pull-right">
+                                        <div class="input-group add-on">
+                                            <input type="text" class="form-control" ng-model="ContactNotInGroupManager.searchText" placeholder="關鍵字搜尋" />
+                                            <div class="input-group-btn">
+                                                <button class="btn btn-default" ng-click="ContactNotInGroupManager.search()"><i class="glyphicon glyphicon-search"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="grid"
+                                         ui-grid="ContactNotInGroupManager.gridOptions"
+                                         ui-grid-pagination
+                                         ui-grid-resize-columns
+                                         ui-grid-move-columns
+                                         ui-grid-pinning
+                                         ui-grid-exporter
+                                         ui-grid-auto-resize>
+                                        <div class="watermark" ng-show="!ContactNotInGroupManager.gridOptions.data.length">查無資料</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </tab>
+            <tab heading="分享群組聯絡人" ng-click="onSelect('ShareContact')">
+                <tab-heading><div><img class="icno_users absmiddle" />分享群組聯絡人</div></tab-heading>
+
+                <div ng-controller="ShareContact">
+                    <div class="panel panel-default">
+                        <div class="panel-heading clearfix">
+                            <h3 class="panel-title pull-left">
+                                所有群組
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <div ng-show="!GroupManager.dataResult.length">查無資料</div>
+                            <chips ng-model="GroupManager.dataResult" multi-select="false" chip-select-change="chipSelectChange(selectedItems)">
+                                <chip-content>
+                                    <span>
+                                        <strong>{{$chip.Name}}</strong>
+                                    </span>
+                                </chip-content>
+                                <chip-action>
+                                    <button ng-show="$chip.Editable" ng-click="chips.appScope.GroupManager.editRow($chip)"><i class="glyphicon glyphicon-pencil"></i></button>
+                                    <button ng-show="$chip.Deletable" ng-click="chips.appScope.GroupManager.deleteRow($chip)"><i class="glyphicon glyphicon-remove"></i></button>
+                                </chip-action>
+                            </chips>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="panel panel-default" >
+                                <div class="panel-heading clearfix">
+                                    <h3 class="panel-title pull-left">
+                                        設定分享群組資料: {{GroupManager.selectedGroup.Name || '請先選擇上方群組'}}
+                                    </h3>
+                                </div>
+                                <div class="panel-body">
+                                    <tabset justified="false">
+                                        <tab heading="依公司部門選擇">
+                                            <div>
+                                                <label>部門</label>
+                                                <select style="width:100%;"
+                                                        ng-options="department.name for department in UserNotInSharedGroupManager.departments"
+                                                        ng-model="UserNotInSharedGroupManager.selectedDepartment"
+                                                        ng-change="UserNotInSharedGroupManager.onChangeDepartment()"></select>
+                                            </div>
+                                            <div>
+                                                <label>成員</label>
+                                                <select size="100" style="max-height:235px;width:100%;"
+                                                        multiple="multiple"
+                                                        ng-options="departmentUser.FullName for departmentUser in UserNotInSharedGroupManager.departmentUsers"
+                                                        ng-model="UserNotInSharedGroupManager.selectedDepartmentUsers"></select>
+                                            </div>
+                                            <div class="clearfix">
+                                                <div class="btn-group pull-right" style="padding-right:10px;">
+                                                    <button class="btn btn-warning" ng-click="createShareContactByShareList()">確定</button>
+                                                </div>
+                                            </div>
+                                        </tab>
+                                        <tab heading="手動輸入分享帳號">
+                                            <textarea style="max-height:305px;width:100%;"
+                                                      placeholder="手動輸入分享帳號 ，多筆請用逗號分隔。"
+                                                      ng-model="UserNotInSharedGroupManager.manualShareList"
+                                                      ng-change="UserNotInSharedGroupManager.onChangeManualShareList()"
+                                                      cols="38" rows="100"></textarea>
+                                            <div class="clearfix">
+                                                <div class="pull-left pt-10 pr-20">
+                                                    一共輸入了
+                                                    <span class="font-red">{{UserNotInSharedGroupManager.manualShareListUsernames.length}}</span>
+                                                    個帳號，有
+                                                    <span class="font-red">{{UserNotInSharedGroupManager.manualShareListValidUsers.length}}</span>
+                                                    個帳號有效
+                                                </div>
+                                                <div class="btn-group pull-right" style="padding-right:10px; padding-top:5px;">
+                                                    <button class="btn btn-warning" ng-click="createShareContactByManualShareList()">確定</button>
+                                                </div>
+                                            </div>
+                                        </tab>
+                                    </tabset>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="panel panel-default">
+                                <div class="panel-heading clearfix">
+                                    <h3 class="panel-title pull-left">
+                                        分享帳號
+                                    </h3>
+                                    <div class="search-area pull-right">
+                                        <div class="input-group add-on">
+                                            <input type="text" class="form-control" ng-model="UserInSharedGroupManager.searchText" placeholder="關鍵字搜尋" />
+                                            <div class="input-group-btn">
+                                                <button class="btn btn-default" ng-click="UserInSharedGroupManager.search()"><i class="glyphicon glyphicon-search"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="grid"
+                                         ui-grid="UserInSharedGroupManager.gridOptions"
+                                         ui-grid-pagination
+                                         ui-grid-resize-columns
+                                         ui-grid-move-columns
+                                         ui-grid-pinning
+                                         ui-grid-exporter
+                                         ui-grid-auto-resize>
+                                        <div class="watermark" ng-show="!UserInSharedGroupManager.gridOptions.data.length">查無資料</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </tab>
+            <tab heading="黑名單管理" ng-click="onSelect('Blacklist')">
+                <tab-heading><div><img class="lock absmiddle" />黑名單管理</div></tab-heading>
+
+                <div ng-controller="Blacklist">
+                    <div class="search-area">
+                        <div class="input-group add-on">
+                            <input type="text" class="form-control" ng-model="searchText" placeholder="關鍵字搜尋" />
+                            <div class="input-group-btn">
+                                <button class="btn btn-default" ng-click="search()"><i class="glyphicon glyphicon-search"></i></button>
+                                <button class="btn btn-info" ng-click="editRow(null)">新增</button>
+                                <button class="btn btn-danger" ng-click="deleteSelection()">刪除</button>
+                                <button class="btn btn-warning" ng-click="import()">匯入</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid"
+                         ui-grid="gridOptions"
+                         ui-grid-selection
+                         ui-grid-pagination
+                         ui-grid-resize-columns
+                         ui-grid-move-columns
+                         ui-grid-pinning
+                         ui-grid-exporter
+                         ui-grid-auto-resize>
+                        <div class="watermark" ng-show="!gridOptions.data.length">查無資料</div>
+                    </div>
+                </div>
+                <script type="text/ng-template" id="template/modal/uploadBlacklist.html">
+                    <div id="uploadBlacklist">
+                        <div class="modal-header">
+                            <h3 class="modal-title">
+                                <span><img src="/Content/images/administrative-docs.png" /></span>
+                                從檔案匯入黑名單
+                            </h3>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div ng-class="!uploading ? 'fileUpload' : 'fileUploading'" onclick="angular.element(this).scope().selectFile(this)"></div>
+                                        <input type="file" class="hide" onchange="angular.element(this).scope().uploadFile(this)" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        可上傳格式為：
+                                        <ol>
+                                            <li>Excel格式檔案(*.xlsx)</li>
+                                            <li>多國語言格式( *.csv)</li>
+                                            <li>將以上檔案壓縮(*.zip)</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <span><img alt="" class="info" width="30" height="30"></span>
+                                        <span><a href="/Download/黑名單匯入範例檔.xlsx">Excel上傳說明</a></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="btn-group">
+                                <button class="btn btn-warning" ng-click="cancel()">離開</button>
+                            </div>
+                        </div>
+                    </div>
+                </script>
+            </tab>
+        </tabset>
+    </div>
+</div>
+
+

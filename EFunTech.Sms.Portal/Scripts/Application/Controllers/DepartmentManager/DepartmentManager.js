@@ -342,15 +342,6 @@
                 $scope.search();
             };
             
-            if (GlobalSettings.isSPA) {
-                $scope.$on('menu.onSelect', function (event, menuName) {
-                    if (menuName !== 'DepartmentManager') return;
-                    $scope.CompanyDeaprtmentManager.search();
-                    $scope.search();
-                });
-            }
-            
-            // 載入完成後，需直接呼叫，避免直接透過 hashbang 連結系統設定功能，導致功能不正常。
             $scope.search();
         }]);
 

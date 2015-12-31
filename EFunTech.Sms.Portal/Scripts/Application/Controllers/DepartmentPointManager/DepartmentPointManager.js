@@ -11,13 +11,6 @@
 
         $scope.CompanyDeaprtmentManager = CompanyDeaprtmentManager;
         $scope.tabName = 'DepartmentPointManagerManually';
-
-        if (GlobalSettings.isSPA) {
-            $scope.$on('menu.onSelect', function (event, menuName) {
-                if (menuName !== 'DepartmentPointManager') return;
-                $scope.CompanyDeaprtmentManager.search();
-            });
-        }
     }]);
 
 })(window, document);

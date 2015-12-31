@@ -1,0 +1,104 @@
+﻿<style>
+    .SMS_Setting input[type=checkbox] {
+        margin-right: 10px;
+    }
+
+    .SMS_Setting input[type=radio] {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+</style>    
+
+<div ng-controller="SMS_Setting">
+    <form name="modalForm">
+        <div class="SMS_Setting">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <label data-toggle="tooltip" data-placement="top" title="當點數不足時，系統可自動發簡訊通知您。">
+                            <input type="checkbox" ng-model="CurrentUser.CreditWarning.Enabled" />
+                            點數預警設定
+                        </label>
+                    </h3>
+                </div>
+                <div class="panel-body" collapse="!CurrentUser.CreditWarning.Enabled">
+                    <div class="row">
+                        <div class="col-md-2"><label>預警點數:</label></div>
+                        <div class="col-md-10">
+                            <input type="text" ng-model="CurrentUser.CreditWarning.SmsBalance">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2"><label>通知方式:</label></div>
+                        <div class="col-md-10">
+                            <div>
+                                <label><input type="checkbox" ng-model="CurrentUser.CreditWarning.BySmsMessage">簡訊</label>
+                            </div>
+                            <div>
+                                <label><input type="checkbox" ng-model="CurrentUser.CreditWarning.ByEmail">Email</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 目前無回覆轉寄功能 -->
+            <div class="panel panel-info" ng-if="false">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <label data-toggle="tooltip" data-placement="top" title="有人回覆簡訊給您時，可以設定轉發簡訊至您手機">
+                            <input type="checkbox" ng-model="CurrentUser.ReplyCc.Enabled" />
+                            開啟回覆轉寄
+                        </label>
+                    </h3>
+                </div>
+                <div class="panel-body" collapse="!CurrentUser.ReplyCc.Enabled">
+                    <div class="row">
+                        <div class="col-md-2"><label>回覆簡訊轉送至：</label></div>
+                        <div class="col-md-10">
+                            <div>
+                                <label><input type="checkbox" ng-model="CurrentUser.ReplyCc.BySmsMessage">簡訊</label>
+                            </div>
+                            <div>
+                                <label><input type="checkbox" ng-model="CurrentUser.ReplyCc.ByEmail">Email</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-warning">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <label>
+                            <input type="checkbox" ng-model="CurrentUser.ForeignSmsEnabled" />
+                            開啟國際簡訊發送 
+                        </label>
+                    </h3>
+                </div>
+                <div class="panel-body" collapse="!CurrentUser.ForeignSmsEnabled">
+                    已開啟。
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-primary">
+            <div class="panel-heading" ng-click="CurrentUser.EditProfile = !CurrentUser.EditProfile">
+                <h3 class="panel-title">
+                    <img class="add2" />
+                    <span>個人資料維護</span>
+
+                </h3>
+            </div>
+            <div class="panel-body" collapse="!CurrentUser.EditProfile">
+                <div sf-schema="schema" sf-form="form" sf-model="CurrentUser" sf-options="options"></div>
+            </div>
+        </div>
+        
+        <div class="clearfix">
+            <div class="pull-right">
+                <img class="change" ng-click="submit(modalForm)" />
+            </div>
+        </div>
+    </form>
+</div>
+
