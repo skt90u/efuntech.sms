@@ -1,3 +1,7 @@
+FileUploadManager Service -> Factory
+$event
+http://stackoverflow.com/questions/12430820/accessing-clicked-element-in-angularjs
+
 $('input[type=file]').click();
 
 Mapper.Map(model, entity);

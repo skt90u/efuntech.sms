@@ -24,8 +24,8 @@
                 };
 
                 $scope.selectFile = function (target) {
-                    var file = angular.element(target).parent('div').find('input[type=file]');
-                    file.click();
+                    var $file = angular.element(target).parent('div').find('input[type=file]');
+                    $file.click();
                     //$('input[type=file]').click(); // 在 SinglePageApplication ，這種方式會出錯
                 };
 
