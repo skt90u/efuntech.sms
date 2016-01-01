@@ -21,7 +21,7 @@ namespace EFunTech.Sms.Portal.Controllers
         }
 
         // GET api/<controller>
-        public async Task<IEnumerable<string>> Get()
+        public IEnumerable<string> Get()
         {
             //return await context.Set<ApplicationUser>()
             //    .Select(p => p.UserName)

@@ -101,7 +101,7 @@ namespace EFunTech.Sms.Portal.Controllers
         ///     }
         /// </example>
         [HttpPost]
-        public async Task<HttpResponseMessage> Post([FromBody] SendParamSMSModel sendParamSMSModel)
+        public HttpResponseMessage Post([FromBody] SendParamSMSModel sendParamSMSModel)
         //public HttpResponseMessage Post([FromBody] SendParamSMSModel sendParamSMSModel)
         {
             try

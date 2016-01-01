@@ -44,8 +44,6 @@ namespace EFunTech.Sms.CodeGenerator
 
             using (var context = new ApplicationDbContext())
             {
-                var n = 0;
-
                 //var a0 = context.Set<ApplicationUser>().Project().To<ApplicationUserModel>().ToList();
                 var a1 = context.Set<ApplicationUser>().Project().To<ApplicationUserModel1>().ToList();
 
@@ -56,7 +54,6 @@ namespace EFunTech.Sms.CodeGenerator
                 //var a2 = context.Set<ApplicationUser>().Project().To<ApplicationUserModel2>().ToList();
                 //var a3 = context.Set<ApplicationUser>().Project().To<ApplicationUserModel3>().ToList();
 
-                var b = 0;
             }
         }
 

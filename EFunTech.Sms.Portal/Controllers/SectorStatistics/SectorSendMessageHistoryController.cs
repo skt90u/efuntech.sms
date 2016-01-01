@@ -22,7 +22,6 @@ namespace EFunTech.Sms.Portal.Controllers
         public SectorSendMessageHistoryController(DbContext context, ILogService logService)
             : base(context, logService)
         {
-            var a = 0;
         }
 
         /// <summary>

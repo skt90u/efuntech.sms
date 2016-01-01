@@ -43,7 +43,7 @@ namespace EFunTech.Sms.Portal.Controllers
         ///     Authorization = Basic YWRtaW46MTIzNDU2 (舉例說明)
         /// </example>
         [HttpGet]
-        public async Task<HttpResponseMessage> Get(int id)
+        public HttpResponseMessage Get(int id)
         //public HttpResponseMessage Get(int id)
         {
             try

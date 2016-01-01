@@ -321,7 +321,7 @@
             $scope.CommonMessageManager = CommonMessageManager;
             $scope.SignatureManager = SignatureManager;
 
-            $scope.FileUploadManager = FileUploadManager;
+            $scope.FileUploadManager = new FileUploadManager();
             $scope.FileUploadManager.UseParam = $scope.SendMessageRule.UseParam;
 
             $scope.CommonContactManager = CommonContactManager;
