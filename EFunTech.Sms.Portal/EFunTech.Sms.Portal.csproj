@@ -663,7 +663,6 @@
     <Content Include="Scripts\Application\Controllers\SectorStatistics\SectorStatistics.js" />
     <Content Include="Scripts\Application\Controllers\SendParamMessage\SendParamMessage.js" />
     <Content Include="Scripts\Application\Controllers\Others\SystemAnnouncement.js" />
-    <Content Include="Scripts\Application\Controllers\Spa\Spa.js" />
     <Content Include="Scripts\Application\Factories\FileUploadManager.js" />
     <Content Include="Scripts\Application\Factories\MobileUtil.js" />
     <Content Include="Scripts\Application\Factories\DateUtil.js" />
@@ -692,6 +691,7 @@
     <Content Include="Scripts\Application\Controllers\SendMessage\SendMessage.js" />
     <Content Include="Scripts\Application\Services\CommonMessageManager.js" />
     <Content Include="Scripts\Application\Controllers\Common\SendTimeModalCtrl.js" />
+    <Content Include="Scripts\Application\Services\MenuManager.js" />
     <Content Include="Scripts\Application\Services\SignatureManager.js" />
     <Content Include="Scripts\Application\Services\CommonContactManager.js" />
     <Content Include="Scripts\Application\Services\ManualInputManager.js" />

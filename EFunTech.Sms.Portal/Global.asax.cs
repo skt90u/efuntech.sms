@@ -34,7 +34,7 @@ namespace EFunTech.Sms.Portal
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             
             //啟動 BackgroundJob
-            //HangfireBootstrapper.Instance.Start();
+            HangfireBootstrapper.Instance.Start();
 
             // http://stackoverflow.com/questions/14374656/mvc-bundle-client-caching
             //this.EndRequest += MvcApplication_EndRequest;

@@ -1,7 +1,7 @@
 ﻿(function (window, document) {
     'use strict';
 
-    angular.module('app').config(['$routeProvider', '$locationProvider',
+    angular.module('app').config(['$routeProvider', '$locationProvider', 
         function ($routeProvider, $locationProvider) {
 
             function getAvailableViews() {
