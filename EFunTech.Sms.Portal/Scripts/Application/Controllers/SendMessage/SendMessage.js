@@ -60,11 +60,11 @@
             $scope.checkSendBody = function () {
 
                 var messageCostInfo = new MessageCostInfo($scope.SendMessageRule.SendBody, {
-                    "%field1%": "",
-                    "%field2%": "",
-                    "%field3%": "",
-                    "%field4%": "",
-                    "%field5%": "",
+                    "@space1@": "",
+                    "@space2@": "",
+                    "@space3@": "",
+                    "@space4@": "",
+                    "@space5@": "",
                 });
 
                 $scope.SendMessageRule.MessageLength = messageCostInfo.MessageLength; // 簡訊字數
@@ -122,21 +122,21 @@
                 }
 
                 if (UseParam) {
-                    if (SendBody.indexOf("%field1%") == -1 &&
-                        SendBody.indexOf("%field2%") == -1 &&
-                        SendBody.indexOf("%field3%") == -1 &&
-                        SendBody.indexOf("%field4%") == -1 &&
-                        SendBody.indexOf("%field5%") == -1) {
-                        errors.push('請輸入參數內容%field1%、%field2%、%field3%、%field4%或%field5%！');
+                    if (SendBody.indexOf("@space1@") == -1 &&
+                        SendBody.indexOf("@space2@") == -1 &&
+                        SendBody.indexOf("@space3@") == -1 &&
+                        SendBody.indexOf("@space4@") == -1 &&
+                        SendBody.indexOf("@space5@") == -1) {
+                        errors.push('請輸入參數內容@space1@、@space2@、@space3@、@space4@或@space5@！');
                     }
                 }
                 else {
-                    if (SendBody.indexOf("%field1%") != -1 ||
-                        SendBody.indexOf("%field2%") != -1 ||
-                        SendBody.indexOf("%field3%") != -1 ||
-                        SendBody.indexOf("%field4%") != -1 ||
-                        SendBody.indexOf("%field5%") != -1) {
-                        errors.push('發送內容不允許出現%field1%、%field2%、%field3%、%field4%以及%field5%！');
+                    if (SendBody.indexOf("@space1@") != -1 ||
+                        SendBody.indexOf("@space2@") != -1 ||
+                        SendBody.indexOf("@space3@") != -1 ||
+                        SendBody.indexOf("@space4@") != -1 ||
+                        SendBody.indexOf("@space5@") != -1) {
+                        errors.push('發送內容不允許出現@space1@、@space2@、@space3@、@space4@以及@space5@！');
                     }
                 }
 

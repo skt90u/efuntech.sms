@@ -600,11 +600,11 @@ namespace EFunTech.Sms.Portal
                         {
                             MessageCostInfo messageCostInfo = entity.UseParam
                                 ? new MessageCostInfo(entity.SendBody, item.Mobile, new Dictionary<string, string>{
-                                    {"%field1%", item.Param1},
-                                    {"%field2%", item.Param2},
-                                    {"%field3%", item.Param3},
-                                    {"%field4%", item.Param4},
-                                    {"%field5%", item.Param5},
+                                    {"@space1@", item.Param1},
+                                    {"@space2@", item.Param2},
+                                    {"@space3@", item.Param3},
+                                    {"@space4@", item.Param4},
+                                    {"@space5@", item.Param5},
                                 })
                                 : new MessageCostInfo(entity.SendBody, item.Mobile);
 
@@ -904,11 +904,11 @@ namespace EFunTech.Sms.Portal
                         {
                             MessageCostInfo messageCostInfo = model.UseParam
                                 ? new MessageCostInfo(model.SendBody, item.Mobile, new Dictionary<string, string>{
-                                    {"%field1%", item.Param1},
-                                    {"%field2%", item.Param2},
-                                    {"%field3%", item.Param3},
-                                    {"%field4%", item.Param4},
-                                    {"%field5%", item.Param5},
+                                    {"@space1@", item.Param1},
+                                    {"@space2@", item.Param2},
+                                    {"@space3@", item.Param3},
+                                    {"@space4@", item.Param4},
+                                    {"@space5@", item.Param5},
                                 })
                             : new MessageCostInfo(model.SendBody, item.Mobile);
 

@@ -633,6 +633,7 @@
     <Content Include="DevGuide\navigation.md" />
     <Content Include="Scripts\Application\Constants\Converter.js" />
     <Content Include="Scripts\Application\Constants\PhoneAreaCode.js" />
+    <Content Include="Scripts\Application\Controllers\Common\FileDescriptionCtrl.js" />
     <Content Include="Scripts\Application\Controllers\Common\Scheduler.js" />
     <Content Include="Scripts\Application\Controllers\Common\MemberSelectorCtrl.js" />
     <Content Include="Scripts\Application\Controllers\Common\SendRuleModalCtrl.js" />

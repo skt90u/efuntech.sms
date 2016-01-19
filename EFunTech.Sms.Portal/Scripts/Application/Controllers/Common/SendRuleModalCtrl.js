@@ -170,11 +170,11 @@
             $scope.checkSendBody = function () {
 
                 var messageCostInfo = new MessageCostInfo($scope.SendMessageRule.SendBody, {
-                    "%field1%": "",
-                    "%field2%": "",
-                    "%field3%": "",
-                    "%field4%": "",
-                    "%field5%": "",
+                    "@space1@": "",
+                    "@space2@": "",
+                    "@space3@": "",
+                    "@space4@": "",
+                    "@space5@": "",
                 });
 
                 $scope.SendMessageRule.MessageLength = messageCostInfo.MessageLength; // 簡訊字數

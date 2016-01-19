@@ -175,11 +175,11 @@ http://www.zutech.info/docs/sendparamsms
 	- **mobile:** Recipient's mobile number, which is using the E.164 number formatting, e.g. `+886921123456`
 	- **email:** Recipient's email
 	- **sendTime:** It's a datetime string with [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format, e.g. `2015-10-16T10:34:27.8680576+08:00`
-	- **param1:** Replace `%field1%` in SMS content to this string
-	- **param2:** Replace `%field2%` in SMS content to this string
-	- **param3:** Replace `%field3%` in SMS content to this string
-	- **param4:** Replace `%field4%` in SMS content to this string
-	- **param5:** Replace `%field5%` in SMS content to this string
+	- **param1:** Replace `@space1@` in SMS content to this string
+	- **param2:** Replace `@space2@` in SMS content to this string
+	- **param3:** Replace `@space3@` in SMS content to this string
+	- **param4:** Replace `@space4@` in SMS content to this string
+	- **param5:** Replace `@space5@` in SMS content to this string
 
 
 **Request**  
@@ -194,7 +194,7 @@ TimezoneOffset: +08:00
 {  
    "sendTime":"2045-10-20T11:58:13.0385009+08:00",
    "subject":"My first SMS message with parameters",
-   "content":"Hello %field1%",
+   "content":"Hello @space1@",
    "messageReceivers":[  
       {  
          "name":"Andy",

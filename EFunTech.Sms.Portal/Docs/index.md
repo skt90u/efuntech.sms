@@ -104,7 +104,7 @@ http://www.zutech.info/docs/sendsms
 
 - **sendTime:** 預定發送時間，其格式必須為 [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601), 例如：`2015-10-16T10:34:27.8680576+08:00`
 - **subject:** 簡訊類別描述，發送紀錄查詢時參考用，可不填
-- **content:** 簡訊內容，其內容可以包含取代關鍵字 `%field1%`、 `%field2%`、 `%field3%`、 `%field4%`、 `%field5%`，這些關鍵字將被收訊者資訊定義的 `param1`、 `param2`、 `param3`、 `param4`、 `param5` 所取代
+- **content:** 簡訊內容，其內容可以包含取代關鍵字 `@space1@`、 `@space2@`、 `@space3@`、 `@space4@`、 `@space5@`，這些關鍵字將被收訊者資訊定義的 `param1`、 `param2`、 `param3`、 `param4`、 `param5` 所取代
 - **mobiles:** 收訊門號，其格式必須為國際標準手機格式(E.164)，範例：`+886921123456`
 
 **Request**  
@@ -175,17 +175,17 @@ http://www.zutech.info/docs/sendparamsms
 
 - **sendTime:** 預定發送時間，其格式必須為 [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601), 例如：`2015-10-16T10:34:27.8680576+08:00`
 - **subject:** 簡訊類別描述，發送紀錄查詢時參考用，可不填
-- **content:** 簡訊內容，其內容可以包含取代關鍵字 `%field1%`、 `%field2%`、 `%field3%`、 `%field4%`、 `%field5%`，這些關鍵字將被收訊者資訊定義的 param1、 param2、 param3、 param4、 param5
+- **content:** 簡訊內容，其內容可以包含取代關鍵字 `@space1@`、 `@space2@`、 `@space3@`、 `@space4@`、 `@space5@`，這些關鍵字將被收訊者資訊定義的 param1、 param2、 param3、 param4、 param5
 - **messageReceivers:** 收訊者資訊
 	- **name:** 收訊者姓名
 	- **mobile:** 收訊者門號，其格式必須為國際標準手機格式(E.164)，範例：`+886921123456`
 	- **email:** 收訊者電子信箱，若有指定此參數，在發送簡訊時，會一併將簡訊內容發送至指定的電子信箱
 	- **sendTime:** 預定發送時間，其格式必須為 [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601), 例如：`2015-10-16T10:34:27.8680576+08:00`
-	- **param1:** 簡訊內容參數一，此參數指定文字將會取代簡訊內容的關鍵字 `%field1%`
-	- **param2:** 簡訊內容參數二，此參數指定文字將會取代簡訊內容的關鍵字 `%field2%`
-	- **param3:** 簡訊內容參數三，此參數指定文字將會取代簡訊內容的關鍵字 `%field3%`
-	- **param4:** 簡訊內容參數四，此參數指定文字將會取代簡訊內容的關鍵字 `%field4%`
-	- **param5:** 簡訊內容參數五，此參數指定文字將會取代簡訊內容的關鍵字 `%field5%`
+	- **param1:** 簡訊內容參數一，此參數指定文字將會取代簡訊內容的關鍵字 `@space1@`
+	- **param2:** 簡訊內容參數二，此參數指定文字將會取代簡訊內容的關鍵字 `@space2@`
+	- **param3:** 簡訊內容參數三，此參數指定文字將會取代簡訊內容的關鍵字 `@space3@`
+	- **param4:** 簡訊內容參數四，此參數指定文字將會取代簡訊內容的關鍵字 `@space4@`
+	- **param5:** 簡訊內容參數五，此參數指定文字將會取代簡訊內容的關鍵字 `@space5@`
 
 
 **Request**  
@@ -200,7 +200,7 @@ TimezoneOffset: +08:00
 {  
    "sendTime":"2045-10-20T11:58:13.0385009+08:00",
    "subject":"My first SMS message with parameters",
-   "content":"Hello %field1%",
+   "content":"Hello @space1@",
    "messageReceivers":[  
       {  
          "name":"Andy",

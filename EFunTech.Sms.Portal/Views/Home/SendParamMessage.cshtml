@@ -195,6 +195,49 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="pt-20">
+                            <p class="font-h1"><span class="font-h2">【參數簡訊發送說明】</span></p>
+                            <ol>
+                                <li> 請用戶先在個人的電腦中建立一個Excel檔，並在檔案內依序輸入姓名、手機號碼、電子郵件網址與傳送日期及參數的內容。</li>
+                                <li> 第一欄是姓名，第二欄是手機號碼，第三欄是電子郵件 (可略過不輸入)，第四欄是預定傳送日期(如不輸入，則系統將視為即時發送)，第五欄是補充說明(可略過不輸入)，第6欄到第10欄是參數內容，共可輸入5個參數。</li>
+                                <li> <a ng-click="showExample()"><span style="color: brown; font-weight: 900; font-size:10pt;text-decoration:none">範例說明</span></a></li>
+                            </ol>
+                            <span class="font-red">【注意】大量簡訊發送前請詳讀服務條款下載及操作說明下載。</span>
+                            <script type="text/ng-template" id="template/modal/sendParamMessageFileDescription.html">
+                                <div id="uploadBlacklist">
+                                    <div class="modal-header">
+                                        <h3 class="modal-title">
+                                            <span><img src="/Content/images/icon_04.png" /></span>
+                                            參數簡訊範例說明
+                                        </h3>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="container-fluid">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div>
+                                                        <ol>
+                                                            <li> 請用戶先在個人的電腦中建立一個Excel檔，並在檔案內依序輸入姓名、手機號碼、電子郵件網址與傳送日期及參數的內容。</li>
+                                                            <li>
+                                                                第一欄是姓名，第二欄是手機號碼，第三欄是電子郵件 (可略過不輸入)，第四欄是預定傳送日期(如不輸入，則系統將視為即時發送)，第五欄是補充說明(可略過不輸入)，第6欄到第10欄是參數內容，共可輸入5個參數。
+                                                                <br />
+                                                                <img src="/Content/images/param_example.png" alt="" width="500px">
+                                                            </li>
+                                                            <li> 所輸入的簡訊內容，需在內容中安插欄位代號 @@space1@@、@@space2@@、@@space3@@、@@space4@@、@@space5@@，代表參數一到參數五(最多五組)，系統會自動將這些欄位代號代入檔案中的參數內容<br />範例如下：<br /><code>親愛的 @space1@ 客戶您好，您於 @space2@ 訂購的商品 @space3@ ，已送達您所指定的便利商店 (@space4@)，取貨時間為今日起 @space5@ 天內，煩請前往取貨，感謝您的訂購! 購物愉快。</code></li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <div class="btn-group">
+                                            <button class="btn btn-warning" ng-click="cancel()">離開</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </script>
+                        </div>
                     </div>
                 </div>
 
