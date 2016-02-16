@@ -28,7 +28,12 @@
             {
                 $routeProvider.
                     otherwise({ redirectTo: "/" + views[0] });
+
+                // 修正 <a href="/"><img class="logo"></a> 無法正確導入首頁
+                //$('.logo').parent().attr('href', window.location.origin);
+                $('.logo').parent().attr('href', '#!/' + views[0]);
             }
+            
         
     }]);
 

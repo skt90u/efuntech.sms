@@ -43,7 +43,7 @@ namespace EFunTech.Sms.Schema
 
         [MaxLength(256)]
         [Required]
-        [ColumnDescription("簡訊供應商, 目前有 Every8dSmsProvider、InfobipSmsProvider")]
+        [ColumnDescription("11. 簡訊供應商, 目前有 InfobipNormalQuality、InfobipHighQuality、InfobipHighQuality")]
         [Index] // 20151128 Norman, 加上Index看看速度會不會變快
         public string ProviderName { get; set; }
 

@@ -245,8 +245,8 @@ namespace EFunTech.Sms.Portal
         {
             if(sendMessageHistory.Delivered)return;
             if (sendMessageHistory.Price != 0) return; // 如果簡訊商就算傳送失敗，但有收取簡訊費用，就不回補點數
-            if (sendMessageHistory.ProviderName == typeof(Every8dSmsProvider).Name) return; // Every8d 會重送，不需要回補點數
-
+            if (sendMessageHistory.ProviderName == SmsProviderType.Every8d.ToString()) return; // Every8d 會重送，不需要回補點數
+            
             DateTime utcNow = DateTime.UtcNow;
 
             // 補點

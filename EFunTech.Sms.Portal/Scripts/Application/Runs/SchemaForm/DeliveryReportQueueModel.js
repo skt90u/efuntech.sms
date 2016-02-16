@@ -21,7 +21,7 @@
                     },
                     ProviderName: {
                         type: "string",
-                        title: "簡訊供應商, 目前有 Every8dSmsProvider、InfobipSmsProvider",
+                        title: "簡訊供應商, 目前有 InfobipNormalQuality、InfobipHighQuality、Every8d",
                         required: true,
                         maxLength: "256",
                     },

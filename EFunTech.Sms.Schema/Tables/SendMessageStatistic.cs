@@ -104,7 +104,7 @@ namespace EFunTech.Sms.Schema
 
         [MaxLength(256)]
         [Required]
-        [ColumnDescription("11. 簡訊供應商, 目前有 Every8dSmsProvider、InfobipSmsProvider")]
+        [ColumnDescription("11. 簡訊供應商, 目前有 InfobipNormalQuality、InfobipHighQuality、InfobipHighQuality")]
         public string ProviderName { get; set; }
 
         [Required]

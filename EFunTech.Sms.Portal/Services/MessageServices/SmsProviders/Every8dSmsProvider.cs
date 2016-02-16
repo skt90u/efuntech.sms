@@ -107,7 +107,8 @@ namespace EFunTech.Sms.Portal
                     CONTENT = message,
                 }).ToList();
 
-                this.logService.Debug("Every8dSmsProvider，發送簡訊(簡訊編號：{0}，簡訊序列編號：{1}，發送內容：{2}，發送名單：[{3}])",
+                this.logService.Debug("Every8dSmsProvider(smsProviderType = {0})，發送簡訊(簡訊編號：{1}，簡訊序列編號：{2}，發送內容：{3}，發送名單：[{4}])",
+                    smsProviderType.ToString(),
                     sendMessageQueue.SendMessageRuleId,
                     sendMessageQueue.Id,
                     message,
@@ -115,7 +116,8 @@ namespace EFunTech.Sms.Portal
 
                 SEND_SMS_RESULT sendMessageResult = smsClient.SendParamSMS(sendTime, subject, every8dMessageReceiver);
 
-                this.logService.Debug("Every8dSmsProvider，發送簡訊(簡訊編號：{0}，簡訊序列編號：{1}，回傳簡訊發送識別碼：{2}，回傳結果：{3})",
+                this.logService.Debug("Every8dSmsProvider(smsProviderType = {0})，發送簡訊(簡訊編號：{1}，簡訊序列編號：{2}，回傳簡訊發送識別碼：{3}，回傳結果：{4})",
+                    smsProviderType.ToString(),
                     sendMessageQueue.SendMessageRuleId,
                     sendMessageQueue.Id,
                     sendMessageResult.BATCH_ID,
@@ -126,7 +128,8 @@ namespace EFunTech.Sms.Portal
                 string[] emails = messageReceiver.Where(p => !string.IsNullOrEmpty(p.Email)).Select(p => p.Email).ToArray();
                 if (emails.Any())
                 {
-                    this.logService.Debug("Every8dSmsProvider，發送Email(簡訊編號：{0}，簡訊序列編號：{1}，主旨：{2}，內容：{3}，發送名單：[{4}])",
+                    this.logService.Debug("Every8dSmsProvider(smsProviderType = {0})，發送Email(簡訊編號：{1}，簡訊序列編號：{2}，主旨：{3}，內容：{4}，發送名單：[{5}])",
+                        smsProviderType.ToString(),
                         sendMessageQueue.SendMessageRuleId,
                         sendMessageQueue.Id,
                         subject,
@@ -137,7 +140,8 @@ namespace EFunTech.Sms.Portal
                 }
                 else
                 {
-                    this.logService.Debug("Every8dSmsProvider，無須發送Email(簡訊編號：{0}，簡訊序列編號：{1})",
+                    this.logService.Debug("Every8dSmsProvider(smsProviderType = {0})，無須發送Email(簡訊編號：{1}，簡訊序列編號：{2})",
+                                            smsProviderType.ToString(),
                                             sendMessageQueue.SendMessageRuleId,
                                             sendMessageQueue.Id);
                 }
@@ -199,7 +203,8 @@ namespace EFunTech.Sms.Portal
             {
                 SMS_LOG SMS_LOG = smsClient.GetDeliveryStatus(requestId, string.Empty);
 
-                this.logService.Debug("Every8dSmsProvider，接收簡訊發送結果(簡訊發送識別碼：{0}，發送結果：{1})",
+                this.logService.Debug("Every8dSmsProvider(smsProviderType = {0})，接收簡訊發送結果(簡訊發送識別碼：{1}，發送結果：{2})",
+                smsProviderType.ToString(),
                 requestId,
                 SMS_LOG.ToString());
 
@@ -246,7 +251,7 @@ namespace EFunTech.Sms.Portal
 
             Every8d_SendMessageResult every8d_SendMessageResult = this.unitOfWork.Repository<Every8d_SendMessageResult>().Get(p => p.BATCH_ID == requestId);
             if (every8d_SendMessageResult == null)
-                throw new Exception(string.Format("Every8dSmsProvider，無法取得 Infobip_SendMessageResult(BATCH_ID：{0})", requestId));
+                throw new Exception(string.Format("Every8dSmsProvider({0})，無法取得 Infobip_SendMessageResult(BATCH_ID：{1})", smsProviderType.ToString(), requestId));
 
             // (4) 如果所有派送結果都取回了，就在 DeliveryReportQueue (待查詢簡訊發送結果序列) 刪除對應資料
             var deliveryReportQueueRepository = this.unitOfWork.Repository<DeliveryReportQueue>();

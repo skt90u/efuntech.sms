@@ -57,10 +57,18 @@ namespace EFunTech.Sms.Portal
         {
             switch(providerName)
             {
+                //--------------------------------------------------------------
+                // 支援舊版的 providerName
+                // TODO: 未來要拿掉，但是必須 Update 以下 Table
+                //   C:\Project\efuntech.sms\EFunTech.Sms.Schema\Tables\SendMessageHistory.cs(107):        public string ProviderName { get; set; }
+                //   C:\Project\efuntech.sms\EFunTech.Sms.Schema\Tables\SendMessageStatistic.cs(108):        public string ProviderName { get; set; }
+                //   C:\Project\efuntech.sms\EFunTech.Sms.Schema\Tables\Sms\DeliveryReportQueue.cs(48):        public string ProviderName { get; set; }
+                //--------------------------------------------------------------
                 case "InfobipSmsProvider":
                     return GetSmsProviderTypes(SmsProviderType.InfobipNormalQuality);
                 case "Every8dSmsProvider":
                     return GetSmsProviderTypes(SmsProviderType.Every8d);
+                //--------------------------------------------------------------
                 default:
                     {
                         SmsProviderType smsProviderType = SmsProviderType.InfobipNormalQuality;
