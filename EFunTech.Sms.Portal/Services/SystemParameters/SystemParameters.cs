@@ -10,8 +10,10 @@ namespace EFunTech.Sms.Portal
         {
             this.EMailUserName = ConfigurationManager.AppSettings["EMailUserName"];
             this.EMailPassword = ConfigurationManager.AppSettings["EMailPassword"];
-            this.InfobipUserName = ConfigurationManager.AppSettings["InfobipUserName"];
-            this.InfobipPassword = ConfigurationManager.AppSettings["InfobipPassword"];
+            this.InfobipNormalQualityUserName = ConfigurationManager.AppSettings["InfobipNormalQualityUserName"];
+            this.InfobipNormalQualityPassword = ConfigurationManager.AppSettings["InfobipNormalQualityPassword"];
+            this.InfobipHighQualityUserName = ConfigurationManager.AppSettings["InfobipHighQualityUserName"];
+            this.InfobipHighQualityPassword = ConfigurationManager.AppSettings["InfobipHighQualityPassword"];
             this.Every8dUserName = ConfigurationManager.AppSettings["Every8dUserName"];
             this.Every8dPassword = ConfigurationManager.AppSettings["Every8dPassword"];
 
@@ -24,8 +26,11 @@ namespace EFunTech.Sms.Portal
         public string EMailUserName { get; set; }
         public string EMailPassword { get; set; }
 
-        public string InfobipUserName { get; set; }
-        public string InfobipPassword { get; set; }
+        public string InfobipNormalQualityUserName { get; set; }
+        public string InfobipNormalQualityPassword { get; set; }
+
+        public string InfobipHighQualityUserName { get; set; }
+        public string InfobipHighQualityPassword { get; set; }
 
         public string Every8dUserName { get; set; }
         public string Every8dPassword { get; set; }

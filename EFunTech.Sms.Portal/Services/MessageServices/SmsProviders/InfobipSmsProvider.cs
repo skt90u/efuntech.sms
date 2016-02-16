@@ -49,17 +49,28 @@ namespace EFunTech.Sms.Portal
         private SendMessageStatisticService sendMessageStatisticService;
 
         private TradeService tradeService;
+        private SmsProviderType smsProviderType;
 
-        public InfobipSmsProvider(ISystemParameters systemParameters, ILogService logService, IUnitOfWork unitOfWork)
+        public InfobipSmsProvider(ISystemParameters systemParameters, ILogService logService, IUnitOfWork unitOfWork, SmsProviderType smsProviderType)
         {
-            this.userName = systemParameters.InfobipUserName; 
-            this.password = systemParameters.InfobipPassword;
+            if(smsProviderType == SmsProviderType.InfobipHighQuality)
+            {
+                this.userName = systemParameters.InfobipHighQualityUserName; 
+                this.password = systemParameters.InfobipHighQualityPassword;
+            }
+            else
+            {
+                 this.userName = systemParameters.InfobipNormalQualityUserName; 
+                 this.password = systemParameters.InfobipNormalQualityPassword;
+            }
+            
             this.configuration = new Configuration(userName, password);
             this.smsClient = new SMSClient(configuration);
 
             this.systemParameters = systemParameters;
             this.logService = logService;
             this.unitOfWork = unitOfWork;
+            this.smsProviderType = smsProviderType;
             this.sendMessageStatisticService = new SendMessageStatisticService(logService, unitOfWork);
 
             this.tradeService = new TradeService(unitOfWork, logService);
@@ -67,7 +78,7 @@ namespace EFunTech.Sms.Portal
 
         public string Name
         {
-            get { return GetType().Name; }
+            get { return smsProviderType.ToString(); }
         }
 
         public bool IsAvailable

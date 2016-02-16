@@ -14,10 +14,14 @@ namespace EFunTech.Sms.Portal
     public interface ISystemParameters
     {
         string EMailUserName { get; set; } 
-        string EMailPassword { get; set; } 
+        string EMailPassword { get; set; }
 
-        string InfobipUserName { get; set; } 
-        string InfobipPassword { get; set; }
+        string InfobipNormalQualityUserName { get; set; }
+        string InfobipNormalQualityPassword { get; set; }
+
+        string InfobipHighQualityUserName { get; set; }
+        string InfobipHighQualityPassword { get; set; }
+
 
         string Every8dUserName { get; set; }
         string Every8dPassword { get; set; } 

@@ -105,6 +105,10 @@ namespace EFunTech.Sms.Schema
 
         public virtual AllotSetting AllotSetting { get; set; }
 
+        [ColumnDescription("簡訊供應商類型，用以指定首要簡訊提供商")]
+        public SmsProviderType SmsProviderType { get; set; }
+        
+
     }
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>

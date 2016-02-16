@@ -35,18 +35,70 @@ namespace EFunTech.Sms.Portal
         /// <summary>
         /// 列出所有提供的簡訊供應商，請依照提供優先順序排列。
         /// </summary>
-        private static Type[] typeProviders = new Type[]{
-            typeof(InfobipSmsProvider),
-            typeof(Every8dSmsProvider),
-        };
+        private SmsProviderType[] GetSmsProviderTypes(SmsProviderType smsProviderType)
+        {
+            var providerTypes = Enum.GetValues(typeof(SmsProviderType)).Cast<SmsProviderType>().ToList();
+            var found = providerTypes.IndexOf(smsProviderType);
 
-        private ISmsProvider GetProvider(decimal requiredBalance)
+            if(found == -1)
+                throw new Exception(string.Format("Can not find {0} in SmsProviderType", smsProviderType));
+
+            var sub1 = providerTypes.Take(found);
+            var sub2 = providerTypes.Skip(found);
+
+            List<SmsProviderType> result = new List<SmsProviderType>();
+            result.AddRange(sub2);
+            result.AddRange(sub1);
+
+            return result.ToArray();
+        }
+
+        private SmsProviderType[] GetSmsProviderTypes(string providerName)
+        {
+            switch(providerName)
+            {
+                case "InfobipSmsProvider":
+                    return GetSmsProviderTypes(SmsProviderType.InfobipNormalQuality);
+                case "Every8dSmsProvider":
+                    return GetSmsProviderTypes(SmsProviderType.Every8d);
+                default:
+                    {
+                        SmsProviderType smsProviderType = SmsProviderType.InfobipNormalQuality;
+                        if(!Enum.TryParse<SmsProviderType>(providerName, out smsProviderType))
+                        {
+                            throw new Exception(string.Format("Can not parse {0} to SmsProviderType", providerName));
+                        }
+
+                        return GetSmsProviderTypes(smsProviderType);
+                    }
+            }
+        }
+
+        private Type ToInstanceType(SmsProviderType smsProviderType)
+        {
+            switch (smsProviderType)
+            {
+                case SmsProviderType.InfobipNormalQuality:
+                case SmsProviderType.InfobipHighQuality:
+                    return typeof(InfobipSmsProvider);
+                case SmsProviderType.Every8d:
+                    return typeof(Every8dSmsProvider);
+                default:
+                    throw new Exception(string.Format("Unknown SmsProviderType({0})", smsProviderType));
+            }
+        }
+
+        private ISmsProvider GetProvider(SmsProviderType currentProviderType, decimal requiredBalance)
         {
             ISmsProvider provider = null;
 
-            foreach (var typeProvider in typeProviders)
+            var providerTypesInOrder = GetSmsProviderTypes(currentProviderType);
+
+            foreach (var providerType in providerTypesInOrder)
             {
-                ISmsProvider _provider = Activator.CreateInstance(typeProvider, systemParameters, logService, unitOfWork) as ISmsProvider;
+                Type instanceType = ToInstanceType(providerType);
+
+                ISmsProvider _provider = Activator.CreateInstance(instanceType, systemParameters, logService, unitOfWork, providerType) as ISmsProvider;
                 if (_provider != null &&
                     _provider.IsAvailable)
                 {
@@ -72,14 +124,16 @@ namespace EFunTech.Sms.Portal
             return provider;
         }
 
-        private ISmsProvider GetProvider(string providerName, bool mustAvailable = true)
+        private ISmsProvider GetProvider(string providerTypeName, bool mustAvailable = true)
         {
             ISmsProvider provider = null;
 
-            var typeProvider = typeProviders.Where(t => t.Name == providerName).FirstOrDefault();
-            if (typeProvider != null)
+            var providerTypesInOrder = GetSmsProviderTypes(providerTypeName);
+            var providerType = providerTypesInOrder.FirstOrDefault();
+            Type instanceType = ToInstanceType(providerType);
+            if (instanceType != null)
             {
-                ISmsProvider _provider = Activator.CreateInstance(typeProvider, systemParameters, logService, unitOfWork) as ISmsProvider;
+                ISmsProvider _provider = Activator.CreateInstance(instanceType, systemParameters, logService, unitOfWork, providerType) as ISmsProvider;
 
                 if (mustAvailable)
                 {
@@ -99,7 +153,7 @@ namespace EFunTech.Sms.Portal
 
             if (provider == null)
             {
-                string message = string.Format("目前無法使用指定簡訊供應商 {0} ", providerName);
+                string message = string.Format("目前無法使用指定簡訊供應商 {0} ", providerTypeName);
 
                 this.logService.Error(message);
 
@@ -208,7 +262,10 @@ namespace EFunTech.Sms.Portal
                     }
 
                     // 找出可以使用的簡訊供應商(可連線且餘額足夠)
-                    ISmsProvider provider = GetProvider(totalMessageCost); // 如果沒有找到，將會拋出例外
+
+                    SmsProviderType userSmsProviderType = user.SmsProviderType; 
+                    
+                    ISmsProvider provider = GetProvider(userSmsProviderType, totalMessageCost); // 如果沒有找到，將會拋出例外
 
                     // 開始發送，將 SendMessageRule 狀態改變為 Sending (正在發送簡訊規則)
                     sendMessageRule.SendMessageRuleStatus = SendMessageRuleStatus.Sending;

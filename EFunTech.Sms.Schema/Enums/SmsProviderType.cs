@@ -11,7 +11,13 @@ namespace EFunTech.Sms.Schema
     [TableDescription("簡訊供應商類型，用以指定首要簡訊提供商")]
     public enum SmsProviderType
     {
-        InfobipSmsProvider = 0,
-        Every8dSmsProvider = 1,
+        [ColumnDescription("Infobip Normal Quality")]
+        InfobipNormalQuality = 0,
+
+        [ColumnDescription("Infobip High Quality")]
+        InfobipHighQuality = 1,
+
+        [ColumnDescription("Every8d")]
+        Every8d = 2,
     }
 }

@@ -25,8 +25,9 @@ namespace EFunTech.Sms.Portal
         private SendMessageStatisticService sendMessageStatisticService;
 
         private TradeService tradeService;
+        private SmsProviderType smsProviderType;
 
-        public Every8dSmsProvider(ISystemParameters systemParameters, ILogService logService, IUnitOfWork unitOfWork)
+        public Every8dSmsProvider(ISystemParameters systemParameters, ILogService logService, IUnitOfWork unitOfWork, SmsProviderType smsProviderType)
         {
             this.userName = systemParameters.Every8dUserName;
             this.password = systemParameters.Every8dPassword;
@@ -34,6 +35,8 @@ namespace EFunTech.Sms.Portal
             this.systemParameters = systemParameters;
             this.logService = logService;
             this.unitOfWork = unitOfWork;
+            this.smsProviderType = smsProviderType;
+
             this.sendMessageStatisticService = new SendMessageStatisticService(logService, unitOfWork);
 
             this.tradeService = new TradeService(unitOfWork, logService);
@@ -41,7 +44,7 @@ namespace EFunTech.Sms.Portal
 
         public string Name
         {
-            get { return GetType().Name; }
+            get { return smsProviderType.ToString(); }
         }
 
         public bool IsAvailable

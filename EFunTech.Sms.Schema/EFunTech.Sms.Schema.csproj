@@ -127,7 +127,6 @@
     <Compile Include="Enums\RecipientFromType.cs" />
     <Compile Include="Enums\Role.cs" />
     <Compile Include="Enums\SendCustType.cs" />
-    <Compile Include="Enums\SendStatus.cs" />
     <Compile Include="Enums\SendTimeType.cs" />
     <Compile Include="Enums\UploadedFileType.cs" />
     <Compile Include="Enums\EfJobQueueStatus.cs" />
