@@ -220,7 +220,7 @@ namespace BasicAuthentication.Filters
                 //    return true;
             
                 string apiPath = VirtualPathUtility.ToAbsolute("~/api/");
-                return this.Request.RequestUri.LocalPath.StartsWith(apiPath);
+                return this.Request.RequestUri.LocalPath.StartsWith(apiPath, StringComparison.OrdinalIgnoreCase);
             }
         } 
     }

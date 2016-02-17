@@ -106,7 +106,7 @@ namespace EFunTech.Sms.CodeGenerator
                 if (propertyName == "UpdatedUser") modelField = "CurrentUser";
                 if (propertyName == "UpdatedUserName") modelField = "CurrentUser.UserName";
 
-                if (propertyName == "string" && modelField.StartsWith("model."))
+                if (propertyName == "string" && modelField.StartsWith("model.", StringComparison.OrdinalIgnoreCase))
                 {
                     modelField = modelField + ".Trim()";
                 }

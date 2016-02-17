@@ -352,7 +352,7 @@ namespace EFunTech.Sms.Portal
 
                 // 20151106 Norman, Infobip 給的手機門號是 E164格式，但是沒有加上 "+"，使用 【MobileUtil.GetE164PhoneNumber】會導致誤判
                 var destinationAddress = DeliveryReport.MOBILE;
-                if (!destinationAddress.StartsWith("+"))
+                if (!destinationAddress.StartsWith("+", StringComparison.OrdinalIgnoreCase))
                     destinationAddress = "+" + destinationAddress;
 
                 entity.DestinationAddress = MobileUtil.GetE164PhoneNumber(destinationAddress);

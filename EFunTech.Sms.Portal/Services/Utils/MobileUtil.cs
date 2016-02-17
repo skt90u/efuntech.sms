@@ -404,7 +404,7 @@ namespace EFunTech.Sms.Portal
         /// <returns></returns>
         public static bool IsInternationPhoneNumber(string mobile)
         {
-            return !GetE164PhoneNumber(mobile).StartsWith("+886");
+            return !GetE164PhoneNumber(mobile).StartsWith("+886", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
