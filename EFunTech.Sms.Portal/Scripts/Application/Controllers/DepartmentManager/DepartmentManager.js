@@ -26,10 +26,16 @@
                 { name: 'Department.Name', displayName: '部門' }, 
                 { name: 'FullName', displayName: '姓名' },
                 { name: 'UserName', displayName: '帳號' },
-                { name: 'EmployeeNo', displayName: '員工編號' },
+                //{ name: 'EmployeeNo', displayName: '員工編號' },
                 { name: 'PhoneNumber', displayName: '手機' },
                 //{ name: 'Email', displayName: 'E-mail' },
                 { name: 'CreatedUserName', displayName: '建立者' },
+                {
+                    name: 'SmsProviderType',
+                    displayName: '發送線路',
+                    cellTemplate: '<div class="ui-grid-cell-contents">{{row.entity.SmsProviderType | EnumFilter: "SmsProviderType" }}</div>',
+                    visible: true,
+                },
                 {
                     name: 'Activatable',
                     width: '100',

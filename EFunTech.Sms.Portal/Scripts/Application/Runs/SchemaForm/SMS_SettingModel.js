@@ -79,6 +79,11 @@
                         type: "string",
                         title: "通訊地址",
                     },
+                    SmsProviderType: {
+                        type: "string",
+                        title: "發送線路",
+                        enum: ['0', '1', '2'],
+                    },
                 }
             };
 
@@ -275,7 +280,27 @@
                                 $validators: options["NewPasswordConfirmed.$validators"],
                             },
                         ]
-                    }, ]
+                    },
+                    {
+                        type: "section",
+                        htmlClass: "col-xs-4",
+                        items: [
+                          {
+                              key: "SmsProviderType",
+                              type: "radios-inline",
+                              titleMap: [
+                                  { value: '0', name: '一般Infobip' },
+                                  { value: '1', name: '高品質Infobip' },
+                                  { value: '2', name: 'Every8d' },
+                              ],
+                              // 目前 feedback 沒有作用，還找不到原因，使用增加 htmlClass: 'has-feedback' 可解決問題
+                              feedback: "{'glyphicon': true, 'glyphicon-ok': hasSuccess()}",
+                              htmlClass: 'has-feedback',
+                              condition: "model.CanEditSmsProviderType == true",
+                          },
+                        ]
+                    },
+                    ]
                 },
             ];
 

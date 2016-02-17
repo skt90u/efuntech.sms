@@ -66,6 +66,9 @@ namespace EFunTech.Sms.Portal.Models
 		public string UserName { get; set; }
 
         public bool CanEditDepartment { get; set; }
+        public bool CanEditSmsProviderType { get; set; }
+
+        public SmsProviderType SmsProviderType { get; set; }
 
         //----------------------------------------
         // 針對 DepartmentManager 畫面所增加的欄位

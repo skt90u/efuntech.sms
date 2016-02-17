@@ -23,7 +23,7 @@
     <IISExpressUseClassicPipelineMode />
     <NuGetPackageImportStamp>46a95d56</NuGetPackageImportStamp>
     <ApplicationInsightsResourceId>/subscriptions/e119d3e4-73a4-4c6d-96bd-924ed57c1216/resourcegroups/Default-ApplicationInsights-CentralUS/providers/microsoft.insights/components/EFunTech.Sms.Portal</ApplicationInsightsResourceId>
-    <TypeScriptToolsVersion>1.0</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>1.7</TypeScriptToolsVersion>
     <TargetFrameworkProfile />
     <UseGlobalApplicationHostFile />
   </PropertyGroup>

@@ -28,6 +28,20 @@ namespace EFunTech.Sms.Portal.Controllers
 
             var model = Mapper.Map<ApplicationUser, ApplicationUserModel>(entity);
 
+            model.CanEditDepartment = false;
+            model.CanEditSmsProviderType = false;
+
+            switch (CurrentUserRole) // CurrentUserRole 不會被改變，可以使用
+            {
+                case Role.Administrator:
+                    model.CanEditDepartment = true;
+                    model.CanEditSmsProviderType = true;
+                    break;
+                case Role.Supervisor:
+                    model.CanEditDepartment = true;
+                    break;
+            }
+
             return model;
         }
 
@@ -44,10 +58,26 @@ namespace EFunTech.Sms.Portal.Controllers
                 }
 
                 // 點數預警設定
-                entity.CreditWarning.Enabled = model.CreditWarning.Enabled;
-                entity.CreditWarning.BySmsMessage = model.CreditWarning.BySmsMessage;
-                entity.CreditWarning.ByEmail = model.CreditWarning.ByEmail;
-                entity.CreditWarning.SmsBalance = model.CreditWarning.SmsBalance;
+                if(model.CreditWarning != null)
+                {
+                    entity.CreditWarning = entity.CreditWarning ?? new CreditWarning();
+                    entity.CreditWarning.Enabled = model.CreditWarning.Enabled;
+                    entity.CreditWarning.BySmsMessage = model.CreditWarning.BySmsMessage;
+                    entity.CreditWarning.ByEmail = model.CreditWarning.ByEmail;
+                    entity.CreditWarning.SmsBalance = model.CreditWarning.SmsBalance;
+                }
+                
+                //CreditWarning creditWarning = new CreditWarning
+                //{
+                //    Enabled = CreditWarning.DefaultValue_Enabled,
+                //    BySmsMessage = CreditWarning.DefaultValue_BySmsMessage,
+                //    ByEmail = CreditWarning.DefaultValue_ByEmail,
+                //    LastNotifiedTime = null,
+                //    NotifiedInterval = CreditWarning.DefaultValue_NotifiedInterval,
+                //    Owner = user,
+                //};
+                //context.CreditWarnings.Add(creditWarning);
+                //context.SaveChanges();
 
                 // 開啟國際簡訊發送
                 entity.ForeignSmsEnabled = model.ForeignSmsEnabled;
@@ -63,6 +93,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 entity.AddressArea = model.AddressArea;
                 entity.AddressZip = model.AddressZip;
                 entity.AddressStreet = model.AddressStreet;
+                entity.SmsProviderType = model.SmsProviderType;
 
                 //Mapper.Map(model, entity); 使用 Single Page Application 開發後，如果使用 Mapper.Map 有可能更新到畫面上沒有的欄位，例如：目前可用餘額(SmsBalance)
 

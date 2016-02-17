@@ -49,8 +49,8 @@
      * 簡訊供應商類型，用以指定首要簡訊提供商
      */
     var SmsProviderType = {
-        InfobipNormalQuality: {value: 0,  text: 'InfobipNormalQuality'},
-        InfobipHighQuality: { value: 1, text: 'InfobipHighQuality' },
+        InfobipNormalQuality: {value: 0,  text: '一般'},
+        InfobipHighQuality: { value: 1, text: '高品質' },
         Every8d: { value: 1, text: 'Every8d' },
     };
     angular.module('app').constant('SmsProviderType', SmsProviderType);

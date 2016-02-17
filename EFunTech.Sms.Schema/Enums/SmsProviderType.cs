@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Schema
 {
-    [TableDescription("簡訊供應商類型，用以指定首要簡訊提供商")]
+    //[TableDescription("簡訊供應商類型，用以指定首要簡訊提供商")]
+    [TableDescription("發送線路")]
     public enum SmsProviderType
     {
-        [ColumnDescription("Infobip Normal Quality")]
+        [ColumnDescription("一般 Infobip")]
         InfobipNormalQuality = 0,
 
-        [ColumnDescription("Infobip High Quality")]
+        [ColumnDescription("高品質 Infobip")]
         InfobipHighQuality = 1,
 
         [ColumnDescription("Every8d")]
