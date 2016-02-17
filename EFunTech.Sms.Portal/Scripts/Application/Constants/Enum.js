@@ -4,7 +4,7 @@
 	////////////////////////////////////////
 	// 這個檔案是經由 EFunTech.Sms.CodeGenerator.SyncEnum 自動產生，請勿手動修改
 	//
-	// 最後產製時間： 2015/12/27 22:42:06
+	// 最後產製時間： 2016/02/17 14:13:31
 	////////////////////////////////////////
 
     /**
@@ -46,12 +46,12 @@
     angular.module('app').constant('DeliveryReportStatus', DeliveryReportStatus);
 
     /**
-     * 簡訊供應商類型，用以指定首要簡訊提供商
+     * 發送線路
      */
     var SmsProviderType = {
-        InfobipNormalQuality: {value: 0,  text: '一般線路'},
-        InfobipHighQuality: { value: 1, text: '高品質線路' },
-        Every8d: { value: 2, text: 'Every8d' },
+        InfobipNormalQuality: {value: 0,  text: '一般 Infobip'},
+        InfobipHighQuality: {value: 1,  text: '高品質 Infobip'},
+        Every8d: {value: 2,  text: 'Every8d'},
     };
     angular.module('app').constant('SmsProviderType', SmsProviderType);
 
@@ -212,15 +212,6 @@
     angular.module('app').constant('SendCustType', SendCustType);
 
     /**
-     * 發送狀態(簡訊處理狀態)
-     */
-    var SendStatus = {
-        OneWay: {value: 0,  text: '傳送中'},
-        TwoWay: {value: 1,  text: '成功接收'},
-    };
-    angular.module('app').constant('SendStatus', SendStatus);
-
-    /**
      * 簡訊發送時間類型
      */
     var SendTimeType = {
@@ -254,7 +245,7 @@
      ****************************************/
     var EnumMapping = {
         'DeliveryReportStatus': DeliveryReportStatus, // 簡訊派送結果狀態(通用型-用於寫入SendMessageHistory)
-        'SmsProviderType': SmsProviderType, // 簡訊供應商類型，用以指定首要簡訊提供商
+        'SmsProviderType': SmsProviderType, // 發送線路
         'MessageStatus': MessageStatus, // 發送簡訊狀態(通用型-用於寫入SendMessageHistory)
         'SendMessageRuleStatus': SendMessageRuleStatus, // 簡訊規則目前狀態
         'Gender': Gender, // 性別
@@ -268,7 +259,6 @@
         'RecipientFromType': RecipientFromType, // 簡訊接收者類型
         'Role': Role, // 角色
         'SendCustType': SendCustType, // 單向|雙向 簡訊發送
-        'SendStatus': SendStatus, // 發送狀態(簡訊處理狀態)
         'SendTimeType': SendTimeType, // 簡訊發送時間類型
         'UploadedFileType': UploadedFileType, // 上傳檔案類型
         'EfJobQueueStatus': EfJobQueueStatus, // EfJobQueueStatus
