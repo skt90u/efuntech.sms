@@ -119,6 +119,7 @@ namespace EFunTech.Sms.Portal.Controllers
             entity.PhoneNumber = model.PhoneNumber;
             entity.Email = model.Email;
             entity.Enabled = true;
+            entity.SmsProviderType = model.SmsProviderType;
 
             var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
 
@@ -282,6 +283,9 @@ namespace EFunTech.Sms.Portal.Controllers
 
             // 電子郵件
             entity.Email = model.Email;
+
+            // 簡訊供應商類型，用以指定首要簡訊提供商
+            entity.SmsProviderType = model.SmsProviderType;
 
             // 重設密碼
             if (!string.IsNullOrEmpty(model.NewPassword))

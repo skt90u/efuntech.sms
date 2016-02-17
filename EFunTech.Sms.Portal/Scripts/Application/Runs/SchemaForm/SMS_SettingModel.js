@@ -1,7 +1,10 @@
 (function (window, document) {
     'use strict';
 
-    angular.module('app').run(['SchemaFormCache', 'RegularExpressionPatterns', 'MobileUtil', function (SchemaFormCache, RegularExpressionPatterns, MobileUtil) {
+    angular.module('app').run(['SchemaFormCache', 'RegularExpressionPatterns', 'MobileUtil', 'EnumMapping', 'SchemaFormHelper', function (SchemaFormCache, RegularExpressionPatterns, MobileUtil, EnumMapping, SchemaFormHelper) {
+
+        var SmsProviderType = angular.copy(EnumMapping.SmsProviderType);
+        delete SmsProviderType.Every8d; // without option 'Every8d'
 
         SchemaFormCache.put('SMS_SettingModel', function (options) {
 
@@ -82,7 +85,7 @@
                     SmsProviderType: {
                         type: "string",
                         title: "發送線路",
-                        enum: ['0', '1', '2'],
+                        enum: SchemaFormHelper.getEnum(SmsProviderType),
                     },
                 }
             };
@@ -288,11 +291,7 @@
                           {
                               key: "SmsProviderType",
                               type: "radios-inline",
-                              titleMap: [
-                                  { value: '0', name: '一般Infobip' },
-                                  { value: '1', name: '高品質Infobip' },
-                                  { value: '2', name: 'Every8d' },
-                              ],
+                              titleMap: SchemaFormHelper.getTitleMap(SmsProviderType),
                               // 目前 feedback 沒有作用，還找不到原因，使用增加 htmlClass: 'has-feedback' 可解決問題
                               feedback: "{'glyphicon': true, 'glyphicon-ok': hasSuccess()}",
                               htmlClass: 'has-feedback',

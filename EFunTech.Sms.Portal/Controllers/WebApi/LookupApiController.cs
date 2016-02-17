@@ -76,49 +76,54 @@ namespace EFunTech.Sms.Portal.Controllers
         {
             return await Task.Run(() =>
             {
-                // 根據目前使用者角色，只能取比小於等於自己權限的角色
-                //var availableRoleNames = Enum.GetValues(typeof(Role))
-                //                            .Cast<Role>()
-                //                            .OrderByDescending(p => (int)p)
-                //                            .AsQueryable()
-                //                            .Where(role => (int)role <= (int)CurrentUserRole && role != Role.Unknown)
-                //                            .Select(role => role.ToString());
-
-                // 20151030 Norman, 改成以下邏輯，避免Admin可以建立Employee，理論上是不合理的
-
-                var role = CurrentUserRole;
-
                 var availableRoleNames = new List<string>();
 
-                switch (role)
+                if (false)
                 {
-                    case Role.Administrator:
-                        {
-                            availableRoleNames.Add(Role.Administrator.ToString());
-                            availableRoleNames.Add(Role.Supervisor.ToString());
-                        }
-                        break;
-
-                    case Role.Supervisor:
-                        {
-                            availableRoleNames.Add(Role.Supervisor.ToString());
-                            availableRoleNames.Add(Role.DepartmentHead.ToString());
-                        }
-                        break;
-
-                    case Role.DepartmentHead:
-                        {
-                            availableRoleNames.Add(Role.DepartmentHead.ToString());
-                            availableRoleNames.Add(Role.Employee.ToString());
-                        }
-                        break;
-
-                    case Role.Employee:
-                        {
-                            availableRoleNames.Add(Role.Employee.ToString());
-                        }
-                        break;
+                    // 根據目前使用者角色，只能取比小於等於自己權限的角色
+                    availableRoleNames = Enum.GetValues(typeof(Role))
+                                                .Cast<Role>()
+                                                .OrderByDescending(p => (int)p)
+                                                .Where(role => (int)role <= (int)CurrentUserRole && role != Role.Unknown)
+                                                .Select(role => role.ToString())
+                                                .ToList();
                 }
+                else
+                {
+                    // 20151030 Norman, 改成以下邏輯，避免Admin可以建立Employee，理論上是不合理的
+                    var role = CurrentUserRole;
+
+                    switch (role)
+                    {
+                        case Role.Administrator:
+                            {
+                                availableRoleNames.Add(Role.Administrator.ToString());
+                                availableRoleNames.Add(Role.Supervisor.ToString());
+                            }
+                            break;
+
+                        case Role.Supervisor:
+                            {
+                                availableRoleNames.Add(Role.Supervisor.ToString());
+                                availableRoleNames.Add(Role.DepartmentHead.ToString());
+                            }
+                            break;
+
+                        case Role.DepartmentHead:
+                            {
+                                availableRoleNames.Add(Role.DepartmentHead.ToString());
+                                availableRoleNames.Add(Role.Employee.ToString());
+                            }
+                            break;
+
+                        case Role.Employee:
+                            {
+                                availableRoleNames.Add(Role.Employee.ToString());
+                            }
+                            break;
+                    }
+                }
+                
 
                 var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
 

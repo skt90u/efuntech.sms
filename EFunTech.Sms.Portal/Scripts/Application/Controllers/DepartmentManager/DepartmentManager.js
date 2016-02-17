@@ -1,8 +1,8 @@
 (function (window, document) {
     'use strict';
 
-    angular.module('app').controller('DepartmentManager', ['$scope', 'CompanyDeaprtmentManager', '$http', 'uiGridConstants', '$modal', '$log', 'CrudApi', 'SchemaFormFactory', 'GlobalSettings', 'WebApi', '$translate', 'dialogs', '$q', 'LookupApi', 'ValidationApi', 'SchemaFormHelper',
-        function ($scope, CompanyDeaprtmentManager, $http, uiGridConstants, $modal, $log, CrudApi, SchemaFormFactory, GlobalSettings, WebApi, $translate, dialogs, $q, LookupApi, ValidationApi, SchemaFormHelper) {
+    angular.module('app').controller('DepartmentManager', ['$scope', 'CompanyDeaprtmentManager', '$http', 'uiGridConstants', '$modal', '$log', 'CrudApi', 'SchemaFormFactory', 'GlobalSettings', 'WebApi', '$translate', 'dialogs', '$q', 'LookupApi', 'ValidationApi', 'SchemaFormHelper', 'EnumMapping',
+        function ($scope, CompanyDeaprtmentManager, $http, uiGridConstants, $modal, $log, CrudApi, SchemaFormFactory, GlobalSettings, WebApi, $translate, dialogs, $q, LookupApi, ValidationApi, SchemaFormHelper, EnumMapping) {
 
             //========================================
             // Settings
@@ -11,6 +11,7 @@
             var availableRoles = null;
             var availableDepartments = null;
             var existentUserNames = null;
+            var canEditSmsProviderType = null;
 
             var crudApi = new CrudApi('api/DepartmentManager');
             var paginationOptions = angular.copy(GlobalSettings.paginationOptions);
@@ -34,7 +35,7 @@
                     name: 'SmsProviderType',
                     displayName: '發送線路',
                     cellTemplate: '<div class="ui-grid-cell-contents">{{row.entity.SmsProviderType | EnumFilter: "SmsProviderType" }}</div>',
-                    visible: true,
+                    visible: false,
                 },
                 {
                     name: 'Activatable',
@@ -97,17 +98,21 @@
 
                 if (availableRoles == null ||
                     availableDepartments == null ||
-                    existentUserNames == null) {
+                    existentUserNames == null || 
+                    canEditSmsProviderType == null) {
                     $scope.loading = true;
                     $q.all([
                         LookupApi.GetAvailableRoles(),
                         LookupApi.GetAvailableDepartments_DepartmentManager(),
-                        LookupApi.GetExistentUserNames()
+                        LookupApi.GetExistentUserNames(),
+                        LookupApi.GetCurrentUser()
                     ])
                     .then(function (results) {
                         availableRoles = results[0].data;
                         availableDepartments = results[1].data;
                         existentUserNames = results[2].data;
+                        canEditSmsProviderType = results[3].data.CanEditSmsProviderType;
+
                         $scope.editRow(rowEntity);
                     })
                     .finally(function () {
@@ -134,9 +139,16 @@
                         model.RoleId = null;
                     }
                 }
+                else {
+                    // 新增資料時的預設值
+
+                    // 預設線路為 '一般線路'
+                    model.SmsProviderType = EnumMapping.SmsProviderType.InfobipNormalQuality.value;
+                }
 
                 var schemaForm = SchemaFormFactory.create('DepartmentManagerModel', {
                     isNew: isNew,
+                    canEditSmsProviderType: canEditSmsProviderType,
                     "UserName.readonly": !isNew,
                     "UserName.$asyncValidators": {
                         usernameAlreadyTaken: function (value) {
@@ -349,6 +361,18 @@
             };
             
             $scope.search();
+
+            //當角色為Admin時，則查詢結果包含【簡訊預設發送線路】欄位
+            //當角色非Admin時，則查詢結果不含【簡訊預設發送線路】欄位
+            LookupApi.GetCurrentUser({}, function (data) {
+                var currentUser = data;
+                var matchs = _.where($scope.gridOptions.columnDefs, { name: 'SmsProviderType' });
+                angular.forEach(matchs, function (match, idx) {
+                    canEditSmsProviderType = currentUser.CanEditSmsProviderType;
+                    match.visible = canEditSmsProviderType;
+                });
+            });
+
         }]);
 
 })(window, document);

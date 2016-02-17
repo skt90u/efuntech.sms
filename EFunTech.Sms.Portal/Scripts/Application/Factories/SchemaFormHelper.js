@@ -33,6 +33,23 @@
 
             return scope.modalForm[fieldName].$viewValue;
         }
+
+        function getTitleMap(enumDefine)
+        {
+            var nameValues = angular.copy(_.values(enumDefine));
+
+            angular.forEach(nameValues, function (v, k) {
+                v.value = v.value.toString(); // schema form want string to present value's type
+                v.name = v.text;
+            });
+
+            return nameValues;
+        }
+
+        function getEnum(enumDefine) {
+            return _.pluck(getTitleMap(enumDefine), 'value');
+        }
+
         return {
 
             getScope: getScope,
@@ -40,6 +57,10 @@
             //cleanupError: cleanupError,
 
             getViewValue: getViewValue,
+
+            getEnum: getEnum,
+
+            getTitleMap: getTitleMap,
 
             $broadcast: $broadcast,
         };

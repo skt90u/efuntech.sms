@@ -1,13 +1,17 @@
 (function (window, document) {
     'use strict';
 
-    angular.module('app').run(['SchemaFormCache', 'RegularExpressionPatterns', 'MobileUtil', function (SchemaFormCache, RegularExpressionPatterns, MobileUtil) {
+    angular.module('app').run(['SchemaFormCache', 'RegularExpressionPatterns', 'MobileUtil', 'EnumMapping', 'SchemaFormHelper', function (SchemaFormCache, RegularExpressionPatterns, MobileUtil, EnumMapping, SchemaFormHelper) {
 
+        var SmsProviderType = angular.copy(EnumMapping.SmsProviderType);
+        delete SmsProviderType.Every8d; // without option 'Every8d'
+        
         SchemaFormCache.put('DepartmentManagerModel', function (options) {
 
             options = options || {};
 
             var isNew = angular.isDefined(options.isNew) ? options.isNew : true;
+            var canEditSmsProviderType = angular.isDefined(options.canEditSmsProviderType) ? options.canEditSmsProviderType : false;
 
             var editRow = {
                 schema: {
@@ -65,6 +69,11 @@
                             validationMessage: {
                                 202: RegularExpressionPatterns.Email.errorMessage,
                             },
+                        },
+                        SmsProviderType: {
+                            type: "string",
+                            title: "發送線路",
+                            enum: SchemaFormHelper.getEnum(SmsProviderType),
                         },
                     }
                 },
@@ -226,6 +235,21 @@
                                 },
                                 ]
                             },
+                            {
+                                type: "section",
+                                htmlClass: "col-xs-6",
+                                items: [
+                                  {
+                                      key: "SmsProviderType",
+                                      type: "radios-inline",
+                                      titleMap: SchemaFormHelper.getTitleMap(SmsProviderType),
+                                      // 目前 feedback 沒有作用，還找不到原因，使用增加 htmlClass: 'has-feedback' 可解決問題
+                                      feedback: "{'glyphicon': true, 'glyphicon-ok': hasSuccess()}",
+                                      htmlClass: 'has-feedback',
+                                      condition: canEditSmsProviderType.toString(),
+                                  },
+                                ]
+                            },
                         ]
                     },
                 ]
@@ -289,6 +313,11 @@
                         validationMessage: {
                             202: RegularExpressionPatterns.Email.errorMessage,
                         },
+                    },
+                    SmsProviderType: {
+                        type: "string",
+                        title: "發送線路",
+                        enum: SchemaFormHelper.getEnum(SmsProviderType),
                     },
                 }
             },
@@ -446,6 +475,21 @@
                                 feedback: "{'glyphicon': true, 'glyphicon-ok': hasSuccess() }",
                                 htmlClass: 'has-feedback',
                             },
+                            ]
+                        },
+                        {
+                            type: "section",
+                            htmlClass: "col-xs-6",
+                            items: [
+                                {
+                                    key: "SmsProviderType",
+                                    type: "radios-inline",
+                                    titleMap: SchemaFormHelper.getTitleMap(SmsProviderType),
+                                    // 目前 feedback 沒有作用，還找不到原因，使用增加 htmlClass: 'has-feedback' 可解決問題
+                                    feedback: "{'glyphicon': true, 'glyphicon-ok': hasSuccess()}",
+                                    htmlClass: 'has-feedback',
+                                    condition: canEditSmsProviderType.toString(),
+                                },
                             ]
                         },
                     ]

@@ -21,6 +21,4 @@
     };
     angular.module('app').constant('PhoneAreaCode', PhoneAreaCode);
 
-    var a = _.pluck(PhoneAreaCode, 'value'); a.unshift('123')
-
 })(window, document);
