@@ -1,3 +1,26 @@
+### 20160218
+下一次 Migration 需要變更的部分
+
+```
+update SendMessageHistories set ProviderName = 'InfobipNormalQuality' where ProviderName = 'InfobipSmsProvider'
+update SendMessageHistories set ProviderName = 'Every8d' where ProviderName = 'Every8dSmsProvider'
+
+update SendMessageStatistics set ProviderName = 'InfobipNormalQuality' where ProviderName = 'InfobipSmsProvider'
+update SendMessageStatistics set ProviderName = 'Every8d' where ProviderName = 'Every8dSmsProvider'
+
+update DeliveryReportQueues set ProviderName = 'InfobipNormalQuality' where ProviderName = 'InfobipSmsProvider'
+update DeliveryReportQueues set ProviderName = 'Every8d' where ProviderName = 'Every8dSmsProvider'
+```
+
+                //--------------------------------------------------------------
+                // 支援舊版的 providerName
+                // TODO: 未來要拿掉，但是必須 Update 以下 Table
+                //   SendMessageHistory.cs(107):        public string ProviderName { get; set; }
+                //   SendMessageStatistic.cs(108):        public string ProviderName { get; set; }
+                //   Sms\DeliveryReportQueue.cs(48):        public string ProviderName { get; set; }
+                //--------------------------------------------------------------
+				
+
 FileUploadManager Service -> Factory
 $event
 http://stackoverflow.com/questions/12430820/accessing-clicked-element-in-angularjs

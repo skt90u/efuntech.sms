@@ -1,0 +1,114 @@
+[前端頁面]
+1. 建立子帳號 (http://www.zutech.info/#!/DepartmentManager)
+	Req1:
+		當角色為Admin時，則可設定【簡訊預設發送線路】({Infobip1, Infobip2})
+		當角色非Admin時，所建立的子帳號的【簡訊預設發送線路】將與父帳號當時設定【簡訊預設發送線路】的相同
+	Req2:
+		當角色為Admin時，則查詢結果包含【簡訊預設發送線路】欄位
+		當角色非Admin時，則查詢結果不含【簡訊預設發送線路】欄位
+	Req3:
+		當角色為Admin時，則可維護子帳號欄位包含【簡訊預設發送線路】
+		當角色非Admin時，則可維護子帳號欄位不含【簡訊預設發送線路】，也看不到相關資訊
+		
+2. 系統設定 (http://www.zutech.info/#!/SMS_Setting)
+	Req4:
+		當角色為Admin時，則可修改【簡訊預設發送線路】({Infobip1, Infobip2})
+		當角色非Admin時，則不修改【簡訊預設發送線路】，也看不到相關資訊
+
+[後端發送]
+	Req5(請看下面):
+		原本
+			簡訊發送容錯機制為: 若 Infobip 無法發送，則使用 Every8D
+		修改成
+			簡訊發送容錯機制為: 若 該使用者指定的【簡訊預設發送線路】 無法發送，則使用 另外一個 Infobip 線路發送
+			e.g. 
+				若使用者 A 的【簡訊預設發送線路】為 Infobip1，若無法發送，則使用 另外一個 Infobip 線路發送 (Infobip2)
+				若使用者 B 的【簡訊預設發送線路】為 Infobip2，若無法發送，則使用 另外一個 Infobip 線路發送 (Infobip1)
+
+	Req5(20160216修正版):
+		原本
+			簡訊發送容錯機制為: 
+				[Booking簡訊階段]
+				(Infobip(User.Default) + Infobip(User.Another) + Every8D)
+					1. 所有使用者預設會從 【Infobip】 Booking 要發送的簡訊
+					2. 若從 Infobip Booking 簡訊失敗時，會從 Every8D Booking 要發送的簡訊
+					3. 若從 Every8D Booking 簡訊失敗時，系統過一陣子會重試
+					
+				[取得發送結果階段]			
+					若 該使用者指定的【簡訊預設發送線路】 發送失敗，則使用 另外一個 Infobip 線路發送
+					e.g. 
+						若使用者 A 的【簡訊預設發送線路】為 Infobip1，若無法發送，則使用 另外一個 Infobip 線路發送 (Infobip2)
+						若使用者 B 的【簡訊預設發送線路】為 Infobip2，若無法發送，則使用 另外一個 Infobip 線路發送 (Infobip1)
+				
+[備註]	
+Infobip1: 高品質線路
+Infobip2: 一般品質線路
+
+(1) Web.config 定義簡訊發送帳號資訊
+(2) Mapping 發送帳號(Web.config) 與 程式中定義 Infobip1, Infobip2 之間的關係
+GetSmsSender(account, order), e.g. GetSmsSender('admin', order:0)
+
+(3) 使用者資訊新增欄位【簡訊預設發送線路】，Migration之後，對目前已存在的使用者預設的【簡訊預設發送線路】為 0 (Infobip1)
+(4) 針對 Req1
+	- 額外傳送 IsAdmin 資訊到 Client (印象中應該有類似的部分，要找找看)
+	- Req1.01: 前端: RadioButtons(預設值為當時帳號), 後端: 存檔
+	- Req1.02: 後端: 取得當時帳號的【簡訊預設發送線路】，存檔
+(5) 針對 Req2
+	- 額外傳送 IsAdmin 資訊到 Client (印象中應該有類似的部分，要找找看)
+	- Model 額外傳送 【簡訊預設發送線路】資訊
+	- angular.Filter (通用 enum 作法)
+	- 顯示或隱藏該欄位
+(6) 針對 Req3(與Req1相同)
+	- 額外傳送 IsAdmin 資訊到 Client (印象中應該有類似的部分，要找找看)
+	- Req3.01: 前端: RadioButtons(預設值為當時帳號), 後端: 存檔
+	- Req3.02: 後端: 取得當時帳號的【簡訊預設發送線路】，存檔
+(7) 針對 Req4(與Req1相同)
+	- 額外傳送 IsAdmin 資訊到 Client (印象中應該有類似的部分，要找找看)	
+	- Req1.01: 前端: RadioButtons(預設值為當時帳號), 後端: 存檔	
+	- 顯示或隱藏該欄位
+(8)	針對 Req5
+	- (還在想 ...)
+	
+----------------------------------------------------------------
+重試機制
+----------------------------------------------------------------
+
+(1) 
+從 SendMessageHistories, 尋找需要重新發送的簡訊 (未送達)
+RetryResult = {null, 重送簡訊成功。 重送簡訊失敗，已經超過重試上限。}
+RetryStatus = {Unknown, Success, Failure}
+
+
+		
+(2) SmsRetryQueue
+從 檢查是否重新發送
+
+
+(1) 每分鐘, 
+尋找 SendMessageHistories 發送失敗的資料, 且重試結果 RetryResult = null
+
+select * from SendMessageHistories where Delivered <> 1 and RetryResult = null
+
+
+(2) 根據 (1) 查出來的資料的SendMessageHistoryId 檢查 RetryQueue 中, 如果
+
+case1: 已經加入RetryQueue中, 且該筆資料尚未接收發送結果 (狀態不為發送成功或者發送失敗)  -> ignore
+(PS: 如果該筆資料一直(一天)未接收發送結果, 就將該筆資料狀態改變)
+select count(1) from RetryQueue where SendMessageHistoryId = (SendMessageHistories 發送失敗的資料).Id and Status = Pending
+
+case2: 已經超過重試上限(RetryAttempts) -> 
+update SendMessageHistory set RetryResult = '已經超過重試上限X次' where Id = (SendMessageHistories 發送失敗的資料).Id
+
+select count(1) >= 重試上限 from RetryQueue where SendMessageHistoryId = (SendMessageHistories 發送失敗的資料).Id and Status = Sent
+
+(3) 如果沒有，就將此筆資料加入 RetryQueue
+
+RetryQueue
+	- Id
+	- SendMessageHistoryId
+	- CreateTime
+
+	- Status (Pending 等待發送, Sending 發送中等待接收結果, 發送成功, 發送失敗)
+------------------------------------------------------------
+
+(3)	
