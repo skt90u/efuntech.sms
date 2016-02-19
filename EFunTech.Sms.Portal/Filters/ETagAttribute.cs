@@ -18,10 +18,10 @@ namespace EFunTech.Sms.Portal.Filters
             {
                 filterContext.HttpContext.Response.Filter = new ETagFilter(filterContext.HttpContext.Response);
             }
-            catch (System.Exception)
+            catch
             {
                 // Do Nothing
-            };
+            }
         }
     }
 

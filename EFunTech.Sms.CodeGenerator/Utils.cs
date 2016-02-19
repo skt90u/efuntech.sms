@@ -199,7 +199,7 @@ namespace EFunTech.Sms.CodeGenerator
 
             process.StartInfo.FileName = @"explorer";
 
-            process.StartInfo.Arguments = string.Format("\"{0}\"", outputDir); ;
+            process.StartInfo.Arguments = string.Format("\"{0}\"", outputDir);
 
             process.Start();
         }

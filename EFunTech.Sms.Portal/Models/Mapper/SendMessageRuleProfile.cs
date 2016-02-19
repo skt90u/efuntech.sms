@@ -183,7 +183,7 @@ namespace EFunTech.Sms.Portal.Models.Mapper
                 {
                     DateTime cycleDate = Converter.ToLocalTime(
                         model.SendCycleEveryDay.SendTime, 
-                        model.SendCycleEveryDay.ClientTimezoneOffset); ;
+                        model.SendCycleEveryDay.ClientTimezoneOffset);
 
                     return string.Format("每天的{0}點{1}分",
                         cycleDate.ToString("HH"),
@@ -218,7 +218,7 @@ namespace EFunTech.Sms.Portal.Models.Mapper
                 {
                     DateTime cycleDate = Converter.ToLocalTime(
                         model.SendCycleEveryMonth.SendTime,
-                        model.SendCycleEveryMonth.ClientTimezoneOffset); ;
+                        model.SendCycleEveryMonth.ClientTimezoneOffset);
 
                     return string.Format("每月的{0}號{1}點{2}分",
                         cycleDate.ToString("dd"),
@@ -229,7 +229,7 @@ namespace EFunTech.Sms.Portal.Models.Mapper
                 {
                     DateTime cycleDate = Converter.ToLocalTime(
                         model.SendCycleEveryYear.SendTime,
-                        model.SendCycleEveryYear.ClientTimezoneOffset); ;
+                        model.SendCycleEveryYear.ClientTimezoneOffset);
 
                     return string.Format("每年的{0}月{1}號{2}點{3}分",
                         cycleDate.ToString("MM"),

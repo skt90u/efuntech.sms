@@ -55,7 +55,7 @@ namespace EFunTech.Sms.Portal.App_Start
         {
             if (container == null)
             {
-                throw new ArgumentNullException("container");
+                throw new ArgumentNullException(nameof(container));
             }
             this.container = container;
         }

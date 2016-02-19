@@ -181,22 +181,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Diagnostics.cs" />
-    <Compile Include="EF\Models\AllotSettingModel.cs" />
-    <Compile Include="EF\Models\ApplicationUserModel.cs" />
-    <Compile Include="EF\Models\CreditWarningModel.cs" />
-    <Compile Include="EF\Models\DepartmentModel.cs" />
-    <Compile Include="EF\Models\Mapper\AllotSettingProfile.cs" />
-    <Compile Include="EF\Models\Mapper\ApplicationUserProfile.cs" />
-    <Compile Include="EF\Models\Mapper\CreditWarningProfile.cs" />
-    <Compile Include="EF\Models\Mapper\DepartmentProfile.cs" />
-    <Compile Include="EF\Models\Mapper\ReplyCcProfile.cs" />
-    <Compile Include="EF\Models\Mapper\ApplicationUserProfile2.cs" />
-    <Compile Include="EF\Models\Mapper\ApplicationUserProfile3.cs" />
-    <Compile Include="EF\Models\Mapper\ApplicationUserProfile1.cs" />
-    <Compile Include="EF\Models\ReplyCcModel.cs" />
-    <Compile Include="EF\Models\ApplicationUserModel2.cs" />
-    <Compile Include="EF\Models\ApplicationUserModel3.cs" />
-    <Compile Include="EF\Models\ApplicationUserModel1.cs" />
     <Compile Include="Jobs\Job_20151120.cs" />
     <Compile Include="JSBeautify.cs" />
     <Compile Include="SendMessageRuleExamples.cs" />

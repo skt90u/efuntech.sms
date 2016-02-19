@@ -26,9 +26,9 @@ using System.Data.Entity.Infrastructure;
 namespace EFunTech.Sms.Portal.Controllers.Common
 {
     public abstract class CrudApiController<TCriteria, TModel, TEntity, TIdentity> : ApiControllerBase
-        where TCriteria : new()
-        where TModel : new()
-        where TEntity : class
+        where TCriteria : class, new()
+        where TModel : class, new()
+        where TEntity : class, new()
     {
         protected CrudApiController(DbContext context, ILogService logService)
             : base(context, logService)

@@ -38,24 +38,24 @@ namespace EFunTech.Sms.CodeGenerator
             //});
         }
 
-        static void EfTest()
-        {
-            ConfigureMapper();
+        //static void EfTest()
+        //{
+        //    ConfigureMapper();
 
-            using (var context = new ApplicationDbContext())
-            {
-                //var a0 = context.Set<ApplicationUser>().Project().To<ApplicationUserModel>().ToList();
-                var a1 = context.Set<ApplicationUser>().Project().To<ApplicationUserModel1>().ToList();
+        //    using (var context = new ApplicationDbContext())
+        //    {
+        //        //var a0 = context.Set<ApplicationUser>().Project().To<ApplicationUserModel>().ToList();
+        //        var a1 = context.Set<ApplicationUser>().Project().To<ApplicationUserModel1>().ToList();
 
-                foreach (var c in a1)
-                {
-                    Console.WriteLine(c.FullName);
-                }
-                //var a2 = context.Set<ApplicationUser>().Project().To<ApplicationUserModel2>().ToList();
-                //var a3 = context.Set<ApplicationUser>().Project().To<ApplicationUserModel3>().ToList();
+        //        foreach (var c in a1)
+        //        {
+        //            Console.WriteLine(c.FullName);
+        //        }
+        //        //var a2 = context.Set<ApplicationUser>().Project().To<ApplicationUserModel2>().ToList();
+        //        //var a3 = context.Set<ApplicationUser>().Project().To<ApplicationUserModel3>().ToList();
 
-            }
-        }
+        //    }
+        //}
 
         static void Main(string[] args)
         {
