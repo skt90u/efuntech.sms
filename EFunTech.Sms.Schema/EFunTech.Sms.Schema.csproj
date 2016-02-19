@@ -112,6 +112,7 @@
     <Compile Include="Attributes\DecimalPrecisionAttribute.cs" />
     <Compile Include="Attributes\TableDescriptionAttribute.cs" />
     <Compile Include="Enums\DeliveryReportStatus.cs" />
+    <Compile Include="Enums\SendMessageSourceTable.cs" />
     <Compile Include="Enums\SmsProviderType.cs" />
     <Compile Include="Enums\MessageStatus.cs" />
     <Compile Include="Enums\ReceiptStatus.cs" />
@@ -145,6 +146,10 @@
     <Compile Include="Migrations\201602161516398_20160216_UserAddSmsProviderType.cs" />
     <Compile Include="Migrations\201602161516398_20160216_UserAddSmsProviderType.Designer.cs">
       <DependentUpon>201602161516398_20160216_UserAddSmsProviderType.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201602190833130_20160219.cs" />
+    <Compile Include="Migrations\201602190833130_20160219.Designer.cs">
+      <DependentUpon>201602190833130_20160219.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -225,6 +230,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201602161516398_20160216_UserAddSmsProviderType.resx">
       <DependentUpon>201602161516398_20160216_UserAddSmsProviderType.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201602190833130_20160219.resx">
+      <DependentUpon>201602190833130_20160219.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

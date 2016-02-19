@@ -21,9 +21,9 @@ namespace EFunTech.Sms.CodeGenerator
             string requestId = "1428275602020481488";
 
             var configuration= new Configuration(userName, password);
-            var smsClient= new SMSClient(configuration);
+            var SMSClient= new SMSClient(configuration);
 
-            DeliveryReportList deliveryReportList = smsClient.SmsMessagingClient.GetDeliveryReportsByRequestId(requestId);
+            DeliveryReportList deliveryReportList = SMSClient.SmsMessagingClient.GetDeliveryReportsByRequestId(requestId);
         }
 
         public void Case1_()
@@ -33,9 +33,9 @@ namespace EFunTech.Sms.CodeGenerator
             string requestId = "1428275602020481488";
 
             var configuration = new Configuration(userName, password);
-            var smsClient = new SMSClient(configuration);
+            var SMSClient = new SMSClient(configuration);
 
-            var deliveryReportList = smsClient.SmsMessagingClient.GetDeliveryReportsByRequestId(requestId);
+            var deliveryReportList = SMSClient.SmsMessagingClient.GetDeliveryReportsByRequestId(requestId);
         }
 
 
@@ -49,17 +49,17 @@ namespace EFunTech.Sms.CodeGenerator
             var configuration = new Configuration("ENVOTIONS", "Envo6183");
 
             // Initialize SMSClient using the Configuration object
-            var smsClient = new SMSClient(configuration);
+            var SMSClient = new SMSClient(configuration);
 
             // Send SMS 
-            var result = smsClient.SmsMessagingClient.SendSMS(new SMSRequest(senderAddress, message, recipientAddress));
+            var result = SMSClient.SmsMessagingClient.SendSMS(new SMSRequest(senderAddress, message, recipientAddress));
             requestId = result.ClientCorrelator;
             //requestId = "1430206446300481957";
             // Wait for 30 seconds to give enought time for the message to be delivered
             System.Threading.Thread.Sleep(30000);
 
             // Get 'Delivery Reports'
-            DeliveryReportList deliveryReportList = smsClient.SmsMessagingClient.GetDeliveryReportsByRequestId(requestId);
+            DeliveryReportList deliveryReportList = SMSClient.SmsMessagingClient.GetDeliveryReportsByRequestId(requestId);
             Console.WriteLine(deliveryReportList);
         }
 
@@ -151,11 +151,11 @@ namespace EFunTech.Sms.CodeGenerator
                     string password = "Envo6183";
 
                     var configuration = new Configuration(userName, password);
-                    var smsClient = new SMSClient(configuration);
+                    var SMSClient = new SMSClient(configuration);
 
-                    var smsRequest = new SMSRequest(userName, formattedNumber, new string[] { formattedNumber });
+                    var SMSRequest = new SMSRequest(userName, formattedNumber, new string[] { formattedNumber });
 
-                    //SendMessageResult sendMessageResult = smsClient.SmsMessagingClient.SendSMS(smsRequest);
+                    //SendMessageResult sendMessageResult = SMSClient.SmsMessagingClient.SendSMS(SMSRequest);
 
                     //string requestId = sendMessageResult.ClientCorrelator; // you can use this to get deliveryReportList later.
 

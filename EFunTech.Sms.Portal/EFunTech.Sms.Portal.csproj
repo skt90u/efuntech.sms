@@ -306,10 +306,10 @@
     <Compile Include="Controllers\Common\ApiControllerBase.cs" />
     <Compile Include="Controllers\Common\CrudApiController.cs" />
     <Compile Include="Controllers\Others\DeliveryReportQueueController.cs" />
-    <Compile Include="Controllers\BasicAuthApi\SendSMSController.cs" />
+    <Compile Include="Controllers\BasicAuthApi\SendSmsController.cs" />
     <Compile Include="Controllers\BasicAuthApi\BalanceController.cs" />
     <Compile Include="Controllers\BasicAuthApi\EraseBookingController.cs" />
-    <Compile Include="Controllers\BasicAuthApi\SendParamSMSController.cs" />
+    <Compile Include="Controllers\BasicAuthApi\SendParamSmsController.cs" />
     <Compile Include="Controllers\BasicAuthApi\ReportController.cs" />
     <Compile Include="Controllers\DepartmentManager\DepartmentController.cs" />
     <Compile Include="Controllers\Others\LogItemController.cs" />

@@ -26,13 +26,13 @@ namespace Every8dApi
         private string sessionKey;
         private double credit;
 
-        private com.every8d.oms.SMS smsService;
+        private com.every8d.oms.SMS SMSService;
 
         public SMSClient(string userID, string password)
         {
             this.userID = userID;
             this.password = password;
-            this.smsService = new com.every8d.oms.SMS();
+            this.SMSService = new com.every8d.oms.SMS();
 
             this.IsAvailable = GetConnection(userID, password);
         }
@@ -46,7 +46,7 @@ namespace Every8dApi
 
         private bool GetConnection(string userID, string password) 
         {
-            string resultXml = this.smsService.getConnection(userID, password);
+            string resultXml = this.SMSService.getConnection(userID, password);
 
             var result = DeserializeXml<SMS_GET_CONNECTION>(resultXml);
 
@@ -90,7 +90,7 @@ namespace Every8dApi
             EnsureSessionKey();
             
             // "4.0,1,1.0,0,65408eb7-1df2-449c-9cb9-4a9162c70cda"
-            string resultString = this.smsService.sendSMS(
+            string resultString = this.SMSService.sendSMS(
                 this.sessionKey, 
                 subject, 
                 content, 
@@ -136,7 +136,7 @@ namespace Every8dApi
             string contentXML = string.Format("<REPS>{0}</REPS>", string.Join("", messageReceivers.Select(p => p.ToString())));
 
             // "4.0,1,1.0,0,65408eb7-1df2-449c-9cb9-4a9162c70cda"
-            string resultString = this.smsService.sendParamSMS(
+            string resultString = this.SMSService.sendParamSMS(
                 this.sessionKey, 
                 subject ?? string.Empty, 
                 contentXML, 
@@ -171,7 +171,7 @@ namespace Every8dApi
         {
             if (!string.IsNullOrEmpty(this.sessionKey))
             {
-                string resultString = this.smsService.closeConnection(this.sessionKey);
+                string resultString = this.SMSService.closeConnection(this.sessionKey);
                 /*
                 “1” :關閉連線成功
                 “-1”:關閉連線失敗
@@ -196,7 +196,7 @@ namespace Every8dApi
         {
             EnsureSessionKey();
 
-            string resultXml = this.smsService.getDeliveryStatus(this.sessionKey, batchID, pageNo);
+            string resultXml = this.SMSService.getDeliveryStatus(this.sessionKey, batchID, pageNo);
 
             var result = DeserializeXml<SMS_LOG>(resultXml);
 
@@ -211,7 +211,7 @@ namespace Every8dApi
         {
             EnsureSessionKey();
 
-            string resultString = this.smsService.getCredit(this.sessionKey);
+            string resultString = this.SMSService.getCredit(this.sessionKey);
 
             this.credit = Convert.ToDouble(resultString);
 
@@ -226,7 +226,7 @@ namespace Every8dApi
         {
             EnsureSessionKey();
 
-            string resultString = this.smsService.eraseBooking(this.sessionKey, batchID);
+            string resultString = this.SMSService.eraseBooking(this.sessionKey, batchID);
             /* 
              * 傳送成功 回傳字串內容格式為：CREDIT,SENDED,COST,UNSEND,BATCH_ID，各值中間以逗號分隔。
              * CREDIT：刪除的筆數
