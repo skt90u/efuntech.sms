@@ -64,7 +64,7 @@ namespace EFunTech.Sms.Portal
 
         public bool Authorize(IDictionary<string, object> owinEnvironment)
         {
-            ClaimsPrincipal claimsPrincipal = owinEnvironment["server.User"] as ClaimsPrincipal;
+            var claimsPrincipal = owinEnvironment["server.User"] as ClaimsPrincipal;
 
             foreach(var role in roles)
                 if (claimsPrincipal.IsInRole(role.ToString()))

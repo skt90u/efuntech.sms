@@ -25,7 +25,7 @@ namespace EFunTech.Sms.Simulation
 
             string ControllerName = "Home";
             
-            List<WebAuthorization> data = new List<WebAuthorization> 
+            var data = new List<WebAuthorization> 
             { 
                 new WebAuthorization
                 {

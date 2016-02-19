@@ -24,7 +24,7 @@ namespace EFunTech.Sms.Simulation.DataSources
             int day = RandomNumberGenerator.Current.Next(1, 28);
             int month = RandomNumberGenerator.Current.Next(1, 12);
 
-            DateTime dateTime = new DateTime(year, month, day);
+            var dateTime = new DateTime(year, month, day);
 
             return dateTime.ToString(@"MM/dd");
         }

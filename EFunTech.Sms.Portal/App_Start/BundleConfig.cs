@@ -16,7 +16,7 @@ namespace EFunTech.Sms.Portal
             
             //bundles.UseCdn = true;
 
-            List<string> allCss = new List<string> { 
+            var allCss = new List<string> { 
                 "~/Scripts/bower_components/bootstrap/dist/css/bootstrap.css",
                 "~/Scripts/bower_components/bootstrap/dist/css/bootstrap-theme.css",
                 "~/Scripts/bower_components/font-awesome/css/font-awesome.css",
@@ -52,9 +52,9 @@ namespace EFunTech.Sms.Portal
 
             bundles.Add(new StyleBundle("~/Content/css").Include(allCss.ToArray()));
 
-            List<string> allJs = new List<string>();
+            var allJs = new List<string>();
 
-            List<string> jquery = new List<string>
+            var jquery = new List<string>
             {
                 //"~/Scripts/jquery-{version}.js", // v1.10.2
                 // 只支援IE9+ (https://jquery.com/browser-support/)
@@ -91,7 +91,7 @@ namespace EFunTech.Sms.Portal
             };
             allJs.AddRange(jquery); //jquery 與 angular 放在一起 找不到 $ 符號
 
-            List<string> angular = new List<string> { 
+            var angular = new List<string> { 
                 "~/Scripts/bower_components/angular/angular.js",
                 "~/Scripts/bower_components/angular-i18n/angular-locale_zh-tw.js",
                 "~/Scripts/bower_components/angular-animate/angular-animate.js",
@@ -186,7 +186,7 @@ namespace EFunTech.Sms.Portal
 
         private static List<string> GetControllerScripts(string controllerName)
         {
-            List<string> scripts = new List<string>();
+            var scripts = new List<string>();
 
             scripts.AddRange(GetScripts(@"Scripts\Application\Controllers\" + controllerName));
 
@@ -195,7 +195,7 @@ namespace EFunTech.Sms.Portal
 
         private static List<string> GetAppScripts()
         {
-            List<string> scripts = new List<string>();
+            var scripts = new List<string>();
 
             // Modules (要放在 app 之前，定義的 module 都是被 app 所用的)
             scripts.AddRange(GetScripts(@"Scripts\Application\Modules"));
@@ -236,7 +236,7 @@ namespace EFunTech.Sms.Portal
 
         private static List<string> GetScripts(string relativeDir)
         {
-            List<string> scripts = new List<string>();
+            var scripts = new List<string>();
 
             string applicationPhysicalDir = HostingEnvironment.MapPath("~/");
 

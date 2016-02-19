@@ -120,7 +120,7 @@ namespace EFunTech.Sms.CodeGenerator
         {
             string code = File.ReadAllText(inputPath, Encoding.UTF8);
 
-            JSBeautifyOptions options = new JSBeautifyOptions();
+            var options = new JSBeautifyOptions();
             options.indent_size = 4;
             options.indent_char = ' ';
             options.indent_level = 0;
@@ -193,7 +193,7 @@ namespace EFunTech.Sms.CodeGenerator
 
         public static void OpenFolder(string outputDir)
         {
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
+            var process = new System.Diagnostics.Process();
 
             process.StartInfo.UseShellExecute = true;
 

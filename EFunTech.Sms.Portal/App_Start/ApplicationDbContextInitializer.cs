@@ -171,7 +171,7 @@ namespace EFunTech.Sms.Portal
                 // 加入腳色
                 await userManager.AddToRoleAsync(user.Id, role.ToString());
 
-                CreditWarning creditWarning = new CreditWarning
+                var creditWarning = new CreditWarning
                 {
                     Enabled = CreditWarning.DefaultValue_Enabled,
                     BySmsMessage = CreditWarning.DefaultValue_BySmsMessage,
@@ -183,7 +183,7 @@ namespace EFunTech.Sms.Portal
                 context.CreditWarnings.Add(creditWarning);
                 context.SaveChanges();
 
-                ReplyCc replyCc = new ReplyCc
+                var replyCc = new ReplyCc
                 {
                     Enabled = ReplyCc.DefaultValue_Enabled,
                     BySmsMessage = ReplyCc.DefaultValue_BySmsMessage,
@@ -427,7 +427,7 @@ namespace EFunTech.Sms.Portal
         {
             ApplicationUser parentUser = null;
 
-            Dictionary<Role, string> userNames = new Dictionary<Role, string>
+            var userNames = new Dictionary<Role, string>
             {
                 {Role.Administrator, "Admin"},
                 {Role.Supervisor, "Eric"},

@@ -9,7 +9,7 @@ namespace EFunTech.Sms.Simulation.DataSources
 {
     public class SubjectDataSource : DatasourceBase<string>
     {
-        private readonly string[] data = new string[] { 
+        private readonly string[] data = { 
             "中職大物年 林哲瑄",
             "唱rap秀扣籃 豪粉大驚喜",
             "二刀流沒行情 陽耀勳落榜",

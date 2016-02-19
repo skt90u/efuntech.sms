@@ -79,7 +79,7 @@ namespace EFunTech.Sms.Portal.Services
         {
             if (RoleExists(roleName)) return null;
             IdentityResult.Failed(string.Format("角色{0}已經存在", roleName));
-            IdentityRole role = new IdentityRole(roleName);
+            var role = new IdentityRole(roleName);
 
             IdentityResult result = roleManager.Create(role);
 

@@ -67,7 +67,7 @@ namespace EFunTech.Sms.CodeGenerator
             //string PortalDir = @"C:\Project\efuntech.sms\EFunTech.Sms.Portal";
             bool Overwrite = true;
         
-            List<IJob> jobs = new List<IJob>();
+            var jobs = new List<IJob>();
 
             //jobs.Add(new SyncLookupApi
             //{

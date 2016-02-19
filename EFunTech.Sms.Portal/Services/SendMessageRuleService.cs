@@ -39,7 +39,7 @@ namespace EFunTech.Sms.Portal
         /// </summary>
         public SendMessageRule CreateCreditWarningSendMessageRule(ApplicationUser user, string subject, string body, string[] destinations)
         {
-            SendMessageRuleModel model = new SendMessageRuleModel();
+            var model = new SendMessageRuleModel();
             model.SendTitle = subject;
             model.SendBody = body;
 
@@ -86,7 +86,7 @@ namespace EFunTech.Sms.Portal
                             p.IsValid == true &&
                             p.UploadedSessionId == model.RecipientFromFileUpload.UploadedFileId).Select(p => p.SendTime).Distinct().ToList();
 
-                        List<SendMessageRuleModel> _models = new List<SendMessageRuleModel>();
+                        var _models = new List<SendMessageRuleModel>();
 
                         foreach(var sendTime in sendTimes)
                         {
@@ -96,7 +96,7 @@ namespace EFunTech.Sms.Portal
                             // 2. 無指定時間的收訊人
                             //  根據發送時間設定
 
-                            SendMessageRuleModel _model = (SendMessageRuleModel) ObjectCopier.DeepCopy(model);
+                            var _model = (SendMessageRuleModel) ObjectCopier.DeepCopy(model);
                             
                             // 找出 sendTime 對應資料, 並建立新的上傳資料
 
@@ -187,7 +187,7 @@ namespace EFunTech.Sms.Portal
 
             var uploadedFile = uploadedFileRepository.GetById(recipientFromFileUpload.UploadedFileId);
 
-            UploadedFile entityUploadedFile = new UploadedFile(); // (UploadedFile)uploadedFile.DeepCopy(); // Entity 使用 DeepCopy 會失敗
+            var entityUploadedFile = new UploadedFile(); // (UploadedFile)uploadedFile.DeepCopy(); // Entity 使用 DeepCopy 會失敗
 
             entityUploadedFile.FileName = uploadedFile.FileName;
             entityUploadedFile.FilePath = uploadedFile.FilePath;
@@ -206,7 +206,7 @@ namespace EFunTech.Sms.Portal
             for (int i = 0; i < uploadedMessageReceivers.Count; i++)
             {
                 var uploadedMessageReceiver = uploadedMessageReceivers[i];
-                UploadedMessageReceiver entityUploadedMessageReceiver = new UploadedMessageReceiver(); // (UploadedMessageReceiver)uploadedMessageReceiver.DeepCopy(); // Entity 使用 DeepCopy 會失敗
+                var entityUploadedMessageReceiver = new UploadedMessageReceiver(); // (UploadedMessageReceiver)uploadedMessageReceiver.DeepCopy(); // Entity 使用 DeepCopy 會失敗
 
                 entityUploadedMessageReceiver.RowNo = i + 1;
                 entityUploadedMessageReceiver.Name = uploadedMessageReceiver.Name;
@@ -231,7 +231,7 @@ namespace EFunTech.Sms.Portal
                 entityUploadedMessageReceiver = uploadedMessageReceiverRepository.Insert(entityUploadedMessageReceiver);
             }
 
-            RecipientFromFileUploadModel result = new RecipientFromFileUploadModel();
+            var result = new RecipientFromFileUploadModel();
 
             result.SendMessageRuleId = default(int);
             result.UploadedFileId = entityUploadedFile.Id;
@@ -296,7 +296,7 @@ namespace EFunTech.Sms.Portal
             // (2) 新增簡訊規則，並指定簡訊規則狀態為 Prepare (正在建立簡訊規則以及相關資料)
             ////////////////////////////////////////
 
-            SendMessageRule entity = new SendMessageRule();
+            var entity = new SendMessageRule();
 
             entity.ClientTimezoneOffset = model.ClientTimezoneOffset;
 
@@ -468,7 +468,7 @@ namespace EFunTech.Sms.Portal
             // (8) 紀錄LOG
             ////////////////////////////////////////
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             sb.AppendFormat("建立簡訊規則(");
 
@@ -608,7 +608,7 @@ namespace EFunTech.Sms.Portal
                                 })
                                 : new MessageCostInfo(entity.SendBody, item.Mobile);
 
-                            MessageReceiver _entity = new MessageReceiver();
+                            var _entity = new MessageReceiver();
 
                             _entity.SendMessageRuleId = entity.Id;
                             _entity.RowNo = item.RowNo;
@@ -637,9 +637,9 @@ namespace EFunTech.Sms.Portal
 
                         if (entity.RecipientFromFileUpload.AddSelfToMessageReceiverList)
                         {
-                            MessageCostInfo messageCostInfo = new MessageCostInfo(entity.SendBody, user.PhoneNumber);
+                            var messageCostInfo = new MessageCostInfo(entity.SendBody, user.PhoneNumber);
 
-                            MessageReceiver _entity = new MessageReceiver();
+                            var _entity = new MessageReceiver();
 
                             _entity.SendMessageRuleId = entity.Id;
                             _entity.RowNo = result.Count() + 1;
@@ -682,9 +682,9 @@ namespace EFunTech.Sms.Portal
                         int rowNo = 0;
                         foreach (var item in result)
                         {
-                            MessageCostInfo messageCostInfo = new MessageCostInfo(entity.SendBody, item.Mobile);
+                            var messageCostInfo = new MessageCostInfo(entity.SendBody, item.Mobile);
 
-                            MessageReceiver _entity = new MessageReceiver();
+                            var _entity = new MessageReceiver();
 
                             _entity.SendMessageRuleId = entity.Id;
                             _entity.RowNo = ++rowNo;
@@ -726,9 +726,9 @@ namespace EFunTech.Sms.Portal
                         int rowNo = 0;
                         foreach (var item in result)
                         {
-                            MessageCostInfo messageCostInfo = new MessageCostInfo(entity.SendBody, item.Mobile);
+                            var messageCostInfo = new MessageCostInfo(entity.SendBody, item.Mobile);
 
-                            MessageReceiver _entity = new MessageReceiver();
+                            var _entity = new MessageReceiver();
 
                             _entity.SendMessageRuleId = entity.Id;
                             _entity.RowNo = ++rowNo;
@@ -765,9 +765,9 @@ namespace EFunTech.Sms.Portal
                         int rowNo = 0;
                         foreach (var phoneNumber in phoneNumbers)
                         {
-                            MessageCostInfo messageCostInfo = new MessageCostInfo(entity.SendBody, phoneNumber);
+                            var messageCostInfo = new MessageCostInfo(entity.SendBody, phoneNumber);
 
-                            MessageReceiver _entity = new MessageReceiver();
+                            var _entity = new MessageReceiver();
 
                             _entity.SendMessageRuleId = entity.Id;
                             _entity.RowNo = ++rowNo;
@@ -803,7 +803,7 @@ namespace EFunTech.Sms.Portal
 
         private List<string> GetInternationalMobiles(ApplicationUser user, SendMessageRuleModel model)
         {
-            List<string> internationalMobiles = new List<string>();
+            var internationalMobiles = new List<string>();
 
             switch (model.RecipientFromType)
             {
@@ -918,7 +918,7 @@ namespace EFunTech.Sms.Portal
 
                         if (model.RecipientFromFileUpload.AddSelfToMessageReceiverList)
                         {
-                            MessageCostInfo messageCostInfo = new MessageCostInfo(model.SendBody, user.PhoneNumber);
+                            var messageCostInfo = new MessageCostInfo(model.SendBody, user.PhoneNumber);
 
                             TotalMessageCost += messageCostInfo.MessageCost;
                             TotalReceiverCount += 1;
@@ -939,7 +939,7 @@ namespace EFunTech.Sms.Portal
 
                         foreach (var item in result)
                         {
-                            MessageCostInfo messageCostInfo = new MessageCostInfo(model.SendBody, item.Mobile);
+                            var messageCostInfo = new MessageCostInfo(model.SendBody, item.Mobile);
 
                             TotalMessageCost += messageCostInfo.MessageCost;
                             TotalReceiverCount += 1;
@@ -960,7 +960,7 @@ namespace EFunTech.Sms.Portal
 
                         foreach (var item in result)
                         {
-                            MessageCostInfo messageCostInfo = new MessageCostInfo(model.SendBody, item.Mobile);
+                            var messageCostInfo = new MessageCostInfo(model.SendBody, item.Mobile);
 
                             TotalMessageCost += messageCostInfo.MessageCost;
                             TotalReceiverCount += 1;
@@ -976,7 +976,7 @@ namespace EFunTech.Sms.Portal
 
                         foreach (var phoneNumber in phoneNumbers)
                         {
-                            MessageCostInfo messageCostInfo = new MessageCostInfo(model.SendBody, phoneNumber);
+                            var messageCostInfo = new MessageCostInfo(model.SendBody, phoneNumber);
 
                             TotalMessageCost += messageCostInfo.MessageCost;
                             TotalReceiverCount += 1;
@@ -1127,7 +1127,7 @@ namespace EFunTech.Sms.Portal
 
             foreach (var _entity in _entities)
             {
-                MessageCostInfo messageCostInfo = new MessageCostInfo(model.SendBody, _entity.Mobile);
+                var messageCostInfo = new MessageCostInfo(model.SendBody, _entity.Mobile);
 
                 _entity.SendTitle = model.SendTitle;
                 _entity.UpdatedTime = utcNow;

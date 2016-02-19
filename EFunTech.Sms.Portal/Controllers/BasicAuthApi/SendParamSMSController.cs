@@ -115,7 +115,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 HttpResponseMessage returnVal = null;
 
-                List<string> ErrorMessages = new List<string>();
+                var ErrorMessages = new List<string>();
 
                 using (TransactionScope scope = context.CreateTransactionScope())
                 {
@@ -123,7 +123,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
                     // Simulate SaveUploadedFile
 
-                    UploadedFile entityUploadedFile = new UploadedFile();
+                    var entityUploadedFile = new UploadedFile();
                     entityUploadedFile.FileName = "FakeFileName";
                     entityUploadedFile.FilePath = "FakeFilePath";
                     entityUploadedFile.UploadedFileType = UploadedFileType.SendParamMessage;
@@ -139,7 +139,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
                         if (string.IsNullOrEmpty(_model.Mobile)) continue;
 
-                        UploadedMessageReceiver entity = new UploadedMessageReceiver();
+                        var entity = new UploadedMessageReceiver();
                         entity.RowNo = i + 1;
                         entity.Name = _model.Name;
                         entity.Mobile = _model.Mobile;
@@ -176,7 +176,7 @@ namespace EFunTech.Sms.Portal.Controllers
                         entity = AsyncHelper.RunSync(() => context.InsertAsync(entity));
                     }
 
-                    SendMessageRuleModel model = new SendMessageRuleModel();
+                    var model = new SendMessageRuleModel();
 
                     model.SendTitle = subject;
                     model.SendBody = content;

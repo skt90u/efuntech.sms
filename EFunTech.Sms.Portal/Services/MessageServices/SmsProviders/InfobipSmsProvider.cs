@@ -140,7 +140,7 @@ namespace EFunTech.Sms.Portal
                 message,
                 string.Join("、", recipientAddress));
 
-            SMSRequest smsRequest = new SMSRequest(senderAddress, message, recipientAddress);
+            var smsRequest = new SMSRequest(senderAddress, message, recipientAddress);
             // 還是不知道怎麼使用
             // http://dev.infobip.com/v1/docs/logs-vs-delivery-reports
             // http://dev.infobip.com/docs/notify-url
@@ -189,7 +189,7 @@ namespace EFunTech.Sms.Portal
         {
             // 寫入對應的 SendMessageResult
 
-            Infobip_SendMessageResult infobip_SendMessageResult = new Infobip_SendMessageResult();
+            var infobip_SendMessageResult = new Infobip_SendMessageResult();
             infobip_SendMessageResult.SendMessageQueueId = sendMessageQueue.Id;
             infobip_SendMessageResult.ClientCorrelator = sendMessageResult.ClientCorrelator;
             infobip_SendMessageResult.CreatedTime = DateTime.UtcNow; // 接收發送命令回傳值的時間
@@ -204,7 +204,7 @@ namespace EFunTech.Sms.Portal
                 var messageReceiver = messageReceivers[i];
                 var sendMessageResultItem = sendMessageResult.SendMessageResults[i];
 
-                Infobip_SendMessageResultItem infobip_SendMessageResultItem = new Infobip_SendMessageResultItem();
+                var infobip_SendMessageResultItem = new Infobip_SendMessageResultItem();
 
                 infobip_SendMessageResultItem.MessageId = sendMessageResultItem.MessageId;
                 infobip_SendMessageResultItem.MessageStatusString = sendMessageResultItem.MessageStatus;
@@ -222,7 +222,7 @@ namespace EFunTech.Sms.Portal
                 infobip_SendMessageResultItem = this.unitOfWork.Repository<Infobip_SendMessageResultItem>().Insert(infobip_SendMessageResultItem);
             }
 
-            Infobip_ResourceReference infobip_ResourceReference = new Infobip_ResourceReference();
+            var infobip_ResourceReference = new Infobip_ResourceReference();
             infobip_ResourceReference.SendMessageResultId = infobip_SendMessageResult.SendMessageQueueId;
             infobip_ResourceReference.ResourceURL = sendMessageResult.ResourceRef.ResourceURL;
             infobip_ResourceReference = this.unitOfWork.Repository<Infobip_ResourceReference>().Insert(infobip_ResourceReference);
@@ -239,7 +239,7 @@ namespace EFunTech.Sms.Portal
                     var _repository = _unitOfWork.Repository<DeliveryReportQueue>();
 
                     // 寫入簡訊派送結果等待取回序列
-                    DeliveryReportQueue deliveryReportQueue = new DeliveryReportQueue();
+                    var deliveryReportQueue = new DeliveryReportQueue();
                     deliveryReportQueue.SendMessageQueueId = sendMessageQueue.Id;
                     deliveryReportQueue.RequestId = infobip_SendMessageResult.ClientCorrelator;
                     deliveryReportQueue.ProviderName = this.Name;
@@ -283,7 +283,7 @@ namespace EFunTech.Sms.Portal
 
             foreach (var deliveryReport in deliveryReportList.DeliveryReports)
             {
-                Infobip_DeliveryReport entity = new Infobip_DeliveryReport();
+                var entity = new Infobip_DeliveryReport();
                 entity.RequestId = requestId;
                 entity.MessageId = deliveryReport.MessageId;
                 entity.SentDate = deliveryReport.SentDate.ToUniversalTime(); // 已換轉換成UTC時間
@@ -367,7 +367,7 @@ namespace EFunTech.Sms.Portal
             {
                 string DestinationName = SendMessageResult.DestinationName;
 
-                SendMessageHistory entity = new SendMessageHistory();
+                var entity = new SendMessageHistory();
 
                 ////////////////////////////////////////
                 // 01 ~ 05

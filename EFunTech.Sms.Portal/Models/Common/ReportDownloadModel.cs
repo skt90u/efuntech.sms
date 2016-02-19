@@ -60,7 +60,7 @@ namespace EFunTech.Sms.Portal.Models.Common
 
             string ext = System.IO.Path.GetExtension(FileName).ToLower();
 
-            Dictionary<string, string> dict = new Dictionary<string,string>{
+            var dict = new Dictionary<string,string>{
                 {".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
                 {".zip", "application/zip"},
             };

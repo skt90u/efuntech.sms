@@ -36,7 +36,7 @@ namespace EFunTech.Sms.Portal
 
             try
             {
-                SmtpClient mailClient = new SmtpClient {
+                var mailClient = new SmtpClient {
                     Host = "smtp.gmail.com",
                     Port = 587,
                     EnableSsl = true,

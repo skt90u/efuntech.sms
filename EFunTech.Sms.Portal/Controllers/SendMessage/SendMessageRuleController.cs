@@ -86,7 +86,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
             foreach (var _entity in _entities)
             {
-                MessageCostInfo messageCostInfo = new MessageCostInfo(model.SendBody, _entity.Mobile);
+                var messageCostInfo = new MessageCostInfo(model.SendBody, _entity.Mobile);
 
                 _entity.SendTitle = model.SendTitle;
                 _entity.UpdatedTime = utcNow;

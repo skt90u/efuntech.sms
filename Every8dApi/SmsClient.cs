@@ -108,7 +108,7 @@ namespace Every8dApi
             if (tokens.Length != 5)
                 throw new Exception(string.Format("解析錯誤 {0}", resultString));
 
-            SEND_SMS_RESULT result = new SEND_SMS_RESULT();
+            var result = new SEND_SMS_RESULT();
             result.CREDIT = Convert.ToDouble(tokens[0]);
             result.SENDED = Convert.ToInt32(tokens[1]);
             result.COST = Convert.ToDouble(tokens[2]);
@@ -154,7 +154,7 @@ namespace Every8dApi
             if (tokens.Length != 5)
                 throw new Exception(string.Format("解析錯誤 {0}", resultString));
 
-            SEND_SMS_RESULT result = new SEND_SMS_RESULT();
+            var result = new SEND_SMS_RESULT();
             result.CREDIT = Convert.ToDouble(tokens[0]);
             result.SENDED = Convert.ToInt32(tokens[1]);
             result.COST = Convert.ToDouble(tokens[2]);
@@ -236,7 +236,7 @@ namespace Every8dApi
             if (tokens.Length != 2)
                 throw new Exception(string.Format("解析錯誤 {0}", resultString));
 
-            ERASE_BOOKING_RESULT result = new ERASE_BOOKING_RESULT();
+            var result = new ERASE_BOOKING_RESULT();
             result.DELETED = Convert.ToInt32(tokens[0]);
             result.CLAW_BACK = Convert.ToDouble(tokens[1]);
 
@@ -273,8 +273,8 @@ namespace Every8dApi
 
         private T DeserializeXml<T>(string xmlDocumentText)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(T));
-            using (StringReader reader = new StringReader(xmlDocumentText))
+            var serializer = new XmlSerializer(typeof(T));
+            using (var reader = new StringReader(xmlDocumentText))
             {
                 return (T)(serializer.Deserialize(reader));
             }
@@ -475,7 +475,7 @@ namespace Every8dApi
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             sb.AppendFormat("<USER");
 

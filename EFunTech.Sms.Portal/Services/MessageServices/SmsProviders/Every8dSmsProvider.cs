@@ -154,7 +154,7 @@ namespace EFunTech.Sms.Portal
         {
             // 寫入對應的 SendMessageResult
 
-            Every8d_SendMessageResult every8d_SendMessageResult = new Every8d_SendMessageResult();
+            var every8d_SendMessageResult = new Every8d_SendMessageResult();
 
             every8d_SendMessageResult.SendMessageQueueId = sendMessageQueue.Id;
 
@@ -184,7 +184,7 @@ namespace EFunTech.Sms.Portal
                     var _repository = _unitOfWork.Repository<DeliveryReportQueue>();
 
                     // 寫入簡訊派送結果等待取回序列
-                    DeliveryReportQueue deliveryReportQueue = new DeliveryReportQueue();
+                    var deliveryReportQueue = new DeliveryReportQueue();
                     deliveryReportQueue.SendMessageQueueId = sendMessageQueue.Id;
                     deliveryReportQueue.RequestId = every8d_SendMessageResult.BATCH_ID;
                     deliveryReportQueue.ProviderName = this.Name;
@@ -234,7 +234,7 @@ namespace EFunTech.Sms.Portal
 
             foreach (var SMS_CONTENT in SMS_LOG.GET_DELIVERY_STATUS.SMS_LIST)
             {
-                Every8d_DeliveryReport entity = new Every8d_DeliveryReport();
+                var entity = new Every8d_DeliveryReport();
                 entity.RequestId = requestId;
                 entity.CODE = CODE;
                 entity.DESCRIPTION = DESCRIPTION;
@@ -318,7 +318,7 @@ namespace EFunTech.Sms.Portal
             {
                 string DestinationName = DeliveryReport.NAME;
 
-                SendMessageHistory entity = new SendMessageHistory();
+                var entity = new SendMessageHistory();
 
                 ////////////////////////////////////////
                 // 01 ~ 05

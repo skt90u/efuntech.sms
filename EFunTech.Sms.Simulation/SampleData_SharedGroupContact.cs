@@ -54,7 +54,7 @@ namespace EFunTech.Sms.Simulation
 
             var userIds = context.Users.Where(x => x.Id != user.Id).Select(x => x.Id).ToList();
 
-            List<SharedGroupContact> SharedGroupContacts = new List<SharedGroupContact>();
+            var SharedGroupContacts = new List<SharedGroupContact>();
             foreach (var groupId in random_groupIds)
             {
                 var random_userCount = randomNumberGenerator.Next(userIds.Count());

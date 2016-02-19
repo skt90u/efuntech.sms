@@ -32,7 +32,7 @@ namespace EFunTech.Sms.Portal
 
         private List<Exception> GetExceptions(Exception ex)
         {
-            List<Exception> es = new List<Exception>();
+            var es = new List<Exception>();
 
             Exception e = ex;
 

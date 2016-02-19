@@ -9,7 +9,7 @@ namespace EFunTech.Sms.Simulation.DataSources
 {
     public class MobileDataSource : DatasourceBase<string>
     {
-        private readonly string[] data = new string[] { 
+        private readonly string[] data = { 
             "886921859601",
             "886921859602",
             "886921859603",

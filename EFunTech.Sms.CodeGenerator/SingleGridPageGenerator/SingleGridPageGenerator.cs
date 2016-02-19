@@ -33,7 +33,7 @@ namespace EFunTech.Sms.CodeGenerator
 
         public void Execute()
         {
-            List<IJob> jobs = new List<IJob>();
+            var jobs = new List<IJob>();
 
             jobs.Add(new ModelGenerator
             {

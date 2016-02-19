@@ -9,7 +9,7 @@ namespace EFunTech.Sms.Simulation.DataSources
 {
     public class PhoneAreaDataSource : DatasourceBase<string>
     {
-        private readonly string[] data = new string[] { 
+        private readonly string[] data = { 
             "02",
             "03",
             "04",

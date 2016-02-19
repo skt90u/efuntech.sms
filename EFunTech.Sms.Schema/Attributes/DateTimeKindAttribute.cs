@@ -34,7 +34,7 @@ namespace System.ComponentModel
 
             foreach (var property in properties)
             {
-                DateTimeKindAttribute attr = (DateTimeKindAttribute) property.GetCustomAttributes(typeof(DateTimeKindAttribute), false).FirstOrDefault();
+                var attr = (DateTimeKindAttribute) property.GetCustomAttributes(typeof(DateTimeKindAttribute), false).FirstOrDefault();
                 if (attr == null)
                     continue;
 

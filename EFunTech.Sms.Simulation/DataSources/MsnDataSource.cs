@@ -10,7 +10,7 @@ namespace EFunTech.Sms.Simulation.DataSources
 {
     public class MsnDataSource : FirstNameSource
     {
-        private readonly string[] data = new string[] { 
+        private readonly string[] data = { 
             "gmail.com",
             "hotmail.com"
         };

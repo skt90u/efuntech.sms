@@ -37,7 +37,7 @@ namespace EFunTech.Sms.Schema
 
         public List<DayOfWeek> GetDayOfWeeks()
         {
-            List<DayOfWeek> result = new List<DayOfWeek>();
+            var result = new List<DayOfWeek>();
 
             string dayOfWeeks = this.DayOfWeeks ?? string.Empty;
 
@@ -49,7 +49,7 @@ namespace EFunTech.Sms.Schema
             {
                 if (dayOfWeeks[i] == '1')
                 {
-                    DayOfWeek dayOfWeek = (DayOfWeek)i;
+                    var dayOfWeek = (DayOfWeek)i;
                     result.Add(dayOfWeek);
                 }
             }

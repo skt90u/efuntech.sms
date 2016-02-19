@@ -98,7 +98,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
             // 當角色是 DepartmentHead 或者 Employee，必須指定部門
             var roleName = GetRoleName(model.RoleId);
-            Role role = (Role)Enum.Parse(typeof(Role), roleName);
+            var role = (Role)Enum.Parse(typeof(Role), roleName);
             if (role == Role.DepartmentHead || role == Role.Employee)
             {
                 if (model.DepartmentId == 0)
@@ -138,7 +138,7 @@ namespace EFunTech.Sms.Portal.Controllers
                             entity.Id, 
                             GetRoleName(model.RoleId));
 
-            CreditWarning CreditWarning = new CreditWarning
+            var creditWarning = new CreditWarning
             {
                 Enabled = CreditWarning.DefaultValue_Enabled,
                 BySmsMessage = CreditWarning.DefaultValue_BySmsMessage,
@@ -147,16 +147,16 @@ namespace EFunTech.Sms.Portal.Controllers
                 NotifiedInterval = CreditWarning.DefaultValue_NotifiedInterval,
                 OwnerId = entity.Id,
             };
-            await context.InsertAsync(CreditWarning);
+            await context.InsertAsync(creditWarning);
 
-            ReplyCc ReplyCc = new ReplyCc
+            var replyCc = new ReplyCc
             {
                 Enabled = ReplyCc.DefaultValue_Enabled,
                 BySmsMessage = ReplyCc.DefaultValue_BySmsMessage,
                 ByEmail = ReplyCc.DefaultValue_ByEmail,
                 OwnerId = entity.Id,
             };
-            await context.InsertAsync(ReplyCc);
+            await context.InsertAsync(replyCc);
 
             // 建立預設群組 [常用聯絡人]
             var group = new Group();
@@ -254,7 +254,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
             // 角色
             var roleName = GetRoleName(model.RoleId);
-            Role role = (Role)Enum.Parse(typeof(Role), roleName);
+            var role = (Role)Enum.Parse(typeof(Role), roleName);
             if (role == Role.DepartmentHead || role == Role.Employee)
             {
                 if (model.DepartmentId == 0)

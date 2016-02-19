@@ -36,7 +36,7 @@ namespace EFunTech.Sms.CodeGenerator
         {
             if (!property.IsEnum) return;
 
-            List<string> result = new List<string>();
+            var result = new List<string>();
 
             foreach (var value in Enum.GetValues(property.PropertyType))
             {
@@ -75,7 +75,7 @@ namespace EFunTech.Sms.CodeGenerator
                 lines.Add(string.Format("                        minLength: \"{0}\",", MinLengthAttribute.Length));
             }
 
-            List<ValidationAttribute> ValidationAttributes = new List<ValidationAttribute>();
+            var ValidationAttributes = new List<ValidationAttribute>();
             if (RequiredAttribute != null) ValidationAttributes.Add(RequiredAttribute);
             if (RegularExpressionAttribute != null) ValidationAttributes.Add(RegularExpressionAttribute);
             if (MaxLengthAttribute != null) ValidationAttributes.Add(MaxLengthAttribute);
@@ -122,7 +122,7 @@ namespace EFunTech.Sms.CodeGenerator
         {
             int columnWidth = SchemaInfo.ColumnWidth;
 
-            int rowCount = (int)Math.Ceiling((decimal)properties.Count / (decimal)columnWidth);
+            var rowCount = (int)Math.Ceiling((decimal)properties.Count / (decimal)columnWidth);
 
             for (int i = 0; i < rowCount; i++)
             {

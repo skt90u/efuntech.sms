@@ -38,7 +38,7 @@ namespace EFunTech.Sms.Portal
 
             try
             {
-                SmtpClient mailClient = new SmtpClient {
+                var mailClient = new SmtpClient {
                     // 阿里雲不支援SSL
                     Host = "smtp.mxhichina.com",
                     Port = 25,

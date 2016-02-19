@@ -15,7 +15,7 @@ namespace BasicAuthentication.Filters
         {
             using (var dbcontext = new ApplicationDbContext())
             {
-                UserManager<ApplicationUser> userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
+                var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
 
                 cancellationToken.ThrowIfCancellationRequested(); // Unfortunately, UserManager doesn't support CancellationTokens.
                 ApplicationUser user = await userManager.FindAsync(userName, password);

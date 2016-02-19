@@ -83,7 +83,7 @@ namespace EFunTech.Sms.Portal.Controllers
 		{
             if (!context.Set<SharedGroupContact>().Any(p => p.GroupId == model.SharedGroupId && p.ShareToUserId == model.Id))
             {
-                SharedGroupContact sharedGroupContact = new SharedGroupContact();
+                var sharedGroupContact = new SharedGroupContact();
                 sharedGroupContact.GroupId = model.SharedGroupId.Value;
                 sharedGroupContact.ShareToUserId = model.Id;
                 sharedGroupContact = await context.InsertAsync(sharedGroupContact);

@@ -62,12 +62,12 @@ namespace EFunTech.Sms.Portal
         {
             try
             {
-                StackFrame frame = new StackFrame(2);
-                MethodBase method = frame.GetMethod();
+                var frame = new StackFrame(2);
+                var method = frame.GetMethod();
 
                 string message = arg.Length != 0 ? string.Format(format, arg) : format;
 
-                LogItem logItem = new LogItem();
+                var logItem = new LogItem();
                 logItem.EntryAssembly = this.entryAssembly;
                 logItem.Class = method.ReflectedType.Name;
                 logItem.Method = method.Name;
@@ -93,12 +93,12 @@ namespace EFunTech.Sms.Portal
         {
             try
             {
-                StackFrame frame = new StackFrame(2);
-                MethodBase method = frame.GetMethod();
+                var frame = new StackFrame(2);
+                var method = frame.GetMethod();
 
                 string message = GetDetailExceptionMessage(ex);
 
-                LogItem logItem = new LogItem();
+                var logItem = new LogItem();
                 logItem.EntryAssembly = this.entryAssembly;
                 logItem.Class = method.ReflectedType.Name;
                 logItem.Method = method.Name;
@@ -140,7 +140,7 @@ namespace EFunTech.Sms.Portal
 
         private string GetDetailExceptionMessage(Exception ex)
         {
-            List<Exception> es = new List<Exception>();
+            var es = new List<Exception>();
 
             Exception e = ex;
 

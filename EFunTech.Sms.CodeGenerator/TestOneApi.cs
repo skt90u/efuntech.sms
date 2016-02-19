@@ -20,8 +20,8 @@ namespace EFunTech.Sms.CodeGenerator
             string password = "Envo6183";
             string requestId = "1428275602020481488";
 
-            Configuration configuration= new Configuration(userName, password);
-            SMSClient smsClient= new SMSClient(configuration);
+            var configuration= new Configuration(userName, password);
+            var smsClient= new SMSClient(configuration);
 
             DeliveryReportList deliveryReportList = smsClient.SmsMessagingClient.GetDeliveryReportsByRequestId(requestId);
         }
@@ -32,10 +32,10 @@ namespace EFunTech.Sms.CodeGenerator
             string password = "Envo6183";
             string requestId = "1428275602020481488";
 
-            Configuration configuration = new Configuration(userName, password);
-            SMSClient smsClient = new SMSClient(configuration);
+            var configuration = new Configuration(userName, password);
+            var smsClient = new SMSClient(configuration);
 
-            DeliveryReportList deliveryReportList = smsClient.SmsMessagingClient.GetDeliveryReportsByRequestId(requestId);
+            var deliveryReportList = smsClient.SmsMessagingClient.GetDeliveryReportsByRequestId(requestId);
         }
 
 
@@ -43,13 +43,13 @@ namespace EFunTech.Sms.CodeGenerator
         {
             string senderAddress = SendMessageRule.DefaultSenderAddress;
             string message = "message4";
-            string[] recipientAddress = new string[] { "+886921859698" };
+            var recipientAddress = new string[] { "+886921859698" };
             string requestId = "";
 
-            Configuration configuration = new Configuration("ENVOTIONS", "Envo6183");
+            var configuration = new Configuration("ENVOTIONS", "Envo6183");
 
             // Initialize SMSClient using the Configuration object
-            SMSClient smsClient = new SMSClient(configuration);
+            var smsClient = new SMSClient(configuration);
 
             // Send SMS 
             var result = smsClient.SmsMessagingClient.SendSMS(new SMSRequest(senderAddress, message, recipientAddress));
@@ -73,10 +73,10 @@ namespace EFunTech.Sms.CodeGenerator
                 {
                     RegionInfo defaultCountry = null;
 
-                    List<RegionInfo> countries = new List<RegionInfo>();
+                    var countries = new List<RegionInfo>();
                     foreach (CultureInfo culture in CultureInfo.GetCultures(CultureTypes.SpecificCultures))
                     {
-                        RegionInfo country = new RegionInfo(culture.LCID);
+                        var country = new RegionInfo(culture.LCID);
                         if (countries.Where(p => p.Name == country.Name).Count() == 0)
                         {
                             if (country.Name == defaultIso3166)
@@ -150,10 +150,10 @@ namespace EFunTech.Sms.CodeGenerator
                     string userName = "ENVOTIONS";
                     string password = "Envo6183";
 
-                    Configuration configuration = new Configuration(userName, password);
-                    SMSClient smsClient = new SMSClient(configuration);
+                    var configuration = new Configuration(userName, password);
+                    var smsClient = new SMSClient(configuration);
 
-                    SMSRequest smsRequest = new SMSRequest(userName, formattedNumber, new string[] { formattedNumber });
+                    var smsRequest = new SMSRequest(userName, formattedNumber, new string[] { formattedNumber });
 
                     //SendMessageResult sendMessageResult = smsClient.SmsMessagingClient.SendSMS(smsRequest);
 

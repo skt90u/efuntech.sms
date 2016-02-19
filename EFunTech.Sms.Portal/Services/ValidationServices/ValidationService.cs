@@ -19,7 +19,7 @@ namespace EFunTech.Sms.Portal
 
         public bool Validate(MessageReceiver entity, out string error)
         {
-            List<string> errors = new List<string>();
+            var errors = new List<string>();
 
             // Mobile
             if (string.IsNullOrEmpty(entity.Mobile))
@@ -45,7 +45,7 @@ namespace EFunTech.Sms.Portal
             // Email
             if (!string.IsNullOrEmpty(entity.Email))
             {
-                Regex rgx = new Regex(RegularExpressionPatterns.Email);
+                var rgx = new Regex(RegularExpressionPatterns.Email);
 
                 if (!rgx.IsMatch(entity.Email))
                 {
@@ -60,7 +60,7 @@ namespace EFunTech.Sms.Portal
 
         public bool Validate(UploadedMessageReceiver entity, out string error)
         {
-            List<string> errors = new List<string>();
+            var errors = new List<string>();
 
             // Mobile
             if (string.IsNullOrEmpty(entity.Mobile))
@@ -86,7 +86,7 @@ namespace EFunTech.Sms.Portal
             // Email
             if (!string.IsNullOrEmpty(entity.Email))
             {
-                Regex rgx = new Regex(RegularExpressionPatterns.Email);
+                var rgx = new Regex(RegularExpressionPatterns.Email);
 
                 if (!rgx.IsMatch(entity.Email))
                 {
@@ -121,7 +121,7 @@ namespace EFunTech.Sms.Portal
 
         public bool Validate(Blacklist entity, out string error)
         {
-            List<string> errors = new List<string>();
+            var errors = new List<string>();
 
             // Mobile
             if (string.IsNullOrEmpty(entity.Mobile))
@@ -142,7 +142,7 @@ namespace EFunTech.Sms.Portal
 
         public bool Validate(Contact entity, out string error)
         {
-            List<string> errors = new List<string>();
+            var errors = new List<string>();
 
             if (string.IsNullOrEmpty(entity.Name))
             {

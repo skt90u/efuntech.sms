@@ -145,7 +145,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
                     if (string.IsNullOrEmpty(model.Mobile)) continue;
 
-                    UploadedMessageReceiver entity = new UploadedMessageReceiver();
+                    var entity = new UploadedMessageReceiver();
                     entity.RowNo = i+1;
                     entity.Name = model.Name;
                     entity.Mobile = model.Mobile;
@@ -243,7 +243,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 {
                     if (string.IsNullOrEmpty(model.Mobile)) continue;
 
-                    Blacklist entity = new Blacklist();
+                    var entity = new Blacklist();
                     entity.Name = model.Name;
                     entity.Mobile = model.Mobile;
                     entity.E164Mobile = MobileUtil.GetE164PhoneNumber(model.Mobile);
@@ -322,7 +322,7 @@ namespace EFunTech.Sms.Portal.Controllers
                     if (string.IsNullOrEmpty(model.Name)) continue;
                     if (string.IsNullOrEmpty(model.Mobile)) continue;
 
-                    Contact entity = new Contact();
+                    var entity = new Contact();
                     entity.Name = model.Name;
                     entity.Mobile = model.Mobile;
                     entity.E164Mobile = MobileUtil.GetE164PhoneNumber(model.Mobile);
@@ -413,7 +413,7 @@ namespace EFunTech.Sms.Portal.Controllers
             // 由於未來是將伺服器放置在 Azure 中， 因此暫時沒有計畫要儲存檔案
             // attachment.SaveAs(filePath); 
 
-            UploadedFile entity = new UploadedFile();
+            var entity = new UploadedFile();
             entity.FileName = attachment.FileName;
             entity.FilePath = filePath;
             entity.UploadedFileType = uploadedFileType;
@@ -434,7 +434,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
         private List<T> LoadZipFile<T>(Stream fileStream)
         {
-            List<T> list = new List<T>();
+            var list = new List<T>();
 
             var options = new ReadOptions { 
                 Encoding = Encoding.GetEncoding(950) // 繁體中文
@@ -484,7 +484,7 @@ namespace EFunTech.Sms.Portal.Controllers
         {
             const bool ignoreFirstLine = true;
 
-            List<T> list = new List<T>();
+            var list = new List<T>();
 
             Type type = typeof(T);
 
@@ -506,7 +506,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
                     string[] tokens = line.Split(new char[] { ',', '\t' }, StringSplitOptions.None);
 
-                    T instance = (T)Activator.CreateInstance(type);
+                    var instance = (T)Activator.CreateInstance(type);
 
                     for (int i = 0; i < properties.Length; i++)
                     {
@@ -537,7 +537,7 @@ namespace EFunTech.Sms.Portal.Controllers
         
         private List<T> LoadExcelFile<T>(Stream fileStream)
         {
-            List<T> list = new List<T>();
+            var list = new List<T>();
 
             using (var package = new ExcelPackage(fileStream))
             {
@@ -552,7 +552,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 while (true)
                 {
-                    T instance = (T)Activator.CreateInstance(type);
+                    var instance = (T)Activator.CreateInstance(type);
 
                     bool bNonEmptyCell = false;
 
@@ -586,7 +586,7 @@ namespace EFunTech.Sms.Portal.Controllers
         private List<T> LoadFile<T>(HttpPostedFileBase attachment)
         {
 
-            List<T> list = new List<T>();
+            var list = new List<T>();
 
             var extension = Path.GetExtension(attachment.FileName).Replace(".", string.Empty).ToLower();
 

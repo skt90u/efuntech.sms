@@ -89,7 +89,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 {
                     bool isImmediately = !sendTime.HasValue;
 
-                    SendMessageRuleModel model = new SendMessageRuleModel();
+                    var model = new SendMessageRuleModel();
 
                     model.SendTitle = subject;
                     model.SendBody = content;

@@ -9,7 +9,7 @@ namespace EFunTech.Sms.Simulation.DataSources
 {
     public class ContentDataSource : DatasourceBase<string>
     {
-        private readonly string[] data = new string[] { 
+        private readonly string[] data = { 
             "本屆選秀會共93人參加，打破2010年含代訓88人的紀錄，大約半數被選中，而26位應屆高中畢業生參與，有14名入選也是史上最多，猿隊總教練洪一中認為，這代表中職蓬勃發展",
             "看林書豪投三分球沒什麼了不起，投四分球就稀奇了！林書豪昨晚出席決戰夏日籃球夜，除了跟歌手蛋堡一起唱中文RAP，更親自下場玩4對4示範怎麼投進四分球，甚至表演各式各樣扣籃，讓全場3百多名球迷驚呼連連。",
             "除了首輪選進有望成為即戰力的王柏融，桃猿2、3輪分別挑進林承飛和葉文淇2名高中畢業生，而合計選進的11名球員中，有7人畢業於位處桃園的平鎮高中，其中包括6名高中生；而第6、8輪則選中具旅外經歷的王躍霖和陳敏賜。投手共計7人、內野手2人、捕手1人、外野手1人。",

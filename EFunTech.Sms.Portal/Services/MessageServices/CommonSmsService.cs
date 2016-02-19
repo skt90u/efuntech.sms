@@ -46,7 +46,7 @@ namespace EFunTech.Sms.Portal
             var sub1 = providerTypes.Take(found);
             var sub2 = providerTypes.Skip(found);
 
-            List<SmsProviderType> result = new List<SmsProviderType>();
+            var result = new List<SmsProviderType>();
             result.AddRange(sub2);
             result.AddRange(sub1);
 
@@ -106,7 +106,7 @@ namespace EFunTech.Sms.Portal
             {
                 Type instanceType = ToInstanceType(providerType);
 
-                ISmsProvider _provider = Activator.CreateInstance(instanceType, systemParameters, logService, unitOfWork, providerType) as ISmsProvider;
+                var _provider = Activator.CreateInstance(instanceType, systemParameters, logService, unitOfWork, providerType) as ISmsProvider;
                 if (_provider != null &&
                     _provider.IsAvailable)
                 {
@@ -141,7 +141,7 @@ namespace EFunTech.Sms.Portal
             Type instanceType = ToInstanceType(providerType);
             if (instanceType != null)
             {
-                ISmsProvider _provider = Activator.CreateInstance(instanceType, systemParameters, logService, unitOfWork, providerType) as ISmsProvider;
+                var _provider = Activator.CreateInstance(instanceType, systemParameters, logService, unitOfWork, providerType) as ISmsProvider;
 
                 if (mustAvailable)
                 {
@@ -286,7 +286,7 @@ namespace EFunTech.Sms.Portal
                         // 此SendMessageQueue下，所有收訊者資訊
                         var queueReceivers = ruleReceiversNotInBlackList.Where(p => p.SendBody == sendBody).ToList();
 
-                        SendMessageQueue sendMessageQueue = new SendMessageQueue();
+                        var sendMessageQueue = new SendMessageQueue();
                         sendMessageQueue.SendMessageType = sendMessageRule.SendMessageType;
                         sendMessageQueue.SendTime = sendTime.ToUniversalTime(); // 預定發送訊息的時間(SendSMS經由Hangfire傳遞過來的sendTime，會將DateTimeKind轉為 Local，必須再轉成 Utc)
                         sendMessageQueue.SendTitle = sendMessageRule.SendTitle;

@@ -11,7 +11,7 @@ namespace EFunTech.Sms.Schema
     {
         public static List<DateTime> GetSendTimeList(this SendMessageRule sendMessageRule)
         {
-            List<DateTime> results = new List<DateTime>();
+            var results = new List<DateTime>();
 
             switch (sendMessageRule.SendTimeType)
             {

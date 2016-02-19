@@ -17,7 +17,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
         private string GetExceptionMessage(Exception ex)
         {
-            List<Exception> exceptions = new List<Exception>();
+            var exceptions = new List<Exception>();
 
             Exception currentException = ex;
 

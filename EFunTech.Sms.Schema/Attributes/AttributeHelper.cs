@@ -11,7 +11,7 @@ namespace System.ComponentModel
     {
         public static T GetAttribute<T>(Type type) where T : Attribute
         {
-            T attribute = (T)type.GetCustomAttributes(typeof(T), false).FirstOrDefault();
+            var attribute = (T)type.GetCustomAttributes(typeof(T), false).FirstOrDefault();
 
             return attribute;
         }

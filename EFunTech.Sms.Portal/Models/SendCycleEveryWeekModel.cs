@@ -20,7 +20,7 @@ namespace EFunTech.Sms.Portal.Models
 
         public List<DayOfWeek> GetDayOfWeeks()
         {
-            List<DayOfWeek> result = new List<DayOfWeek>();
+            var result = new List<DayOfWeek>();
 
             string dayOfWeeks = this.DayOfWeeks ?? string.Empty;
 
@@ -32,7 +32,7 @@ namespace EFunTech.Sms.Portal.Models
             {
                 if (dayOfWeeks[i] == '1')
                 {
-                    DayOfWeek dayOfWeek = (DayOfWeek)i;
+                    var dayOfWeek = (DayOfWeek)i;
                     result.Add(dayOfWeek);
                 }
             }

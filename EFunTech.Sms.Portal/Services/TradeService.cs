@@ -51,7 +51,7 @@ namespace EFunTech.Sms.Portal
 
                 // 寫入交易明細
                 var tradeDetailRepository = this.unitOfWork.Repository<TradeDetail>();
-                TradeDetail tradeDetail = new TradeDetail
+                var tradeDetail = new TradeDetail
                 {
                     TradeTime = utcNow,
                     TradeType = TradeType.DeductionOfSendMessage,
@@ -87,7 +87,7 @@ namespace EFunTech.Sms.Portal
 
                 // 寫入交易明細
                 var tradeDetailRepository = this.unitOfWork.Repository<TradeDetail>();
-                TradeDetail tradeDetail = new TradeDetail
+                var tradeDetail = new TradeDetail
                 {
                     TradeTime = utcNow,
                     TradeType = TradeType.DeductionOfSendMessage,
@@ -139,7 +139,7 @@ namespace EFunTech.Sms.Portal
                         sendMessageRule.Id,
                         Math.Abs(point));
                 var tradeDetailRepository = this.unitOfWork.Repository<TradeDetail>();
-                TradeDetail tradeDetail = new TradeDetail
+                var tradeDetail = new TradeDetail
                 {
                     TradeTime = utcNow,
                     TradeType = tradeType,
@@ -174,7 +174,7 @@ namespace EFunTech.Sms.Portal
 
                 // 寫入交易明細
                 var tradeDetailRepository = this.unitOfWork.Repository<TradeDetail>();
-                TradeDetail tradeDetail = new TradeDetail
+                var tradeDetail = new TradeDetail
                 {
                     TradeTime = utcNow,
                     TradeType = TradeType.CoverOfSendMessage,
@@ -215,7 +215,7 @@ namespace EFunTech.Sms.Portal
 
                 // 寫入交易明細
                 var tradeDetailRepository = this.unitOfWork.Repository<TradeDetail>();
-                TradeDetail tradeDetail = new TradeDetail
+                var tradeDetail = new TradeDetail
                 {
                     TradeTime = utcNow,
                     TradeType = TradeType.CoverOfSendMessage,
@@ -258,7 +258,7 @@ namespace EFunTech.Sms.Portal
 
             // 寫入交易明細
             var tradeDetailRepository = this.unitOfWork.Repository<TradeDetail>();
-            TradeDetail tradeDetail = new TradeDetail
+            var tradeDetail = new TradeDetail
             {
                 TradeTime = utcNow,
                 TradeType = TradeType.CoverOfSendMessage,
@@ -306,7 +306,7 @@ namespace EFunTech.Sms.Portal
 
                 // 寫入交易明細
                 var tradeDetailRepository = this.unitOfWork.Repository<TradeDetail>();
-                TradeDetail tradeDetail = new TradeDetail
+                var tradeDetail = new TradeDetail
                 {
                     TradeTime = utcNow,
                     TradeType = TradeType.CoverOfSendMessage,
@@ -347,7 +347,7 @@ namespace EFunTech.Sms.Portal
 
             // 寫入交易明細
             var tradeDetailRepository = this.unitOfWork.Repository<TradeDetail>();
-            TradeDetail tradeDetail = new TradeDetail
+            var tradeDetail = new TradeDetail
             {
                 TradeTime = utcNow,
                 TradeType = TradeType.Cover,
@@ -377,7 +377,7 @@ namespace EFunTech.Sms.Portal
 
             // 寫入交易明細
             var tradeDetailRepository = this.unitOfWork.Repository<TradeDetail>();
-            TradeDetail tradeDetail = new TradeDetail
+            var tradeDetail = new TradeDetail
             {
                 TradeTime = utcNow,
                 TradeType = TradeType.Cover,
@@ -489,7 +489,7 @@ namespace EFunTech.Sms.Portal
                                 user.Parent.SmsBalance,
                                 point);
 
-                string[] destinations = new string[] { user.Parent.Email };
+                string[] destinations = { user.Parent.Email };
 
                 // 紀錄LogService
                 this.logService.Error(body);
@@ -534,7 +534,7 @@ namespace EFunTech.Sms.Portal
                                 user.UserName,
                                 user.Parent.SmsBalance,
                                 point);
-                string[] destinations = new string[] { user.Parent.Email };
+                string[] destinations = { user.Parent.Email };
 
                 // 紀錄LogService
                 this.logService.Error(body);
@@ -577,7 +577,7 @@ namespace EFunTech.Sms.Portal
         //                        user.UserName,
         //                        user.Parent.SmsBalance,
         //                        point);
-        //        string[] destinations = new string[] { user.Parent.Email };
+        //        string[] destinations = { user.Parent.Email };
 
         //        BackgroundJob.Enqueue<GMailService>(x => x.Send(subject, body, destinations));
 
@@ -636,7 +636,7 @@ namespace EFunTech.Sms.Portal
 
             // 寫入交易明細
             var tradeDetailRepository = this.unitOfWork.Repository<TradeDetail>();
-            TradeDetail srcTradeDetail = new TradeDetail
+            var srcTradeDetail = new TradeDetail
             {
                 TradeTime = utcNow,
                 TradeType = TradeType.ExportPoints,
@@ -645,7 +645,7 @@ namespace EFunTech.Sms.Portal
                 TargetId = dst.Id,
                 Remark = string.Format("點數轉出至{0}", dst.UserName)
             };
-            TradeDetail dstTradeDetail = new TradeDetail
+            var dstTradeDetail = new TradeDetail
             {
                 TradeTime = utcNow,
                 TradeType = TradeType.ImportPoints,
@@ -688,7 +688,7 @@ namespace EFunTech.Sms.Portal
             {
                 string subject = "點數預警";
                 string body = string.Format("目前點數 {0}，低於點數預警 {1}", user.SmsBalance, creditWarning.SmsBalance);
-                string[] destinations = new string[] { Email };
+                string[] destinations = { Email };
 
                 bool notifyMe = creditWarning.SmsBalance >= (user.SmsBalance);
                 if (notifyMe)
@@ -706,7 +706,7 @@ namespace EFunTech.Sms.Portal
             {
                 string subject = "點數預警";
                 string body = string.Format("目前點數 {0}，低於點數預警 {1}", user.SmsBalance, creditWarning.SmsBalance);
-                string[] destinations = new string[] { Mobile };
+                string[] destinations = { Mobile };
 
                 var messageCostInfo = new MessageCostInfo(body, Mobile);
 
@@ -720,7 +720,7 @@ namespace EFunTech.Sms.Portal
                     this.unitOfWork.Repository<CreditWarning>().Update(creditWarning);
 
                     // 發送通知
-                    SendMessageRuleService sendMessageRuleService = new SendMessageRuleService(this.unitOfWork, this.logService);
+                    var sendMessageRuleService = new SendMessageRuleService(this.unitOfWork, this.logService);
                     sendMessageRuleService.CreateCreditWarningSendMessageRule(user, subject, body, destinations);
                 }
             }
@@ -752,7 +752,7 @@ namespace EFunTech.Sms.Portal
 
             // 寫入交易明細
             var tradeDetailRepository = this.unitOfWork.Repository<TradeDetail>();
-            TradeDetail srcTradeDetail = new TradeDetail
+            var srcTradeDetail = new TradeDetail
             {
                 TradeTime = utcNow,
                 TradeType = TradeType.ExportRecoveryPoints,
@@ -761,7 +761,7 @@ namespace EFunTech.Sms.Portal
                 TargetId = dst.Id,
                 Remark = string.Format("使用者{0}執行回收點數，所有點數回收至{1}", currentUser.UserName, dst.UserName)
             };
-            TradeDetail dstTradeDetail = new TradeDetail
+            var dstTradeDetail = new TradeDetail
             {
                 TradeTime = utcNow,
                 TradeType = TradeType.ImportRecoveryPoints,

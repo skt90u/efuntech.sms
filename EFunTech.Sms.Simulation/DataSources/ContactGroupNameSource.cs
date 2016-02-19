@@ -9,7 +9,7 @@ namespace EFunTech.Sms.Simulation.DataSources
 {
     public class ContactGroupNameSource : DatasourceBase<string>
     {
-        private readonly string[] data = new string[] { 
+        private readonly string[] data = { 
             "Group01",
             "Group02",
             "Group03",

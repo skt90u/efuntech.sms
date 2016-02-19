@@ -11,7 +11,7 @@ namespace EFunTech.Sms.Portal.Models.Mapper
 	{
 		protected override void Configure()
 		{
-            TimeSpan timezoneOffset = new TimeSpan(8, 0, 0); // Taiwan
+            var timezoneOffset = new TimeSpan(8, 0, 0); // Taiwan
 
 			CreateMap<SystemAnnouncement, SystemAnnouncementModel>()
                 .ForMember(dst => dst.Id, opt => opt.MapFrom(src => src.Id))

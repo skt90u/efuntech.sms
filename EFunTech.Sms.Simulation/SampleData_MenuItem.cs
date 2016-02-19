@@ -29,7 +29,7 @@ namespace EFunTech.Sms.Simulation
 
             if (context.MenuItems.Count() != 0) return;
 
-            List<MenuItem> data = new List<MenuItem> { 
+            var data = new List<MenuItem> { 
                 new MenuItem{
                     Level = 1,
                     ParentId = null,

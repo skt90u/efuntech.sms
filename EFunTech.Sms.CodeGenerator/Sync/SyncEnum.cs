@@ -18,7 +18,7 @@ namespace EFunTech.Sms.CodeGenerator
 
         private List<string> CreateFileContent()
         {
-            List<string> lines = new List<string>();
+            var lines = new List<string>();
 
             lines.Add(string.Format("(function (window, document) {{"));
             lines.Add(string.Format("    'use strict';"));

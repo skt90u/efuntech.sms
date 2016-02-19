@@ -22,7 +22,7 @@ namespace EFunTech.Sms.CodeGenerator
 
         // 載入大量名單
         public void Example01() { 
-            SendMessageRuleModel model = new SendMessageRuleModel();
+            var model = new SendMessageRuleModel();
 
             model.SendTitle = string.Empty;
             model.SendBody = "I_AM_SendBody";
