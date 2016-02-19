@@ -78,18 +78,18 @@ namespace EFunTech.Sms.Portal.Controllers
             {
                 var availableRoleNames = new List<string>();
 
-                if (false)
-                {
-                    // 根據目前使用者角色，只能取比小於等於自己權限的角色
-                    availableRoleNames = Enum.GetValues(typeof(Role))
-                                                .Cast<Role>()
-                                                .OrderByDescending(p => (int)p)
-                                                .Where(role => (int)role <= (int)CurrentUserRole && role != Role.Unknown)
-                                                .Select(role => role.ToString())
-                                                .ToList();
-                }
-                else
-                {
+                //if (false)
+                //{
+                //    // 根據目前使用者角色，只能取比小於等於自己權限的角色
+                //    availableRoleNames = Enum.GetValues(typeof(Role))
+                //                                .Cast<Role>()
+                //                                .OrderByDescending(p => (int)p)
+                //                                .Where(role => (int)role <= (int)CurrentUserRole && role != Role.Unknown)
+                //                                .Select(role => role.ToString())
+                //                                .ToList();
+                //}
+                //else
+                //{
                     // 20151030 Norman, 改成以下邏輯，避免Admin可以建立Employee，理論上是不合理的
                     var role = CurrentUserRole;
 
@@ -122,7 +122,7 @@ namespace EFunTech.Sms.Portal.Controllers
                             }
                             break;
                     }
-                }
+                //}
                 
 
                 var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));

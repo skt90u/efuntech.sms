@@ -25,7 +25,7 @@ namespace EFunTech.Sms.Portal.Filters
 
         public override void OnAuthorization(HttpActionContext actionContext)
         {
-            var result = new HttpResponseMessage()
+            var result = new HttpResponseMessage
             {
                 //StatusCode = HttpStatusCode.Unauthorized,
                 StatusCode = HttpStatusCode.BadRequest,
@@ -89,7 +89,7 @@ namespace EFunTech.Sms.Portal.Filters
         private string[] ParseAuthHeader(string authHeader)
         {
             // Check this is a Basic Auth header 
-            if (authHeader == null || authHeader.Length == 0 || !authHeader.StartsWith("Basic", StringComparison.OrdinalIgnoreCase)) return null;
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Basic", StringComparison.OrdinalIgnoreCase)) return null;
 
             // Pull out the Credentials with are seperated by ':' and Base64 encoded 
             string base64Credentials = authHeader.Substring(6);

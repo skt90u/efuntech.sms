@@ -63,7 +63,7 @@ namespace EFunTech.Sms.CodeGenerator
             Console.WriteLine(deliveryReportList);
         }
 
-        public class MobileUtil
+        public static class MobileUtil
         {
             private const string defaultIso3166 = "TW";
             private static List<RegionInfo> regionInfos = null;

@@ -52,12 +52,12 @@ namespace EFunTech.Sms.Portal.Controllers
             return SendMessageHistoryProfile.ConvertModel(models, new UnitOfWork(context));
         }
 
-        protected override ReportDownloadModel ProduceFile(SectorSendMessageHistoryCriteriaModel criteria, IEnumerable<SendMessageHistoryModel> resultList)
+        protected override ReportDownloadModel ProduceFile(SectorSendMessageHistoryCriteriaModel criteria, IEnumerable<SendMessageHistoryModel> models)
         {
             TimeSpan clientTimezoneOffset = ClientTimezoneOffset;
             string timeFormat = Converter.Every8d_SentTime;
 
-            var result = resultList.Select(p => new
+            var result = models.Select(p => new
             {
                 簡訊類別 = AttributeHelper.GetColumnDescription(p.SendMessageType),
                 部門 = p.DepartmentName,

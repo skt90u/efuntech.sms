@@ -35,8 +35,8 @@ namespace EFunTech.Sms.Portal.Filters
                 if (result == null)
                 {
                     result = context.WebAuthorizations.Where(x => 
-                        x.ControllerName == ControllerName &&
-                       (x.ActionName == string.Empty || x.ActionName == null)).FirstOrDefault();
+                        x.ControllerName == ControllerName && 
+                        string.IsNullOrEmpty(x.ActionName)).FirstOrDefault();
                 }
 
                 if (result != null)

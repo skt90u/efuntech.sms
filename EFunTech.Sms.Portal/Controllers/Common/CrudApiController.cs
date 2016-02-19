@@ -172,7 +172,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
         {
             var pagedCriteriaModel = (criteria as PagedCriteriaModel);
 
-            return pagedCriteriaModel == null ? false : pagedCriteriaModel.IsDownload;
+            return pagedCriteriaModel != null && pagedCriteriaModel.IsDownload;
         }
 
         [System.Web.Http.HttpGet]

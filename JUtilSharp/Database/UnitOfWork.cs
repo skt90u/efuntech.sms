@@ -51,7 +51,7 @@ namespace JUtilSharp.Database
                 // a new transaction will always be created
                 TransactionScopeOption.RequiresNew,
                 // we will allow volatile data to be read during transaction
-                new TransactionOptions()
+                new TransactionOptions
                 {
                     IsolationLevel = IsolationLevel.ReadUncommitted
                 }

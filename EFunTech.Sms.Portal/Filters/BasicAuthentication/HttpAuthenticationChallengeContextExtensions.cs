@@ -26,7 +26,7 @@ namespace BasicAuthentication.Filters
         {
             if (context == null)
             {
-                throw new ArgumentNullException(nameof(context));
+                throw new ArgumentNullException("context");
             }
 
             context.Result = new AddChallengeOnUnauthorizedResult(challenge, context.Result);

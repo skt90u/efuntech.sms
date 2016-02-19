@@ -229,13 +229,13 @@ namespace EFunTech.Sms.Portal.Controllers
             return models;
         }
 
-        protected override ReportDownloadModel ProduceFile(SectorSendMessageStatisticCriteriaModel criteria, IEnumerable<SendMessageStatisticModel> resultList)
+        protected override ReportDownloadModel ProduceFile(SectorSendMessageStatisticCriteriaModel criteria, IEnumerable<SendMessageStatisticModel> models)
         {
             switch (criteria.DownloadType)
             {
                 case DownloadType.Statistic:
                     {
-                        var result = resultList.Select(p => new
+                        var result = models.Select(p => new
                         {
                             部門 = p.DepartmentName,
                             姓名 = p.FullName,
@@ -253,7 +253,7 @@ namespace EFunTech.Sms.Portal.Controllers
                     }
                 case DownloadType.All:
                     {
-                        IEnumerable<SendMessageHistoryModel> models = (Mapper.Map<IEnumerable<SendMessageHistory>, IEnumerable<SendMessageHistoryModel>>(GetSendMessageHistory(criteria))).ToList();
+                        IEnumerable<SendMessageHistoryModel> historyModels = (Mapper.Map<IEnumerable<SendMessageHistory>, IEnumerable<SendMessageHistoryModel>>(GetSendMessageHistory(criteria))).ToList();
 
                         ////////////////////////////////////////
                         // protected override IEnumerable<SectorSendMessageHistoryModel> ConvertModel(IEnumerable<SectorSendMessageHistoryModel> models)
@@ -279,14 +279,14 @@ namespace EFunTech.Sms.Portal.Controllers
                         //    model.DeliveryStatusChineseString = model.DeliveryStatusString; // TODO: DeliveryStatus 中文說明
                         //}
 
-                        models = SendMessageHistoryProfile.ConvertModel(models, new UnitOfWork(context));
+                        historyModels = SendMessageHistoryProfile.ConvertModel(historyModels, new UnitOfWork(context));
 
                         ////////////////////////////////////////
 
                         TimeSpan clientTimezoneOffset = ClientTimezoneOffset;
                         string timeFormat = Converter.Every8d_SentTime;
 
-                        var result = models.Select(p => new
+                        var result = historyModels.Select(p => new
                         {
                             簡訊類別 = AttributeHelper.GetColumnDescription(p.SendMessageType),
                             部門 = p.DepartmentName,

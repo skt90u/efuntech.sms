@@ -21,7 +21,7 @@ namespace EFunTech.Sms.Portal
         
     }
 
-    public class MobileUtil
+    public static class MobileUtil
     {
         private static List<MyRegionInfo> regionInfos = null;
         public static List<MyRegionInfo> GetRegionInfos()

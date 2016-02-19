@@ -6,7 +6,7 @@ using WebMarkupMin.Mvc.ActionFilters;
 
 namespace EFunTech.Sms.Portal
 {
-    public class FilterConfig
+    public static class FilterConfig
     {
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {

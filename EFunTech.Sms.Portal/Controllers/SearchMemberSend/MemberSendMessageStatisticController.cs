@@ -112,12 +112,12 @@ namespace EFunTech.Sms.Portal.Controllers
         //    return models;
         //}
 
-        protected override ReportDownloadModel ProduceFile(MemberSendMessageStatisticCriteriaModel criteria, IEnumerable<SendMessageStatisticModel> resultList)
+        protected override ReportDownloadModel ProduceFile(MemberSendMessageStatisticCriteriaModel criteria, IEnumerable<SendMessageStatisticModel> models)
         {
             TimeSpan clientTimezoneOffset = ClientTimezoneOffset;
             string timeFormat = Converter.Every8d_SentTime;
 
-            var result = resultList.Select(p => new
+            var result = models.Select(p => new
             {
                 訊息類型 = AttributeHelper.GetColumnDescription(p.SendMessageType),
                 發送時間 = Converter.ToLocalTimeString(p.SendTime, clientTimezoneOffset, timeFormat),

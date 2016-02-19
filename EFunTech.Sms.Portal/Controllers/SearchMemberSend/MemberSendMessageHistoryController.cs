@@ -55,12 +55,12 @@ namespace EFunTech.Sms.Portal.Controllers
 			return result;
 		}
 
-        protected override ReportDownloadModel ProduceFile(MemberSendMessageHistoryCriteriaModel criteria, IEnumerable<SendMessageHistoryModel> resultList)
+        protected override ReportDownloadModel ProduceFile(MemberSendMessageHistoryCriteriaModel criteria, IEnumerable<SendMessageHistoryModel> models)
         {
             TimeSpan clientTimezoneOffset = ClientTimezoneOffset;
             string timeFormat = Converter.Every8d_SentTime;
 
-            var result = resultList.Select(p => new
+            var result = models.Select(p => new
             {
                 收訊者姓名 = p.DestinationName,
                 收訊者門號 = p.DestinationAddress,

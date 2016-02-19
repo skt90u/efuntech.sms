@@ -58,7 +58,7 @@ namespace EFunTech.Sms.Portal.Controllers
 			return result;
 		}
 
-        protected override ReportDownloadModel ProduceFile(MessageReceiverCriteriaModel criteria, IEnumerable<MessageReceiverModel> resultList)
+        protected override ReportDownloadModel ProduceFile(MessageReceiverCriteriaModel criteria, IEnumerable<MessageReceiverModel> models)
         {
             var sendMessageRule = context.Set<SendMessageRule>().Find(criteria.SendMessageRuleId);
             var sendMessageRuleModel = Mapper.Map<SendMessageRule, SendMessageRuleModel>(sendMessageRule);
@@ -73,7 +73,7 @@ namespace EFunTech.Sms.Portal.Controllers
                         TimeSpan clientTimezoneOffset = ClientTimezoneOffset;
                         string timeFormat = Converter.Every8d_SentTime;
 
-                        var result = resultList.Select(p => new
+                        var result = models.Select(p => new
                         {
                             訊息類型 = p.SendMessageType == SendMessageType.SmsMessage ? "SMS" : "APP",
                             收訊者姓名 = p.Name,
@@ -88,7 +88,7 @@ namespace EFunTech.Sms.Portal.Controllers
                     }
                 case SendTimeType.Cycle:
                     {
-                        var result = resultList.Select(p => new
+                        var result = models.Select(p => new
                         {
                             訊息類型 = p.SendMessageType == SendMessageType.SmsMessage ? "SMS" : "APP",
                             收訊者姓名 = p.Name,

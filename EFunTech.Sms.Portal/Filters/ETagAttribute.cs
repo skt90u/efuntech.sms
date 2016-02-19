@@ -14,14 +14,7 @@ namespace EFunTech.Sms.Portal.Filters
     {
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            try
-            {
-                filterContext.HttpContext.Response.Filter = new ETagFilter(filterContext.HttpContext.Response);
-            }
-            catch
-            {
-                // Do Nothing
-            }
+            filterContext.HttpContext.Response.Filter = new ETagFilter(filterContext.HttpContext.Response);
         }
     }
 

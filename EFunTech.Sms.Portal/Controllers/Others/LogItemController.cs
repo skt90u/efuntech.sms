@@ -90,12 +90,12 @@ namespace EFunTech.Sms.Portal.Controllers
                 : null;
         }
 
-        protected override ReportDownloadModel ProduceFile(LogItemCriteriaModel criteria, IEnumerable<LogItemModel> resultList)
+        protected override ReportDownloadModel ProduceFile(LogItemCriteriaModel criteria, IEnumerable<LogItemModel> models)
         {
             TimeSpan clientTimezoneOffset = ClientTimezoneOffset;
             string timeFormat = Converter.Every8d_SentTime;
 
-            var result = resultList.Select(p => new
+            var result = models.Select(p => new
             {
                 建立時間 = Converter.ToLocalTimeString(p.CreatedTime, clientTimezoneOffset, timeFormat),
                 Host = p.Host,

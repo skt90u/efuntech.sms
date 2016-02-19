@@ -37,7 +37,7 @@ namespace EFunTech.Sms.Portal
             //config.MessageHandlers.Insert(0, new ServerCompressionHandler(new GZipCompressor(), new DeflateCompressor()));
 
             config.Formatters.JsonFormatter.SerializerSettings.Converters.Add(
-                new IsoDateTimeConverter() { DateTimeFormat = "yyyy-MM-dd HH:mm:ss" });
+                new IsoDateTimeConverter { DateTimeFormat = "yyyy-MM-dd HH:mm:ss" });
 
             //config.Formatters.XmlFormatter.UseXmlSerializer = true;
 

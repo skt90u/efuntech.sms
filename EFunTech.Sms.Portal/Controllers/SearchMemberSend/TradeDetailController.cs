@@ -74,12 +74,12 @@ namespace EFunTech.Sms.Portal.Controllers
         //    return models;
         //}
 
-        protected override ReportDownloadModel ProduceFile(TradeDetailCriteriaModel criteria, IEnumerable<TradeDetailModel> resultList)
+        protected override ReportDownloadModel ProduceFile(TradeDetailCriteriaModel criteria, IEnumerable<TradeDetailModel> models)
         {
             var clientTimezoneOffset = ClientTimezoneOffset;
             string timeFormat = Converter.Every8d_SentTime;
             
-            var result = resultList.Select(p => new
+            var result = models.Select(p => new
             {
                 // 交易時間	交易類別	交易點數	交易說明
                 交易時間 = Converter.ToLocalTimeString(p.TradeTime, clientTimezoneOffset, timeFormat),

@@ -7,7 +7,7 @@ using EFunTech.Sms.Portal.Controllers.Common;
 
 namespace EFunTech.Sms.Portal
 {
-    public class RouteConfig
+    public static class RouteConfig
     {
         public static void RegisterRoutes(RouteCollection routes)
         {
