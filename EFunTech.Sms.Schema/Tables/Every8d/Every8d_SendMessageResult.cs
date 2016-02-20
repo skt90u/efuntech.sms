@@ -12,11 +12,13 @@ namespace EFunTech.Sms.Schema
     public class Every8d_SendMessageResult
     {
         [Key]
-        [ColumnDescription("簡訊發送任務")]
-        [ForeignKey("SendMessageQueue")]
-        public int SendMessageQueueId { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [ColumnDescription("編號")]
+        public int Id { get; set; }
 
-        public virtual SendMessageQueue SendMessageQueue { get; set; }
+        public SourceTable SourceTable { get; set; }
+
+        public int SourceTableId { get; set; }
 
         [Required]
         [ColumnDescription("預定發送時間")]

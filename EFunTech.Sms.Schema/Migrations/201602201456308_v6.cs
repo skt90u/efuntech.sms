@@ -50,7 +50,6 @@ namespace EFunTech.Sms.Schema.Migrations
                         ClientCorrelator = c.String(nullable: false, maxLength: 256),
                         CreatedTime = c.DateTime(nullable: false),
                         Balance = c.Decimal(nullable: false, precision: 18, scale: 2),
-                        CopyId = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)
                 .Index(t => t.ClientCorrelator, unique: true);

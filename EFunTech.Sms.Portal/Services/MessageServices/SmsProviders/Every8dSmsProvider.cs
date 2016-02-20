@@ -156,7 +156,8 @@ namespace EFunTech.Sms.Portal
 
             var every8d_SendMessageResult = new Every8d_SendMessageResult();
 
-            every8d_SendMessageResult.SendMessageQueueId = sendMessageQueue.Id;
+            every8d_SendMessageResult.SourceTable = SourceTable.SendMessageQueue;
+            every8d_SendMessageResult.SourceTableId = sendMessageQueue.Id;
 
             every8d_SendMessageResult.SendTime = sendMessageQueue.SendTime;
             every8d_SendMessageResult.Subject = sendMessageQueue.SendTitle;
@@ -273,9 +274,93 @@ namespace EFunTech.Sms.Portal
                 //}
             }
 
-            int sendMessageQueueId = SendMessageResult.SendMessageQueueId;
             // (5) 出大表，SendMessageHistorys
-            UpdateSendMessageHistory(sendMessageQueueId);
+            SourceTable sourceTable = SendMessageResult.SourceTable;
+            switch (sourceTable)
+            {
+                case SourceTable.SendMessageQueue:
+                    int sendMessageQueueId = SendMessageResult.SourceTableId;
+                    UpdateSendMessageHistory(sendMessageQueueId);
+                    break;
+                case SourceTable.SendMessageHistory:
+                    int sendMessageHistoryId = SendMessageResult.SourceTableId;
+                    UpdateSendMessageRetryHistory(sendMessageHistoryId);
+                    break;
+            }
+        }
+
+        private void UpdateSendMessageRetryHistory(int sendMessageHistoryId)
+        {
+            var sendMessageHistoryRepository = this.unitOfWork.Repository<SendMessageHistory>();
+            var sendMessageRetryHistoryRepository = this.unitOfWork.Repository<SendMessageRetryHistory>();
+
+            var sendMessageHistory = sendMessageHistoryRepository.GetById(sendMessageHistoryId);
+            
+            Every8d_SendMessageResult sendMessageResult = this.unitOfWork.Repository<Every8d_SendMessageResult>().Get(p => p.SourceTable == SourceTable.SendMessageHistory && p.SourceTableId == sendMessageHistoryId);
+            // if (SendMessageResult == null) return; 不應該為 null
+
+            string RequestId = sendMessageResult.BATCH_ID;
+
+            string ProviderName = this.Name;
+
+            DateTime SendMessageResultCreatedTime = sendMessageResult.CreatedTime;
+
+            List<Every8d_DeliveryReport> DeliveryReports = sendMessageResult.DeliveryReports.ToList();
+
+            foreach (var DeliveryReport in DeliveryReports)
+            {
+                string DestinationName = DeliveryReport.NAME;
+
+                var entity = new SendMessageRetryHistory();
+
+                ////////////////////////////////////////
+                // 01 ~ 05
+
+                entity.SendMessageHistoryId = sendMessageHistoryId;
+
+                entity.RequestId = RequestId;
+
+                ////////////////////////////////////////
+                // 11 ~ 15
+
+                entity.ProviderName = ProviderName;
+                entity.MessageId = null;
+                entity.MessageStatus = MessageStatus.Unknown;
+                entity.MessageStatusString = entity.MessageStatus.ToString();
+                entity.SenderAddress = sendMessageHistory.SenderAddress;
+
+                ////////////////////////////////////////
+                // 16 ~ 20
+
+                entity.DestinationAddress = sendMessageHistory.DestinationAddress;
+                entity.SendMessageResultCreatedTime = SendMessageResultCreatedTime;
+
+                // TODO: 驗證 Every8d 回傳發送時間轉成 UTC 時間是否正確
+                //entity.SentDate = Converter.ToDateTime(DeliveryReport.SENT_TIME, Converter.Every8d_SentTime).Value; // 2010/03/23 12:05:29
+                //entity.DoneDate = Converter.ToDateTime(DeliveryReport.SENT_TIME, Converter.Every8d_SentTime).Value; // 2010/03/23 12:05:29，簡訊供應商沒有提供此資訊，因此設定與SentDate一致
+                entity.SentDate = Converter.ToDateTime(DeliveryReport.SENT_TIME, Converter.Every8d_SentTime).Value.ToUniversalTime(); // 2010/03/23 12:05:29
+                entity.DoneDate = Converter.ToDateTime(DeliveryReport.SENT_TIME, Converter.Every8d_SentTime).Value.ToUniversalTime(); // 2010/03/23 12:05:29，簡訊供應商沒有提供此資訊，因此設定與SentDate一致
+
+                entity.DeliveryStatus = (DeliveryReportStatus)Convert.ToInt32(DeliveryReport.STATUS);
+
+                ////////////////////////////////////////
+                // 21 ~ 25
+
+                entity.DeliveryStatusString = entity.DeliveryStatus.ToString();
+                entity.Price = Convert.ToDecimal(DeliveryReport.COST);
+                entity.DeliveryReportCreatedTime = DeliveryReport.CreatedTime;
+                entity.Delivered = IsDelivered(entity.DeliveryStatus);
+
+                ////////////////////////////////////////
+                // 26
+                entity.CreatedTime = DateTime.UtcNow;
+
+                entity = sendMessageRetryHistoryRepository.Insert(entity);
+
+                sendMessageHistory.RetryTotalTimes += 1;
+                sendMessageHistory.SendMessageRetryHistory = entity;
+                sendMessageHistoryRepository.Update(sendMessageHistory);
+            }
         }
 
         /// <summary>
@@ -293,7 +378,7 @@ namespace EFunTech.Sms.Portal
 
             var clientTimezoneOffset = sendMessageRule.ClientTimezoneOffset;
 
-            Every8d_SendMessageResult sendMessageResult = this.unitOfWork.Repository<Every8d_SendMessageResult>().Get(p => p.SendMessageQueueId == sendMessageQueueId);
+            Every8d_SendMessageResult sendMessageResult = this.unitOfWork.Repository<Every8d_SendMessageResult>().Get(p => p.SourceTable == SourceTable.SendMessageQueue && p.SourceTableId == sendMessageQueueId);
             // if (SendMessageResult == null) return; 不應該為 null
 
             int? DepartmentId = null;
@@ -449,7 +534,6 @@ namespace EFunTech.Sms.Portal
         private void UpdateDb(SendMessageHistory sendMessageHistory, SEND_SMS_RESULT sendMessageResult)
         {
             // 寫入對應的 SendMessageResult
-            /*
             var every8d_SendMessageResult = new Every8d_SendMessageResult();
 
             every8d_SendMessageResult.SourceTable = SourceTable.SendMessageHistory;
@@ -492,7 +576,6 @@ namespace EFunTech.Sms.Portal
                     deliveryReportQueue = _repository.Insert(deliveryReportQueue);
                 }
             });
-            */
         }
     }
 }

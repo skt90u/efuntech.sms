@@ -357,8 +357,6 @@ namespace EFunTech.Sms.Portal
                 SendMessageRetryHistory entity = this.unitOfWork.Repository<SendMessageRetryHistory>().Get(p => p.MessageId == SendMessageResult.MessageId);
                 if (entity == null) continue; // 如果找不到對應 MessageId，就忽略
 
-                string DestinationName = SendMessageResult.DestinationName;
-
                 entity.SentDate = DeliveryReport.SentDate;
                 entity.DoneDate = DeliveryReport.DoneDate;
                 entity.DeliveryStatus = DeliveryReport.Status;
@@ -781,7 +779,6 @@ namespace EFunTech.Sms.Portal
             {
                 sendMessageHistory.RetryTotalTimes += 1;
                 sendMessageHistory.SendMessageRetryHistory = entity;
-
                 sendMessageHistoryRepository.Update(sendMessageHistory);
             }
         }
