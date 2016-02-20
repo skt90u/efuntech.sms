@@ -24,7 +24,10 @@ namespace EFunTech.Sms.Portal
 
 
         string Every8dUserName { get; set; }
-        string Every8dPassword { get; set; } 
+        string Every8dPassword { get; set; }
+
+        int RetryMaxTimes { get; set; }
+        int RetryInterval { get; set; }
 
         int ExpireTimeSpan { get; set; }
         int ValidateInterval { get; set; }

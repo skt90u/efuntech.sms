@@ -61,6 +61,12 @@ namespace EFunTech.Sms.Portal.Models
 
         public String Region { get; set; }
 
+        public String CreatedTime { get; set; }
+
+        public int RetryMaxTimes { get; set; }
+
+        public int RetryTotalTimes { get; set; }
+
         ////////////////////////////////////////
         // 擴充欄位
 

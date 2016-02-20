@@ -185,7 +185,8 @@ namespace EFunTech.Sms.Portal
 
                     // 寫入簡訊派送結果等待取回序列
                     var deliveryReportQueue = new DeliveryReportQueue();
-                    deliveryReportQueue.SendMessageQueueId = sendMessageQueue.Id;
+                    deliveryReportQueue.SourceTableId = sendMessageQueue.Id;
+                    deliveryReportQueue.SourceTable = SourceTable.SendMessageQueue;
                     deliveryReportQueue.RequestId = every8d_SendMessageResult.BATCH_ID;
                     deliveryReportQueue.ProviderName = this.Name;
                     deliveryReportQueue.CreatedTime = DateTime.UtcNow;
@@ -380,6 +381,9 @@ namespace EFunTech.Sms.Portal
                 entity.DestinationName = DestinationName;
                 entity.Region = MobileUtil.GetRegionName(entity.DestinationAddress);
                 entity.CreatedTime = DateTime.UtcNow;
+                entity.RetryMaxTimes = systemParameters.RetryMaxTimes;
+                entity.RetryTotalTimes = 0;
+                entity.SendMessageRetryHistoryId = null;
 
                 entity = sendMessageHistoryRepository.Insert(entity);
 
@@ -400,5 +404,11 @@ namespace EFunTech.Sms.Portal
             return Status == DeliveryReportStatus.Sent;
         }
 
+
+
+        public void RetrySMS(int sendMessageHistoryId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

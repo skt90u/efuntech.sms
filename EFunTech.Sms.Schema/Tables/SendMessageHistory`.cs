@@ -9,84 +9,15 @@ using System.Threading.Tasks;
 
 namespace EFunTech.Sms.Schema
 {
-    [TableDescription("簡訊發送結果歷史紀錄")]
-    public class SendMessageHistory
+    [TableDescription("簡訊重送結果歷史紀錄")]
+    public class SendMessageRetryHistory
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [ColumnDescription("編號")]
         public int Id { get; set; }
 
-        ////////////////////////////////////////
-        // 01 ~ 05
-
-        /// <remarks>
-        /// 資料來源： SendMessageQueue.SendMessageRule.CreatedUser.Department.Id
-        /// </remarks>
-        [ColumnDescription("01. 部門編號")]
-        public int? DepartmentId { get; set; }
-
-        /// <remarks>
-        /// 資料來源： SendMessageQueue.SendMessageRule.CreatedUser.Id
-        /// </remarks>
-        [Required]
-        [ColumnDescription("02. 建立簡訊規則的使用者編號")]
-        [MaxLength(128)] // SQL Server 不允許未設定長度的字串指定為Index
-        [Index] // 20151127 Norman, 加上Index看看速度會不會變快
-        public string CreatedUserId { get; set; }
-
-        /// <remarks>
-        /// 資料來源： SendMessageQueue.SendMessageRuleId
-        /// </remarks>
-        [Required]
-        [ColumnDescription("03. 簡訊發送規則編號")]
-        public int SendMessageRuleId { get; set; }
-
-        /// <remarks>
-        /// 資料來源： SendMessageQueue.Id
-        /// </remarks>
-        [Required]
-        [ColumnDescription("04. 簡訊發送任務編號")]
-        public int SendMessageQueueId { get; set; }
-
-        /// <remarks>
-        /// 資料來源： SendMessageQueue.SendMessageType
-        /// </remarks>
-        [Required]
-        [ColumnDescription("05. 發送訊息類型(手機簡訊|APP簡訊)")]
-        public SendMessageType SendMessageType { get; set; }
-
-        ////////////////////////////////////////
-        // 06 ~ 10
-
-        /// <remarks>
-        /// 資料來源： SendMessageQueue.SendTime
-        /// </remarks>
-        [Required]
-        [ColumnDescription("06. 預定發送時間")]
-        [DateTimeKind(DateTimeKind.Utc)]
-        [Index] // 20151126 Norman, 加上Index看看速度會不會變快
-        public DateTime SendTime { get; set; }
-
-        /// <remarks>
-        /// 資料來源： SendMessageQueue.SendTitle
-        /// </remarks>
-        [ColumnDescription("07. 簡訊類別描述")]
-        public string SendTitle { get; set; }
-
-        /// <remarks>
-        /// 資料來源： SendMessageQueue.SendBody
-        /// </remarks>
-        [Required]
-        [ColumnDescription("08. 發送內容")]
-        public string SendBody { get; set; }
-
-        /// <remarks>
-        /// 資料來源： SendMessageQueue.SendCustType
-        /// </remarks>
-        [Required]
-        [ColumnDescription("09. 單向|雙向 簡訊發送")]
-        public SendCustType SendCustType { get; set; }
+        public int SendMessageHistoryId { get; set; }
 
         /// <remarks>
         /// 資料來源： 
@@ -97,9 +28,6 @@ namespace EFunTech.Sms.Schema
         [Required]
         [ColumnDescription("10. 發送簡訊識別碼(RequestId), 格式範例. 14348799713001264")]
         public string RequestId { get; set; }
-
-        ////////////////////////////////////////
-        // 11 ~ 15
 
         [MaxLength(256)]
         [Required]
@@ -234,38 +162,12 @@ namespace EFunTech.Sms.Schema
         [DateTimeKind(DateTimeKind.Utc)]
         public DateTime? DeliveryReportCreatedTime { get; set; }
 
-        /// <remarks>
-        /// 資料來源： 使用 MessageCostInfo(SendBody, DestinationAddress) 重新計算 
-        /// </remarks>
-        [Required]
-        [DecimalPrecision(15, 2)] // 1000000000000.00
-        [ColumnDescription("24. 簡訊平台的花費點數(發送所需點數)")]
-        public decimal MessageCost { get; set; }
-
         [ColumnDescription("25. 總結派送結果是否成功送達")]
         public bool Delivered { get; set; }
-
-        [ColumnDescription("26. 收訊者姓名")]
-        public string DestinationName { get; set; }
-
-        [ColumnDescription("27. 發送地區")]
-        public string Region { get; set; }
 
         [ColumnDescription("28. 建立時間")]
         [DateTimeKind(DateTimeKind.Utc)]
         [Index] // 20151128 Norman, 加上Index看看速度會不會變快
         public DateTime CreatedTime { get; set; }
-
-        [ColumnDescription("29. 最大重試次數")]
-        public int RetryMaxTimes { get; set; }
-
-        [ColumnDescription("30. 目前重試次數")]
-        public int RetryTotalTimes { get; set; }
-
-        [ColumnDescription("簡訊重送結果歷史紀錄")]
-        [ForeignKey("SendMessageRetryHistory")]
-        public int? SendMessageRetryHistoryId { get; set; }
-
-        public virtual SendMessageRetryHistory SendMessageRetryHistory { get; set; }
     }
 }

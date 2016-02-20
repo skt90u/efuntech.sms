@@ -14,6 +14,7 @@ using EntityFramework.Caching;
 using System.Data.Entity;
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNet.Identity.EntityFramework;
+using LinqKit;
 
 namespace EFunTech.Sms.Portal.Controllers.Common
 {
@@ -41,6 +42,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             this.context = this.unitOfWork.DbContext;
         }
 
+        
 
         #region IdentityExtensions
 

@@ -55,31 +55,13 @@ namespace EFunTech.Sms.Portal
 
         private SmsProviderType[] GetSmsProviderTypes(string providerName)
         {
-            switch(providerName)
+            SmsProviderType smsProviderType = SmsProviderType.InfobipNormalQuality;
+            if (!Enum.TryParse<SmsProviderType>(providerName, out smsProviderType))
             {
-                //--------------------------------------------------------------
-                // 支援舊版的 providerName
-                // TODO: 未來要拿掉，但是必須 Update 以下 Table
-                //   C:\Project\efuntech.sms\EFunTech.Sms.Schema\Tables\SendMessageHistory.cs(107):        public string ProviderName { get; set; }
-                //   C:\Project\efuntech.sms\EFunTech.Sms.Schema\Tables\SendMessageStatistic.cs(108):        public string ProviderName { get; set; }
-                //   C:\Project\efuntech.sms\EFunTech.Sms.Schema\Tables\Sms\DeliveryReportQueue.cs(48):        public string ProviderName { get; set; }
-                //--------------------------------------------------------------
-                case "InfobipSmsProvider":
-                    return GetSmsProviderTypes(SmsProviderType.InfobipNormalQuality);
-                case "Every8dSmsProvider":
-                    return GetSmsProviderTypes(SmsProviderType.Every8d);
-                //--------------------------------------------------------------
-                default:
-                    {
-                        SmsProviderType smsProviderType = SmsProviderType.InfobipNormalQuality;
-                        if(!Enum.TryParse<SmsProviderType>(providerName, out smsProviderType))
-                        {
-                            throw new Exception(string.Format("Can not parse {0} to SmsProviderType", providerName));
-                        }
-
-                        return GetSmsProviderTypes(smsProviderType);
-                    }
+                throw new Exception(string.Format("Can not parse {0} to SmsProviderType", providerName));
             }
+
+            return GetSmsProviderTypes(smsProviderType);
         }
 
         private Type ToInstanceType(SmsProviderType smsProviderType)
@@ -376,6 +358,45 @@ namespace EFunTech.Sms.Portal
             }
         }
 
-        
+        public void RetrySMS(int sendMessageHistoryId)
+        {
+            //UniqueJob uniqueJob = this.uniqueJobList.AddOrUpdate("RetrySMS", sendMessageHistoryId);
+            //if (uniqueJob == null) return; // Job 已經存在
+
+            try
+            {
+                using (var scope = this.unitOfWork.CreateTransactionScope())
+                {
+                    var sendMessageHistory = this.unitOfWork.Repository<SendMessageHistory>().GetById(sendMessageHistoryId);
+
+                    decimal totalMessageCost = sendMessageHistory.MessageCost;
+
+                    string currentProviderType = sendMessageHistory.ProviderName;
+
+                    var providerTypesInOrder = GetSmsProviderTypes(currentProviderType);
+
+                    // 由於使用預設的 Provider 無法發送成功，因此使用下一個 SmsProvider 發送
+                    SmsProviderType userSmsProviderType = providerTypesInOrder[1];
+
+                    ISmsProvider provider = GetProvider(userSmsProviderType, totalMessageCost); // 如果沒有找到，將會拋出例外
+
+                    this.tradeService.RetrySMS(sendMessageHistory);
+
+                    // 開始發送簡訊
+                    provider.RetrySMS(sendMessageHistory.Id);
+
+                    scope.Complete();
+                }
+            }
+            catch (Exception ex)
+            {
+                this.logService.Error(ex);
+                throw;
+            }
+            finally
+            {
+                //this.uniqueJobList.Remove(uniqueJob);
+            }
+        }
     }
 }

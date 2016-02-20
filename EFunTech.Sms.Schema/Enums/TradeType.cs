@@ -38,6 +38,8 @@ namespace EFunTech.Sms.Schema
         [ColumnDescription("回收點數匯入")]
         ImportRecoveryPoints = 8,
 
+        [ColumnDescription("簡訊重新發送")]
+        RetrySMS = 9,
 
         //[ColumnDescription("0800互動簡訊月租費扣點")]
         //MonthlyFeeDeductionOfInteractiveNewsletter = 9,

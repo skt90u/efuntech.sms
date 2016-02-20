@@ -190,7 +190,8 @@ namespace EFunTech.Sms.Portal
             // 寫入對應的 SendMessageResult
 
             var infobip_SendMessageResult = new Infobip_SendMessageResult();
-            infobip_SendMessageResult.SendMessageQueueId = sendMessageQueue.Id;
+            infobip_SendMessageResult.SourceTable = SourceTable.SendMessageQueue;
+            infobip_SendMessageResult.SourceTableId = sendMessageQueue.Id;
             infobip_SendMessageResult.ClientCorrelator = sendMessageResult.ClientCorrelator;
             infobip_SendMessageResult.CreatedTime = DateTime.UtcNow; // 接收發送命令回傳值的時間
             infobip_SendMessageResult.Balance = this.Balance;
@@ -223,11 +224,11 @@ namespace EFunTech.Sms.Portal
             }
 
             var infobip_ResourceReference = new Infobip_ResourceReference();
-            infobip_ResourceReference.SendMessageResultId = infobip_SendMessageResult.SendMessageQueueId;
+            infobip_ResourceReference.SendMessageResultId = infobip_SendMessageResult.Id;
             infobip_ResourceReference.ResourceURL = sendMessageResult.ResourceRef.ResourceURL;
             infobip_ResourceReference = this.unitOfWork.Repository<Infobip_ResourceReference>().Insert(infobip_ResourceReference);
 
-            CreateSendMessageHistory(sendMessageQueue.Id);
+            CreateSendMessageHistory(sendMessageQueue);
 
             // 在 Thread 中等待 30 秒，再寫入 DeliveryReportQueue
             var delayMilliseconds = (int)30 * 1000;
@@ -240,7 +241,8 @@ namespace EFunTech.Sms.Portal
 
                     // 寫入簡訊派送結果等待取回序列
                     var deliveryReportQueue = new DeliveryReportQueue();
-                    deliveryReportQueue.SendMessageQueueId = sendMessageQueue.Id;
+                    deliveryReportQueue.SourceTableId = sendMessageQueue.Id;
+                    deliveryReportQueue.SourceTable = SourceTable.SendMessageQueue;
                     deliveryReportQueue.RequestId = infobip_SendMessageResult.ClientCorrelator;
                     deliveryReportQueue.ProviderName = this.Name;
                     deliveryReportQueue.CreatedTime = DateTime.UtcNow;
@@ -322,25 +324,41 @@ namespace EFunTech.Sms.Portal
                 //}
             }
 
-            int sendMessageQueueId = infobip_SendMessageResult.SendMessageQueueId;
             // (5) 出大表，SendMessageHistorys
-            UpdateSendMessageHistory(sendMessageQueueId);
+            SourceTable sourceTable = infobip_SendMessageResult.SourceTable;
+            int sourceTableId = infobip_SendMessageResult.SourceTableId;
+            switch (sourceTable)
+            {
+                case SourceTable.SendMessageQueue:
+                    int sendMessageQueueId = infobip_SendMessageResult.SourceTableId;
+                    UpdateSendMessageHistory(sourceTableId);
+                    break;
+                case SourceTable.SendMessageHistory:
+                    int sendMessageHistory = infobip_SendMessageResult.SourceTableId;
+                    UpdateSendMessageRetryHistory(sendMessageHistory);
+                    break;
+            }
+        }
+
+        private void UpdateSendMessageRetryHistory(int sendMessageHistory)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
         /// 在 SendSMS 之後，建立大表 SendMessageHistory
         /// </summary>
-        public void CreateSendMessageHistory(int sendMessageQueueId)
+        public void CreateSendMessageHistory(SendMessageQueue sendMessageQueue)
         {
+            int sendMessageQueueId = sendMessageQueue.Id;
+
             var sendMessageRuleRepository = this.unitOfWork.Repository<SendMessageRule>();
             var sendMessageQueueRepository = this.unitOfWork.Repository<SendMessageQueue>();
             var sendMessageHistoryRepository = this.unitOfWork.Repository<SendMessageHistory>();
 
-            SendMessageQueue sendMessageQueue = sendMessageQueueRepository.GetById(sendMessageQueueId);
-
             SendMessageRule sendMessageRule = sendMessageRuleRepository.GetById(sendMessageQueue.SendMessageRuleId);
 
-            Infobip_SendMessageResult sendMessageResult = this.unitOfWork.Repository<Infobip_SendMessageResult>().Get(p => p.SendMessageQueueId == sendMessageQueueId);
+            Infobip_SendMessageResult sendMessageResult = this.unitOfWork.Repository<Infobip_SendMessageResult>().Get(p => p.SourceTable == SourceTable.SendMessageQueue && p.SourceTableId == sendMessageQueueId);
             if (sendMessageResult == null)
                 throw new Exception(string.Format("InfobipSmsProvider(smsProviderType = {0})，無法取得 Infobip_SendMessageResult(SendMessageQueueId：{1})", smsProviderType.ToString(), sendMessageQueueId));
 
@@ -424,6 +442,9 @@ namespace EFunTech.Sms.Portal
                 entity.DestinationName = DestinationName;
                 entity.Region = MobileUtil.GetRegionName(entity.DestinationAddress);
                 entity.CreatedTime = DateTime.UtcNow;
+                entity.RetryMaxTimes = systemParameters.RetryMaxTimes;
+                entity.RetryTotalTimes = 0;
+                entity.SendMessageRetryHistoryId = null;
 
                 entity = sendMessageHistoryRepository.Insert(entity);
             }
@@ -445,7 +466,7 @@ namespace EFunTech.Sms.Portal
 
             SendMessageRule sendMessageRule = sendMessageRuleRepository.GetById(sendMessageQueue.SendMessageRuleId);
 
-            Infobip_SendMessageResult sendMessageResult = this.unitOfWork.Repository<Infobip_SendMessageResult>().Get(p => p.SendMessageQueueId == sendMessageQueueId);
+            Infobip_SendMessageResult sendMessageResult = this.unitOfWork.Repository<Infobip_SendMessageResult>().Get(p => p.SourceTable == SourceTable.SendMessageQueue && p.SourceTableId == sendMessageQueueId);
             if (sendMessageResult == null)
                 throw new Exception(string.Format("InfobipSmsProvider(smsProviderType = {0})，無法取得 Infobip_SendMessageResult(SendMessageQueueId：{1})", smsProviderType.ToString(), sendMessageQueueId));
 
@@ -553,6 +574,109 @@ namespace EFunTech.Sms.Portal
             return (Status == DeliveryReportStatus.DeliveredToTerminal);
         }
 
+        public void RetrySMS(int sendMessageHistoryId)
+        {
+            var sendMessageHistory = this.unitOfWork.Repository<SendMessageHistory>().GetById(sendMessageHistoryId);
+
+            string message = sendMessageHistory.SendBody;
+
+            var senderAddress = sendMessageHistory.SenderAddress;
+
+            //string[] recipientAddress = { sendMessageHistory.DestinationAddress };
+            string[] recipientAddress = { "+886921859698" };
+
+            this.logService.Debug("InfobipSmsProvider(smsProviderType = {0})，重試簡訊(簡訊發送結果歷史紀錄編號：{1}，發送內容：{2}，發送名單：[{3}])",
+                smsProviderType.ToString(),
+                sendMessageHistory.Id,
+                message,
+                string.Join("、", recipientAddress));
+
+            var smsRequest = new SMSRequest(senderAddress, message, recipientAddress);
+            // 還是不知道怎麼使用
+            // http://dev.infobip.com/v1/docs/logs-vs-delivery-reports
+            // http://dev.infobip.com/docs/notify-url
+            // 還是不知道怎麼使用 smsRequest.NotifyURL = "";
+            //smsRequest.NotifyURL = @"http://zutech-sms.azurewebsites.net/api/InfobipNotification";
+
+            SendMessageResult sendMessageResult = this.smsClient.SmsMessagingClient.SendSMS(smsRequest);
+
+            this.logService.Debug("InfobipSmsProvider(smsProviderType = {0})，重試簡訊(簡訊發送結果歷史紀錄編號：{1}，回傳簡訊發送識別碼：{2}，回傳結果：{3})",
+                smsProviderType.ToString(),
+                sendMessageHistory.Id,
+                sendMessageResult.ClientCorrelator,
+                sendMessageResult.ToString());
+
+            string requestId = sendMessageResult.ClientCorrelator; // you can use this to get deliveryReportList later.
+
+            UpdateDb(sendMessageHistory, sendMessageResult);
+        }
+
+        private void UpdateDb(SendMessageHistory sendMessageHistory, SendMessageResult sendMessageResult)
+        {
+            // 寫入對應的 SendMessageResult
+            /*
+            var infobip_SendMessageResult = new Infobip_SendMessageResult();
+            infobip_SendMessageResult.SendMessageQueueId = sendMessageQueue.Id;
+            infobip_SendMessageResult.ClientCorrelator = sendMessageResult.ClientCorrelator;
+            infobip_SendMessageResult.CreatedTime = DateTime.UtcNow; // 接收發送命令回傳值的時間
+            infobip_SendMessageResult.Balance = this.Balance;
+            infobip_SendMessageResult = this.unitOfWork.Repository<Infobip_SendMessageResult>().Insert(infobip_SendMessageResult);
+
+            for (var i = 0; i < sendMessageResult.SendMessageResults.Length; i++)
+            {
+                // 一個 messageReceiver 對應一個 sendMessageResult
+                //  尚未驗證，是否我傳送的 destinations 順序與 SendMessageResults 順序一致
+                //  【目前假設是一致的】
+                var messageReceiver = messageReceivers[i];
+                var sendMessageResultItem = sendMessageResult.SendMessageResults[i];
+
+                var infobip_SendMessageResultItem = new Infobip_SendMessageResultItem();
+
+                infobip_SendMessageResultItem.MessageId = sendMessageResultItem.MessageId;
+                infobip_SendMessageResultItem.MessageStatusString = sendMessageResultItem.MessageStatus;
+
+                EFunTech.Sms.Schema.MessageStatus MessageStatus = EFunTech.Sms.Schema.MessageStatus.Unknown;
+                Enum.TryParse<EFunTech.Sms.Schema.MessageStatus>(sendMessageResultItem.MessageStatus, out MessageStatus);
+                infobip_SendMessageResultItem.MessageStatus = MessageStatus;
+
+                infobip_SendMessageResultItem.SenderAddress = sendMessageResultItem.SenderAddress;
+                infobip_SendMessageResultItem.DestinationAddress = sendMessageResultItem.DestinationAddress;
+                infobip_SendMessageResultItem.SendMessageResult = infobip_SendMessageResult;
+                infobip_SendMessageResultItem.DestinationName = messageReceiver.Name;
+
+
+                infobip_SendMessageResultItem = this.unitOfWork.Repository<Infobip_SendMessageResultItem>().Insert(infobip_SendMessageResultItem);
+            }
+
+            var infobip_ResourceReference = new Infobip_ResourceReference();
+            infobip_ResourceReference.SendMessageResultId = infobip_SendMessageResult.SendMessageQueueId;
+            infobip_ResourceReference.ResourceURL = sendMessageResult.ResourceRef.ResourceURL;
+            infobip_ResourceReference = this.unitOfWork.Repository<Infobip_ResourceReference>().Insert(infobip_ResourceReference);
+
+            CreateSendMessageHistory(sendMessageQueue);
+
+            // 在 Thread 中等待 30 秒，再寫入 DeliveryReportQueue
+            var delayMilliseconds = (int)30 * 1000;
+            FaFTaskFactory.StartNew(delayMilliseconds, () =>
+            {
+                using (var context = new ApplicationDbContext())
+                {
+                    var _unitOfWork = new UnitOfWork(context);
+                    var _repository = _unitOfWork.Repository<DeliveryReportQueue>();
+
+                    // 寫入簡訊派送結果等待取回序列
+                    var deliveryReportQueue = new DeliveryReportQueue();
+                    deliveryReportQueue.SendMessageQueueId = sendMessageQueue.Id;
+                    deliveryReportQueue.RequestId = infobip_SendMessageResult.ClientCorrelator;
+                    deliveryReportQueue.ProviderName = this.Name;
+                    deliveryReportQueue.CreatedTime = DateTime.UtcNow;
+                    deliveryReportQueue.SendMessageResultItemCount = infobip_SendMessageResult.SendMessageResults.Count;
+                    deliveryReportQueue.DeliveryReportCount = 0;
+                    deliveryReportQueue = _repository.Insert(deliveryReportQueue);
+                }
+            });
+            */
+        }
     }
 }
 

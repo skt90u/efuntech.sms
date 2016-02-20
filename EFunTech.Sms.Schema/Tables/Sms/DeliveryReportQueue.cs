@@ -33,7 +33,10 @@ namespace EFunTech.Sms.Schema
         public int Id { get; set; }
 
         [Required]
-        public int SendMessageQueueId { get; set; }
+        public int SourceTableId { get; set; }
+
+        public SourceTable SourceTable { get; set; }
+        
 
         [MaxLength(256)]
         [Required]

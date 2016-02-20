@@ -17,7 +17,8 @@ namespace EFunTech.Sms.Portal
         decimal ToProviderBalance(decimal efuntechBalance);
 
         void SendSMS(int sendMessageQueueId);
-
+        void RetrySMS(int sendMessageHistoryId);
+        
         /// <param name="requestId">
         /// The request identifier
         ///     Infobip: clientCorrelator

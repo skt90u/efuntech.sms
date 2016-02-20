@@ -9,6 +9,7 @@ using System;
 using EFunTech.Sms.Portal.Models.Criteria;
 using EFunTech.Sms.Core;
 using System.Data.Entity;
+using System.ComponentModel;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -50,9 +51,11 @@ namespace EFunTech.Sms.Portal.Controllers
             TimeSpan clientTimezoneOffset = ClientTimezoneOffset;
             string timeFormat = Converter.Every8d_SentTime;
 
+            
             var result = models.Select(p => new
             {
-                簡訊序列編號 = p.SendMessageQueueId,
+                資料表編號 = p.SourceTableId,
+                來源資料表 = AttributeHelper.GetColumnDescription(p.SourceTable),
                 簡訊識別碼 = p.RequestId,
                 簡訊供應商 = p.ProviderName,
                 建立時間 = Converter.ToLocalTimeString(p.CreatedTime, clientTimezoneOffset, timeFormat),

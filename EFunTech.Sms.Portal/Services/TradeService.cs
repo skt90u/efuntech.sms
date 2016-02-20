@@ -71,6 +71,39 @@ namespace EFunTech.Sms.Portal
             }
         }
 
+        public void RetrySMS(SendMessageHistory sendMessageHistory)
+        {
+            DateTime utcNow = DateTime.UtcNow;
+
+            // 扣點
+            decimal point = sendMessageHistory.MessageCost;
+            var userRepository = this.unitOfWork.Repository<ApplicationUser>();
+            var user = userRepository.Get(p => p.FullName == "Admin");
+            user.SmsBalance -= point;
+            userRepository.Update(user);
+
+            // 寫入交易明細
+            var tradeDetailRepository = this.unitOfWork.Repository<TradeDetail>();
+            var tradeDetail = new TradeDetail
+            {
+                TradeTime = utcNow,
+                TradeType = TradeType.RetrySMS,
+                Point = -1 * point,
+                OwnerId = user.Id,
+                TargetId = sendMessageHistory.Id.ToString(),
+                Remark = string.Format("簡訊發送結果歷史紀錄編號：{0}，第{1}次重送，發送至門號：{2}({3})，扣除{4}點",
+                    sendMessageHistory.Id,
+                    sendMessageHistory.RetryTotalTimes + 1,
+                    sendMessageHistory.DestinationAddress,
+                    sendMessageHistory.Region,
+                    point)
+            };
+            tradeDetailRepository.Insert(tradeDetail);
+
+            // 自動補點與點數預警
+            CheckCredit(user);
+        }
+
         public void CreateSendMessageQueue(SendMessageRule sendMessageRule, SendMessageQueue sendMessageQueue)
         {
             DateTime utcNow = DateTime.UtcNow;

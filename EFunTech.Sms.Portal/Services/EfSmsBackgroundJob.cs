@@ -241,6 +241,10 @@ namespace EFunTech.Sms.Portal
 
         #region 處理一天之後，尚未取得派送結果的情況
 
+        /// <summary>
+        /// 若一天之後，SendMessageHistory 狀態仍然為 MessageAccepted (仍未取得派送結果)，
+        /// 則將此筆 SendMessageHistory 狀態改成 DeliveryReportTimeout
+        /// </summary>
         public void HandleDeliveryReportTimeout()
         {
             UniqueJob uniqueJob = this.uniqueJobList.AddOrUpdate("HandleDeliveryReportTimeout");
@@ -321,8 +325,50 @@ namespace EFunTech.Sms.Portal
 
         #endregion
 
-        // 若一天之後，SendMessageHistory 狀態仍然為 MessageAccepted (仍未取得派送結果)，
-        // 則將此筆 SendMessageHistory 狀態改成 DeliveryReportTimeout
+
+
+        #region 重試發送失敗的簡訊
+
+        public void RetrySMS()
+        {
+            try
+            {
+                var sendMessageHistoryRepository = this.unitOfWork.Repository<SendMessageHistory>();
+
+                var predicate = PredicateBuilder.True<SendMessageHistory>();
+                // 發送失敗
+                predicate = predicate.And(p => p.Delivered == false && p.DeliveryStatus != DeliveryReportStatus.MessageAccepted && p.DeliveryStatus != DeliveryReportStatus.DeliveredToTerminal);
+                // 未超過最大重送次數
+                predicate = predicate.And(p => p.RetryMaxTimes > p.RetryTotalTimes);
+
+                var innerPredicate = PredicateBuilder.False<SendMessageHistory>();
+                // 尚未重送過
+                innerPredicate = innerPredicate.Or(p => p.SendMessageRetryHistory == null);
+                // 最後一次重送，仍然發送失敗
+                innerPredicate = innerPredicate.Or(p => p.SendMessageRetryHistory != null &&
+                                                        p.SendMessageRetryHistory.Delivered == false && p.DeliveryStatus != DeliveryReportStatus.MessageAccepted && p.DeliveryStatus != DeliveryReportStatus.DeliveredToTerminal);
+
+                predicate = predicate.And(innerPredicate);
+
+                var sendMessageHistorys = sendMessageHistoryRepository.GetAll().AsExpandable().Where(predicate);
+
+                foreach (var sendMessageHistory in sendMessageHistorys)
+                {
+                    FaFTaskFactory.StartNew(() =>
+                    {
+                        BackgroundJob.Enqueue<CommonSmsService>(x => x.RetrySMS(sendMessageHistory.Id));
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                this.logService.Error(ex);
+                throw;
+            }
+        }
+
+        #endregion
+    
         
         #region HouseKeeping
 
@@ -335,5 +381,6 @@ namespace EFunTech.Sms.Portal
         }
 
         #endregion
+    
     }
 }

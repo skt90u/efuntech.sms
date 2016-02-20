@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFunTech.Sms.Portal", "EFunTech.Sms.Portal\EFunTech.Sms.Portal.csproj", "{81C86C52-380D-4A70-957E-43DA225F237F}"
 	ProjectSection(ProjectDependencies) = postProject
 		{669CAE04-4608-4A36-AFC1-0871319C299A} = {669CAE04-4608-4A36-AFC1-0871319C299A}
@@ -19,6 +21,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Every8dApi", "Every8dApi\Every8dApi.csproj", "{97478EE7-0B01-43AD-99C0-CC98BF1D8999}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFunTech.Sms.Core", "EFunTech.Sms.Core\EFunTech.Sms.Core.csproj", "{A09D076F-E369-48E2-9BC6-72F5F57DCAFF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFunTech.Sms.ConsoleApplication", "EFunTech.Sms.ConsoleApplication\EFunTech.Sms.ConsoleApplication.csproj", "{114B4560-9633-4977-8F81-FBAC78A2B99C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -114,6 +118,18 @@ Global
 		{A09D076F-E369-48E2-9BC6-72F5F57DCAFF}.Localhost|Any CPU.Build.0 = Localhost|Any CPU
 		{A09D076F-E369-48E2-9BC6-72F5F57DCAFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A09D076F-E369-48E2-9BC6-72F5F57DCAFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{114B4560-9633-4977-8F81-FBAC78A2B99C}.Azure|Any CPU.ActiveCfg = Release|Any CPU
+		{114B4560-9633-4977-8F81-FBAC78A2B99C}.Azure|Any CPU.Build.0 = Release|Any CPU
+		{114B4560-9633-4977-8F81-FBAC78A2B99C}.AzureDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{114B4560-9633-4977-8F81-FBAC78A2B99C}.AzureDebug|Any CPU.Build.0 = Debug|Any CPU
+		{114B4560-9633-4977-8F81-FBAC78A2B99C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{114B4560-9633-4977-8F81-FBAC78A2B99C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{114B4560-9633-4977-8F81-FBAC78A2B99C}.LocalDb|Any CPU.ActiveCfg = Release|Any CPU
+		{114B4560-9633-4977-8F81-FBAC78A2B99C}.LocalDb|Any CPU.Build.0 = Release|Any CPU
+		{114B4560-9633-4977-8F81-FBAC78A2B99C}.Localhost|Any CPU.ActiveCfg = Release|Any CPU
+		{114B4560-9633-4977-8F81-FBAC78A2B99C}.Localhost|Any CPU.Build.0 = Release|Any CPU
+		{114B4560-9633-4977-8F81-FBAC78A2B99C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{114B4560-9633-4977-8F81-FBAC78A2B99C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

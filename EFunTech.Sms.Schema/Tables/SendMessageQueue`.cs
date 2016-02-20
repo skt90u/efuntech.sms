@@ -30,10 +30,7 @@ namespace EFunTech.Sms.Schema
 
         [MaxLength(256)]
         [Required]
-        [ColumnDescription("簡訊供應商, 目前有 InfobipNormalQuality、InfobipHighQuality、InfobipHighQuality")]
+        [ColumnDescription("11. 簡訊供應商, 目前有 InfobipNormalQuality、InfobipHighQuality、InfobipHighQuality")]
         public string ProviderName { get; set; }
-
-        [ColumnDescription("簡訊重送序列目前狀態")]
-        public RetryQueueStatus RetryQueueStatus { get; set; }
     }
 }

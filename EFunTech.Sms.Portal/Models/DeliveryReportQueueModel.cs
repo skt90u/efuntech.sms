@@ -7,7 +7,8 @@ namespace EFunTech.Sms.Portal.Models
 	{
 		public int Id { get; set; }
 
-		public int SendMessageQueueId { get; set; }
+        public int SourceTableId { get; set; }
+        public SourceTable SourceTable { get; set; }
 
 		public string RequestId { get; set; }
 

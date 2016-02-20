@@ -12,11 +12,13 @@ namespace EFunTech.Sms.Schema
     public class Infobip_SendMessageResult
     {
         [Key]
-        [ColumnDescription("簡訊發送任務")]
-        [ForeignKey("SendMessageQueue")]
-        public int SendMessageQueueId { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [ColumnDescription("編號")]
+        public int Id { get; set; }
 
-        public virtual SendMessageQueue SendMessageQueue { get; set; }
+        public SourceTable SourceTable { get; set; }
+
+        public int SourceTableId { get; set; }
 
         [MaxLength(256)]
         [Required]
@@ -36,6 +38,9 @@ namespace EFunTech.Sms.Schema
 
         [ColumnDescription("可用餘額")]
         public decimal Balance { get; set; }
+
+        // TODO: Migration 使用，未來要移除
+        public int CopyId { get; set; }
         
     }
 }

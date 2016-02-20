@@ -17,6 +17,9 @@ namespace EFunTech.Sms.Portal
             this.Every8dUserName = ConfigurationManager.AppSettings["Every8dUserName"];
             this.Every8dPassword = ConfigurationManager.AppSettings["Every8dPassword"];
 
+            this.RetryMaxTimes = Convert.ToInt32(ConfigurationManager.AppSettings["RetryMaxTimes"]);
+            this.RetryInterval = Convert.ToInt32(ConfigurationManager.AppSettings["RetryInterval"]);
+
             this.ExpireTimeSpan = Convert.ToInt32(ConfigurationManager.AppSettings["ExpireTimeSpan"]);
             this.ValidateInterval = Convert.ToInt32(ConfigurationManager.AppSettings["ValidateInterval"]);
 
@@ -34,6 +37,9 @@ namespace EFunTech.Sms.Portal
 
         public string Every8dUserName { get; set; }
         public string Every8dPassword { get; set; }
+
+        public int RetryMaxTimes { get; set; }
+        public int RetryInterval { get; set; }
 
         public int ExpireTimeSpan { get; set; }
         public int ValidateInterval { get; set; }
