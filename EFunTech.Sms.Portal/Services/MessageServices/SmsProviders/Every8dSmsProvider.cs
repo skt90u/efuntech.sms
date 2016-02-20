@@ -408,7 +408,91 @@ namespace EFunTech.Sms.Portal
 
         public void RetrySMS(int sendMessageHistoryId)
         {
-            throw new NotImplementedException();
+            var sendMessageHistory = this.unitOfWork.Repository<SendMessageHistory>().GetById(sendMessageHistoryId);
+
+            using (var smsClient = new SMSClient(userName, password))
+            {
+                DateTime? sendTime = null; // NULL 表示立刻發送
+                string subject = sendMessageHistory.SendTitle;
+                string message = sendMessageHistory.SendBody;
+
+                var every8dMessageReceiver = new List<Every8d_MessageReceiver>
+                {
+                    new Every8d_MessageReceiver
+                    {
+                        NAME = sendMessageHistory.DestinationName,
+                        MOBILE = sendMessageHistory.DestinationAddress,
+                        EMAIL = string.Empty, // p.Email, // 不要依賴 Every8d 寄送 Email
+                        SENDTIME = null,
+                        CONTENT = message,
+                    }
+                };
+
+                this.logService.Debug("Every8dSmsProvider(smsProviderType = {0})，重試簡訊(簡訊發送結果歷史紀錄編號：{1}，發送內容：{2}，發送名單：[{3}])",
+                    smsProviderType.ToString(),
+                    sendMessageHistory.Id,
+                    message,
+                    string.Join("、", every8dMessageReceiver.Select(p => p.MOBILE)));
+
+                SEND_SMS_RESULT sendMessageResult = smsClient.SendParamSMS(sendTime, subject, every8dMessageReceiver);
+
+                this.logService.Debug("Every8dSmsProvider(smsProviderType = {0})，重試簡訊(簡訊發送結果歷史紀錄編號：{1}，回傳簡訊發送識別碼：{2}，回傳結果：{3})",
+                    smsProviderType.ToString(),
+                    sendMessageHistory.Id,
+                    sendMessageResult.BATCH_ID,
+                    sendMessageResult.ToString());
+
+                UpdateDb(sendMessageHistory, sendMessageResult);
+            }
+        }
+
+        private void UpdateDb(SendMessageHistory sendMessageHistory, SEND_SMS_RESULT sendMessageResult)
+        {
+            // 寫入對應的 SendMessageResult
+            /*
+            var every8d_SendMessageResult = new Every8d_SendMessageResult();
+
+            every8d_SendMessageResult.SourceTable = SourceTable.SendMessageHistory;
+            every8d_SendMessageResult.SourceTableId = sendMessageHistory.Id;
+
+            every8d_SendMessageResult.SendTime = sendMessageHistory.SendTime;
+            every8d_SendMessageResult.Subject = sendMessageHistory.SendTitle;
+            every8d_SendMessageResult.Content = sendMessageHistory.SendBody;
+            every8d_SendMessageResult.CreatedTime = DateTime.UtcNow;
+
+            every8d_SendMessageResult.CREDIT = sendMessageResult.CREDIT;
+            every8d_SendMessageResult.SENDED = sendMessageResult.SENDED;
+            every8d_SendMessageResult.COST = sendMessageResult.COST;
+            every8d_SendMessageResult.UNSEND = sendMessageResult.UNSEND;
+            every8d_SendMessageResult.BATCH_ID = sendMessageResult.BATCH_ID;
+
+            every8d_SendMessageResult = this.unitOfWork.Repository<Every8d_SendMessageResult>().Insert(every8d_SendMessageResult);
+
+            // Every8d 在此階段無法取得寫入 SendMessageHistory，無對應資料結構
+            // CreateSendMessageHistory(sendMessageQueue.Id);
+
+            // 在 Thread 中等待 30 秒，再寫入 DeliveryReportQueue
+            var delayMilliseconds = (int)30 * 1000;
+            FaFTaskFactory.StartNew(delayMilliseconds, () =>
+            {
+                using (var context = new ApplicationDbContext())
+                {
+                    var _unitOfWork = new UnitOfWork(context);
+                    var _repository = _unitOfWork.Repository<DeliveryReportQueue>();
+
+                    // 寫入簡訊派送結果等待取回序列
+                    var deliveryReportQueue = new DeliveryReportQueue();
+                    deliveryReportQueue.SourceTableId = sendMessageHistory.Id;
+                    deliveryReportQueue.SourceTable = SourceTable.SendMessageHistory;
+                    deliveryReportQueue.RequestId = every8d_SendMessageResult.BATCH_ID;
+                    deliveryReportQueue.ProviderName = this.Name;
+                    deliveryReportQueue.CreatedTime = DateTime.UtcNow;
+                    deliveryReportQueue.SendMessageResultItemCount = every8d_SendMessageResult.SENDED.HasValue ? every8d_SendMessageResult.SENDED.Value : 0;
+                    deliveryReportQueue.DeliveryReportCount = 0;
+                    deliveryReportQueue = _repository.Insert(deliveryReportQueue);
+                }
+            });
+            */
         }
     }
 }
