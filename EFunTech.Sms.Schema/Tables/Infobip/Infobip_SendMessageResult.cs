@@ -38,9 +38,5 @@ namespace EFunTech.Sms.Schema
 
         [ColumnDescription("可用餘額")]
         public decimal Balance { get; set; }
-
-        // TODO: Migration 使用，未來要移除
-        public int CopyId { get; set; }
-        
     }
 }

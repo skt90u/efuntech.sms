@@ -17,9 +17,6 @@ namespace EFunTech.Sms.Schema
         public string MessageId { get; set; }
 
         [Required]
-        [ForeignKey("SendMessageResult")]
-        public int SendMessageResultId { get; set; }
-
         [ColumnDescription("簡訊發送回報")]
         public virtual Infobip_SendMessageResult SendMessageResult { get; set; }
 

@@ -7,13 +7,13 @@ namespace EFunTech.Sms.Schema.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.1-30610")]
-    public sealed partial class v1 : IMigrationMetadata
+    public sealed partial class v5 : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(v1));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(v5));
         
         string IMigrationMetadata.Id
         {
-            get { return "201602201418368_v1"; }
+            get { return "201602201453571_v5"; }
         }
         
         string IMigrationMetadata.Source
