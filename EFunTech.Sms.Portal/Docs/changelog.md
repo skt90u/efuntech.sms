@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Add - 2016-02-21
+- 新增重試機制
+
 ## Fixed - 2015-12-13
 - 修正相對路徑設定
 	* (ServerSide) 將 /SendMessage 改成 SendMessage
