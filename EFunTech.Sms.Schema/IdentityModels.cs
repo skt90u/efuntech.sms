@@ -163,13 +163,15 @@ namespace EFunTech.Sms.Schema
         public DbSet<Infobip_SendMessageResult> Infobip_SendMessageResults { get; set; }
         public DbSet<Infobip_ResourceReference> Infobip_ResourceReferences { get; set; }
         public DbSet<Infobip_SendMessageResultItem> Infobip_SendMessageResultItems { get; set; }
-
         public DbSet<Infobip_DeliveryReport> Infobip_DeliveryReports { get; set; }
         
         // sms: every8d
         public DbSet<Every8d_DeliveryReport> Every8d_DeliveryReports { get; set; }
         public DbSet<Every8d_SendMessageResult> Every8d_SendMessageResults { get; set; }
-        
+
+
+        public DbSet<SendMessageQueue> SendMessageQueues { get; set; }
+
         public DbSet<SendMessageHistory> SendMessageHistorys { get; set; }
         public DbSet<SendMessageStatistic> SendMessageStatistics { get; set; }
         

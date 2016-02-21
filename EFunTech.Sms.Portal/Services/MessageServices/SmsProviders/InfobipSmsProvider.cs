@@ -607,8 +607,7 @@ namespace EFunTech.Sms.Portal
 
             var senderAddress = sendMessageHistory.SenderAddress;
 
-            //string[] recipientAddress = { sendMessageHistory.DestinationAddress };
-            string[] recipientAddress = { "+886921859698" };
+            string[] recipientAddress = { sendMessageHistory.DestinationAddress };
 
             this.logService.Debug("InfobipSmsProvider(smsProviderType = {0})，重試簡訊(簡訊發送結果歷史紀錄編號：{1}，發送內容：{2}，發送名單：[{3}])",
                 smsProviderType.ToString(),

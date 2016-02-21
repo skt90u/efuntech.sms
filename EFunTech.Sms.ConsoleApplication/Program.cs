@@ -37,9 +37,9 @@ namespace EFunTech.Sms.ConsoleApplication
         {
             try
             {
-                CommonSmsService css = new CommonSmsService(systemParameters, logService, unitOfWork);
 
-                css.RetrySMS(3625);
+                CommonSmsService css = new CommonSmsService(systemParameters, logService, unitOfWork);
+                css.RetrySMS(3914);
             }
             catch(Exception ex)
             {

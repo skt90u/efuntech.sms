@@ -156,16 +156,18 @@ namespace EFunTech.Sms.Portal
 
         public void SendSMS(int sendMessageRuleId, DateTime sendTime)
         {
-            UniqueJob uniqueJob = this.uniqueJobList.AddOrUpdate("SendSMS", sendMessageRuleId, sendTime);
-            if (uniqueJob == null) return; // Job 已經存在
-
-            // 如果在 SendMessageQueue 中已經有對應資料，就忽略
-            if (this.unitOfWork.Repository<SendMessageQueue>().Any(p =>
-                p.SendMessageRuleId == sendMessageRuleId &&
-                p.SendTime == sendTime)) return;
+            UniqueJob uniqueJob = null;
 
             try
             {
+                uniqueJob = this.uniqueJobList.AddOrUpdate("SendSMS", sendMessageRuleId, sendTime);
+                if (uniqueJob == null) return; // Job 已經存在
+
+                // 如果在 SendMessageQueue 中已經有對應資料，就忽略
+                if (this.unitOfWork.Repository<SendMessageQueue>().Any(p =>
+                    p.SendMessageRuleId == sendMessageRuleId &&
+                    p.SendTime == sendTime)) return;
+
                 using (var scope = this.unitOfWork.CreateTransactionScope())
                 {
                     SendMessageRule sendMessageRule = this.unitOfWork.Repository<SendMessageRule>().GetById(sendMessageRuleId);
@@ -316,17 +318,20 @@ namespace EFunTech.Sms.Portal
             }
             finally
             {
-                this.uniqueJobList.Remove(uniqueJob);
+                if (uniqueJob != null)
+                    this.uniqueJobList.Remove(uniqueJob);
             }
         }
 
         public void GetDeliveryReport(string requestId)
         {
-            UniqueJob uniqueJob = this.uniqueJobList.AddOrUpdate("GetDeliveryReport", requestId);
-            if (uniqueJob == null) return; // Job 已經存在
+            UniqueJob uniqueJob = null;
 
             try
             {
+                uniqueJob = this.uniqueJobList.AddOrUpdate("GetDeliveryReport", requestId);
+                if (uniqueJob == null) return; // Job 已經存在
+
                 using (var scope = this.unitOfWork.CreateTransactionScope())
                 {
                     var deliveryReportQueueRepository = this.unitOfWork.Repository<DeliveryReportQueue>();
@@ -354,17 +359,20 @@ namespace EFunTech.Sms.Portal
             }
             finally
             {
-                this.uniqueJobList.Remove(uniqueJob);
+                if (uniqueJob != null)
+                    this.uniqueJobList.Remove(uniqueJob);
             }
         }
 
         public void RetrySMS(int sendMessageHistoryId)
         {
-            //UniqueJob uniqueJob = this.uniqueJobList.AddOrUpdate("RetrySMS", sendMessageHistoryId);
-            //if (uniqueJob == null) return; // Job 已經存在
+            UniqueJob uniqueJob = null;
 
             try
             {
+                uniqueJob = this.uniqueJobList.AddOrUpdate("RetrySMS", sendMessageHistoryId);
+                if (uniqueJob == null) return; // Job 已經存在
+
                 using (var scope = this.unitOfWork.CreateTransactionScope())
                 {
                     var sendMessageHistory = this.unitOfWork.Repository<SendMessageHistory>().GetById(sendMessageHistoryId);
@@ -395,7 +403,8 @@ namespace EFunTech.Sms.Portal
             }
             finally
             {
-                //this.uniqueJobList.Remove(uniqueJob);
+                if (uniqueJob != null)
+                    this.uniqueJobList.Remove(uniqueJob);
             }
         }
     }

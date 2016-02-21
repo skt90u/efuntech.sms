@@ -26,7 +26,7 @@ namespace EFunTech.Sms.Portal
         private ILogService logService;
         private IUnitOfWork unitOfWork;
 
-        public static readonly TimeSpan QueryInterval = new TimeSpan(0, 0, 10, 0, 0); // 一天
+        public static readonly TimeSpan QueryInterval = new TimeSpan(0, 0, 10, 0, 0); // 十分鐘
 
         private IRepository<UniqueJob> repository;
 
