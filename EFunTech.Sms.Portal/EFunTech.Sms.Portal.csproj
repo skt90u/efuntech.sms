@@ -3934,6 +3934,7 @@
     <Content Include="Docs\changelog.md" />
     <Content Include="Docs\index.eng.md" />
     <None Include="Properties\PublishProfiles\IIS.pubxml" />
+    <None Include="Properties\PublishProfiles\zutech-sms - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\zutech-sms.pubxml" />
     <Content Include="Scripts\bower_components\nanoScrollerJS\css\nanoscroller.less" />
     <Content Include="Scripts\bower_components\nanoScrollerJS\css\nanoscroller.scss" />
