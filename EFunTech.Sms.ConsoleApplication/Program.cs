@@ -8,6 +8,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EFunTech.Sms.Portal.Controllers;
 
 namespace EFunTech.Sms.ConsoleApplication
 {
@@ -17,7 +18,7 @@ namespace EFunTech.Sms.ConsoleApplication
         {
             Program pg = new Program();
 
-            pg.RetrySMS();
+            pg.RemoveUser();
         }
 
         protected DbContext context;
@@ -31,6 +32,13 @@ namespace EFunTech.Sms.ConsoleApplication
             this.unitOfWork = new UnitOfWork(context);
             this.systemParameters = new SystemParameters();
             this.logService = new SmartInspectLogService();
+        }
+
+        private void RemoveUser()
+        {
+            var controller = new DepartmentManagerController(systemParameters, context, logService);
+
+            controller.Delete("da5227aa-290f-4a8d-8279-b158f6588db0").Wait();
         }
 
         public void RetrySMS()

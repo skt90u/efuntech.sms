@@ -305,8 +305,7 @@ namespace EFunTech.Sms.Portal.Controllers
             await context.UpdateAsync(entity);
         }
 
-
-        protected override async Task DoRemove(string id) 
+        protected override async Task DoRemove(string id)
         {
             ApplicationUser entity = await DoGet(id);
 
@@ -322,22 +321,41 @@ namespace EFunTech.Sms.Portal.Controllers
                 throw new Exception(error);
             }
 
-            // 移除使用者相關資料
-
-            await context.DeleteAsync<Blacklist>(p => p.CreatedUser.Id == id);
-            await context.DeleteAsync<CommonMessage>(p => p.CreatedUser.Id == id);
-            await context.DeleteAsync<UploadedFile>(p => p.CreatedUser.Id == id);
-            await context.DeleteAsync<Signature>(p => p.CreatedUser.Id == id);
-            await context.DeleteAsync<SystemAnnouncement>(p => p.CreatedUser.Id == id);
-            await context.DeleteAsync<UploadedMessageReceiver>(p => p.CreatedUser.Id == id);
             
 
-            //var sendMessageRules = context.Set<SendMessageRule>().Where(p => p.CreatedUser.Id == id);
-            //var sendMessageRuleIds = sendMessageRules.Select(p => p.Id);
-            var sendMessageRules = context.Set<SendMessageRule>().Where(p => p.CreatedUser.Id == id).ToList();
+            // 移除使用者相關資料
+
+            await context.DeleteAsync<Blacklist>(p => p.CreatedUserId == id);
+            await context.DeleteAsync<CommonMessage>(p => p.CreatedUserId == id);
+            await context.DeleteAsync<UploadedFile>(p => p.CreatedUserId == id);
+            await context.DeleteAsync<Signature>(p => p.CreatedUserId == id);
+            await context.DeleteAsync<SystemAnnouncement>(p => p.CreatedUserId == id);
+            await context.DeleteAsync<UploadedMessageReceiver>(p => p.CreatedUserId == id);
+
+
+            var contactIds = context.Set<Contact>().Where(p => p.CreatedUserId == id).Select(p => p.Id);
+            await context.DeleteAsync<GroupContact>(p => contactIds.Contains(p.ContactId));
+            await context.DeleteAsync<Contact>(p => p.CreatedUserId == id);
+
+            var groupIds = context.Set<Group>().Where(p => p.CreatedUserId == id).Select(p => p.Id);
+            await context.DeleteAsync<GroupContact>(p => groupIds.Contains(p.GroupId));
+            await context.DeleteAsync<Group>(p => p.CreatedUserId == id);
+
+            await context.DeleteAsync<SharedGroupContact>(p => p.ShareToUserId == id);
+
+
+            var sendMessageRules = context.Set<SendMessageRule>().Where(p => p.CreatedUserId == id).ToList();
             var sendMessageRuleIds = sendMessageRules.Select(p => p.Id).ToList();
 
-            await context.DeleteAsync<MessageReceiver>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+            // 刪除與 SendMessageRule 相依的 SendMessageQueue
+            await context.DeleteAsync<SendMessageQueue>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+            // 刪除 SendMessageRule 之前必須回補點數
+            sendMessageRules.ForEach(p => this.tradeService.DeleteSendMessageRule(p));
+            // 刪除 SendMessageRule
+            await context.DeleteAsync<SendMessageRule>(p => p.CreatedUserId == id);
+
+
+            
             await context.DeleteAsync<RecipientFromCommonContact>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
             await context.DeleteAsync<RecipientFromFileUpload>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
             await context.DeleteAsync<RecipientFromGroupContact>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
@@ -347,22 +365,12 @@ namespace EFunTech.Sms.Portal.Controllers
             await context.DeleteAsync<SendCycleEveryWeek>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
             await context.DeleteAsync<SendCycleEveryYear>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
             await context.DeleteAsync<SendDeliver>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+
+            await context.DeleteAsync<MessageReceiver>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+
             
-            // 刪除與 SendMessageRule 相依的 SendMessageQueue
-            await context.DeleteAsync<SendMessageQueue>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
-            // 刪除 SendMessageRule 之前必須回補點數
-            sendMessageRules.ForEach(p => this.tradeService.DeleteSendMessageRule(p));
-            await context.DeleteAsync<SendMessageRule>(p => p.CreatedUser.Id == id);
 
-            var contactIds = context.Set<Contact>().Where(p => p.CreatedUser.Id == id).Select(p => p.Id);
-            await context.DeleteAsync<GroupContact>(p => contactIds.Contains(p.ContactId));
-            await context.DeleteAsync<Contact>(p => p.CreatedUser.Id == id);
-
-            var groupIds = context.Set<Group>().Where(p => p.CreatedUser.Id == id).Select(p => p.Id);
-            await context.DeleteAsync<GroupContact>(p => groupIds.Contains(p.GroupId));
-            await context.DeleteAsync<Group>(p => p.CreatedUser.Id == id);
-
-            await context.DeleteAsync<SharedGroupContact>(p => p.ShareToUserId == id);
+            
 
             // this.unitOfWork.Repository<TradeDetail>().Delete(p => p.OwnerId == childUser.Id); // 不確定是否需要刪除交易明細
 
