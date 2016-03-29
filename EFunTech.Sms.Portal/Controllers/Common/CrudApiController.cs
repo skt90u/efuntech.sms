@@ -20,6 +20,7 @@ using EFunTech.Sms.Core;
 using EFunTech.Sms.Portal.Models.Common;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Validation;
 
 // http://aspnet.codeplex.com/SourceControl/changeset/view/7ce67a547fd0#Samples/WebApi/RelaySample/Controllers/RelayController.cs
 
@@ -263,7 +264,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             }
             catch (Exception ex)
             {
-                this.logService.Error(ex);
+                this.logService.Error(GetRealException(ex));
 
                 throw;
             }
@@ -330,7 +331,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             }
             catch (Exception ex)
             {
-                this.logService.Error(ex);
+                this.logService.Error(GetRealException(ex));
 
                 throw;
             }
@@ -380,7 +381,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             }
             catch (Exception ex)
             {
-                this.logService.Error(ex);
+                this.logService.Error(GetRealException(ex));
 
                 throw;
             }
@@ -421,7 +422,7 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             }
             catch (Exception ex)
             {
-                this.logService.Error(ex);
+                this.logService.Error(GetRealException(ex));
 
                 throw;
             }
@@ -452,13 +453,38 @@ namespace EFunTech.Sms.Portal.Controllers.Common
             }
             catch (Exception ex)
             {
-                this.logService.Error(ex);
+                this.logService.Error(GetRealException(ex));
 
                 throw;
             }
         }
 
         #endregion
+
+        private Exception GetRealException(Exception error)
+        {
+            if(error is DbEntityValidationException)
+            {
+                DbEntityValidationException ex = (DbEntityValidationException)error;
+
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
+
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage =
+                          string.Concat(ex.Message, " The validation errors are: ", fullErrorMessage);
+
+                // Throw a new DbEntityValidationException with the improved exception message.
+                throw new DbEntityValidationException(exceptionMessage, ex.EntityValidationErrors);
+            }
+
+            return error;
+        }
     }
 
 

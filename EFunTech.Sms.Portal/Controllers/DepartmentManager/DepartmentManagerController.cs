@@ -328,10 +328,26 @@ namespace EFunTech.Sms.Portal.Controllers
             await context.DeleteAsync<CommonMessage>(p => p.CreatedUser.Id == id);
             await context.DeleteAsync<UploadedFile>(p => p.CreatedUser.Id == id);
             await context.DeleteAsync<Signature>(p => p.CreatedUser.Id == id);
+            await context.DeleteAsync<SystemAnnouncement>(p => p.CreatedUser.Id == id);
+            await context.DeleteAsync<UploadedMessageReceiver>(p => p.CreatedUser.Id == id);
+            
 
-            var sendMessageRules = context.Set<SendMessageRule>().Where(p => p.CreatedUser.Id == id);
-            var sendMessageRuleIds = sendMessageRules.Select(p => p.Id);
+            //var sendMessageRules = context.Set<SendMessageRule>().Where(p => p.CreatedUser.Id == id);
+            //var sendMessageRuleIds = sendMessageRules.Select(p => p.Id);
+            var sendMessageRules = context.Set<SendMessageRule>().Where(p => p.CreatedUser.Id == id).ToList();
+            var sendMessageRuleIds = sendMessageRules.Select(p => p.Id).ToList();
 
+            await context.DeleteAsync<MessageReceiver>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+            await context.DeleteAsync<RecipientFromCommonContact>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+            await context.DeleteAsync<RecipientFromFileUpload>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+            await context.DeleteAsync<RecipientFromGroupContact>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+            await context.DeleteAsync<RecipientFromManualInput>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+            await context.DeleteAsync<SendCycleEveryDay>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+            await context.DeleteAsync<SendCycleEveryMonth>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+            await context.DeleteAsync<SendCycleEveryWeek>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+            await context.DeleteAsync<SendCycleEveryYear>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+            await context.DeleteAsync<SendDeliver>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+            
             // 刪除與 SendMessageRule 相依的 SendMessageQueue
             await context.DeleteAsync<SendMessageQueue>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
             // 刪除 SendMessageRule 之前必須回補點數
@@ -350,6 +366,8 @@ namespace EFunTech.Sms.Portal.Controllers
 
             // this.unitOfWork.Repository<TradeDetail>().Delete(p => p.OwnerId == childUser.Id); // 不確定是否需要刪除交易明細
 
+            
+
             await context.DeleteAsync<AllotSetting>(p => p.Owner.Id == id);
             await context.DeleteAsync<CreditWarning>(p => p.Owner.Id == id);
             await context.DeleteAsync<ReplyCc>(p => p.Owner.Id == id);
@@ -364,7 +382,27 @@ namespace EFunTech.Sms.Portal.Controllers
 
             this.tradeService.DeleteUser(entity);
 
-            await context.DeleteAsync<ApplicationUser>(entity);
+            //entity = await DoGet(id);
+            //await context.DeleteAsync<ApplicationUser>(entity);
+            //await context.DeleteAsync<ApplicationUser>(p => p.Id == id);
+
+            await context.DeleteAsync<Department>(p => p.CreatedUserId == id);
+
+            var departmentIds = context.Set<Department>().Where(p => p.CreatedUserId == id).Select(p => p.Id).ToList();
+            var users = context.Set<ApplicationUser>().Where(p => p.Department != null && departmentIds.Contains(p.Department.Id)).ToList();
+            foreach (var user in users)
+            {
+                user.Department = null;
+                await context.UpdateAsync(user);
+            }
+
+            await context.DeleteAsync<SendMessageHistory>(p => p.CreatedUserId == id);
+            await context.DeleteAsync<SendMessageStatistic>(p => p.CreatedUserId == id);
+
+            await context.SaveChangesAsync();
+
+            entity = await DoGet(id);
+            await userManager.DeleteAsync(entity);
         }
 
         protected override async Task DoRemove(string[] ids) 
