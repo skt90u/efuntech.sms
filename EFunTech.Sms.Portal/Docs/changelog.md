@@ -2,6 +2,19 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Fixed - 2016-03-31
+- 檢核簡訊規則的重要參數 UseParam 判斷錯誤，目前改成以下方式進行判斷。
+	UseParam = -1 != window.location.hash.trim().toUpperCase().indexOf('SendParamMessage'.toUpperCase());
+- angular router 改成路徑不區分大小寫
+
+## Fixed - 2016-03-31
+- 簡訊平台變更事項
+	* 高品質線路對應帳號 -> ENVOTIONS
+	* 一般線路對應帳號 -> ZU2SMSC
+- 改成使用 GMAIL 發送 EMAIL
+- 暫時禁止操作者刪除子帳號，等待刪除帳號功能修復為止
+- 參數簡訊提示字樣
+
 ## Add - 2016-02-21
 - 新增重試機制
 

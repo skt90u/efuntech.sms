@@ -18,7 +18,8 @@ namespace EFunTech.Sms.ConsoleApplication
         {
             Program pg = new Program();
 
-            pg.RemoveUser();
+            pg.SendEmail();
+            //pg.RemoveUser();
         }
 
         protected DbContext context;
@@ -48,6 +49,22 @@ namespace EFunTech.Sms.ConsoleApplication
 
                 CommonSmsService css = new CommonSmsService(systemParameters, logService, unitOfWork);
                 css.RetrySMS(3914);
+            }
+            catch(Exception ex)
+            {
+                var b = 0;
+            }
+        }
+
+        public void SendEmail()
+        {
+            try
+            {
+                CommonMailService cms = new CommonMailService(systemParameters, logService);
+
+                cms.Send("EE", "DD", new string[]{"skt90u@gmail.com"});
+
+                var a = 0;
             }
             catch(Exception ex)
             {

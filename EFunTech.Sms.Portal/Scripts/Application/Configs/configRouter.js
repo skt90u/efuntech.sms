@@ -21,7 +21,7 @@
 
             angular.forEach(views, function (view, idx) {
                 $routeProvider.
-                    when("/" + view, { templateUrl: "partials/" + view + ".html" });
+                    when("/" + view, { templateUrl: "partials/" + view + ".html", caseInsensitiveMatch: true });
             });
 
             if (views.length != 0)

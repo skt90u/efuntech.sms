@@ -21,7 +21,7 @@ namespace EFunTech.Sms.Portal
         public GMailProvider(ISystemParameters systemParameters, ILogService logService)
         {
             this.userName = systemParameters.EMailUserName; 
-            this.password = systemParameters.EMailPassword; 
+            this.password = systemParameters.EMailPassword;
             this.logService = logService;
         }
 

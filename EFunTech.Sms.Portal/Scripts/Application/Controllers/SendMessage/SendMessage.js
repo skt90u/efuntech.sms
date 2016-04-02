@@ -117,6 +117,9 @@
                 var RecipientFromType = SendMessageRule.RecipientFromType;
                 var UseParam = SendMessageRule.UseParam;
 
+                // 目前不知道出了甚麼問題，導致判斷錯誤，在找出問題之前先使用以下方式判斷
+                UseParam = -1 != window.location.hash.trim().toUpperCase().indexOf('SendParamMessage'.toUpperCase());
+
                 if (SendBody.length == 0) {
                     errors.push('發送內容尚未輸入');
                 }
