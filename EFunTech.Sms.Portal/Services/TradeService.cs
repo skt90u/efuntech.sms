@@ -192,6 +192,53 @@ namespace EFunTech.Sms.Portal
 
         #region 發送回補
 
+        /// <summary>
+        /// 刪除使用者之前，回補點數
+        /// </summary>
+        /// <param name="sendMessageRules"></param>
+        public void DeleteSendMessageRules(List<SendMessageRule> sendMessageRules)
+        {
+            var ruleIdsInSendMessageQueue = this.unitOfWork.Repository<SendMessageQueue>().GetAll().Select(p => p.SendMessageRuleId).ToList();
+
+            // 過濾需要回補點數的簡訊規則
+            //  - 已經預先扣除 -> ShouldWithhold(p.SendTimeType)
+            //  - 尚未發送 -> !ruleIdsInSendMessageQueue.Contains(p.Id)
+            var targets = sendMessageRules.Where(p => ShouldWithhold(p.SendTimeType) && !ruleIdsInSendMessageQueue.Contains(p.Id)).ToList();
+
+            if(targets.Count != 0)
+            {
+                // 補點
+                decimal point = targets.Sum(p => p.TotalMessageCost);
+                var userRepository = this.unitOfWork.Repository<ApplicationUser>();
+                var user = targets.First().CreatedUser;
+                user.SmsBalance += point;
+                userRepository.Update(user);
+
+                DateTime utcNow = DateTime.UtcNow;
+
+                foreach(SendMessageRule sendMessageRule in targets)
+                {
+                    // 寫入交易明細
+                    var tradeDetailRepository = this.unitOfWork.Repository<TradeDetail>();
+                    var tradeDetail = new TradeDetail
+                    {
+                        TradeTime = utcNow,
+                        TradeType = TradeType.CoverOfSendMessage,
+                        Point = point,
+                        OwnerId = user.Id,
+                        TargetId = sendMessageRule.Id.ToString(),
+                        Remark = string.Format("{0}(簡訊編號：{1})，取消發送(共{2}筆收訊人)，回補點數{3}點",
+                            AttributeHelper.GetColumnDescription(sendMessageRule.SendTimeType),
+                            sendMessageRule.Id,
+                            this.unitOfWork.Repository<MessageReceiver>().Count(p => p.SendMessageRuleId == sendMessageRule.Id),
+                            point)
+                    };
+                    tradeDetailRepository.Insert(tradeDetail);
+                }
+            }
+            
+        }
+        
         public void DeleteSendMessageRule(SendMessageRule sendMessageRule)
         {
             DateTime utcNow = DateTime.UtcNow;
@@ -223,7 +270,7 @@ namespace EFunTech.Sms.Portal
                 tradeDetailRepository.Insert(tradeDetail);
 
                 // 自動補點與點數預警
-                CheckCredit(user);
+                //CheckCredit(user); // 20160507 Norman, 補點應該不需要確認
             }
         }
 

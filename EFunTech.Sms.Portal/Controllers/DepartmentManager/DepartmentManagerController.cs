@@ -13,6 +13,7 @@ using System.Data.Entity;
 using System.Threading.Tasks;
 using JUtilSharp.Database;
 using EFunTech.Sms.Core;
+using System.Data.Entity.Validation;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -62,6 +63,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
             // 尋找目前使用者以及目前使用者的子帳號
             var result = users.AsQueryable();
+            //var result = users.Where(p => !p.Deleted).AsQueryable();
 
             var predicate = PredicateBuilder.True<ApplicationUser>();
             var fullName = criteria.FullName;
@@ -307,6 +309,297 @@ namespace EFunTech.Sms.Portal.Controllers
 
         protected override async Task DoRemove(string id)
         {
+            ApplicationUser entity = await DoGet(id);
+
+            if (entity == null)
+            {
+                string error = string.Format("找不到使用者(id = {0})", id);
+                throw new Exception(error);
+            }
+
+            // 刪除指定帳號必須確保該帳號所建立的所有使用者都已經刪除
+
+            var childUsers = this.apiControllerHelper.GetDescendingUsers(entity.Id);
+            if (childUsers.Count() != 0)
+            {
+                string error = string.Format("使用者【{0}】下還有 {1} 位使用者，分別是 {2}，請先刪除該此使用者下所有使用者，之後再刪除此使用者",
+                    entity.UserName,
+                    childUsers.Count(),
+                    string.Join("、", childUsers.Select(p => p.UserName)));
+                throw new Exception(error);
+            }
+
+            // (1)
+            context.Delete<AllotSetting>(p => p.Owner != null && p.Owner.Id == id);
+            // (2)
+            // AspNetUserClaims
+            // (3)
+            // AspNetUserLogins
+            // (4)
+            // AspNetUserRoles
+            // (5)
+            context.Delete<CommonMessage>(p => p.CreatedUserId == id);
+
+            var contactIds = context.Set<Contact>().Where(p => p.CreatedUserId == id).Select(p => p.Id);
+            var groupIds = context.Set<Group>().Where(p => p.CreatedUserId == id).Select(p => p.Id);
+
+            // (6)
+            context.Delete<GroupContact>(p => contactIds.Contains(p.ContactId));
+            context.Delete<GroupContact>(p => groupIds.Contains(p.GroupId));
+            context.Delete<Contact>(p => p.CreatedUserId == id);
+
+            // (7)
+            context.Delete<CreditWarning>(p => p.Owner.Id == id);
+
+            var departmentIds = context.Set<Department>().Where(p => p.CreatedUserId == id).Select(p => p.Id).ToList();
+            if (departmentIds.Count != 0)
+            {
+                var users = context.Set<ApplicationUser>().Where(p => p.Department != null && departmentIds.Contains(p.Department.Id)).ToList();
+                foreach (var user in users)
+                {
+                    user.Department = null;
+                    context.Update(user);
+                }
+            }
+            context.Delete<Department>(p => p.CreatedUserId == id);
+
+            // (8)
+            context.Delete<SharedGroupContact>(p => p.ShareToUserId == id);
+            context.Delete<Group>(p => p.CreatedUserId == id);
+
+            // (9)
+            context.Delete<ReplyCc>(p => p.Owner.Id == id);
+
+            // (10)
+            var sendMessageRules = context.Set<SendMessageRule>().Where(p => p.CreatedUserId == id).ToList();
+
+            if (sendMessageRules.Count != 0)
+            {
+                // 刪除 SendMessageRule 之前必須回補點數
+                this.tradeService.DeleteSendMessageRules(sendMessageRules);
+
+                var sendMessageRuleIds = sendMessageRules.Select(p => p.Id).ToList();
+
+                // 刪除與 SendMessageRule 相依的 SendMessageQueue
+                context.Delete<SendMessageQueue>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+
+                context.Delete<MessageReceiver>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+                context.Delete<RecipientFromCommonContact>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+                context.Delete<RecipientFromFileUpload>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+                context.Delete<RecipientFromGroupContact>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+                context.Delete<RecipientFromManualInput>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+                context.Delete<SendCycleEveryDay>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+                context.Delete<SendCycleEveryMonth>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+                context.Delete<SendCycleEveryWeek>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+                context.Delete<SendCycleEveryYear>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+                context.Delete<SendDeliver>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+            }
+
+            // 刪除 SendMessageRule
+            context.Delete<SendMessageRule>(p => p.CreatedUserId == id);
+
+            // (11)
+            context.Delete<Signature>(p => p.CreatedUserId == id);
+
+            // (12)
+            context.Delete<SystemAnnouncement>(p => p.CreatedUserId == id);
+
+            // (13)
+            context.Delete<Blacklist>(p => p.CreatedUserId == id);
+            context.Delete<UploadedMessageReceiver>(p => p.CreatedUserId == id);
+            context.Delete<UploadedFile>(p => p.CreatedUserId == id);
+
+            //this.unitOfWork.Repository<TradeDetail>().Delete(p => p.OwnerId == childUser.Id); // 不確定是否需要刪除交易明細
+            context.Delete<SendMessageHistory>(p => p.CreatedUserId == id);
+            context.Delete<SendMessageStatistic>(p => p.CreatedUserId == id);
+
+            this.tradeService.DeleteUser(entity);
+
+            var logins = entity.Logins.ToList();
+            var claims = entity.Claims.ToList();
+            foreach (var login in logins) entity.Logins.Remove(login);
+            foreach (var claim in claims) entity.Claims.Remove(claim);
+
+            //是否有修改角色
+            var childUserRoleId = GetIdentityRole(id).Id;
+            var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
+
+            string childUserRoleName = GetRoleName(childUserRoleId);
+            if (!string.IsNullOrEmpty(childUserRoleName))
+                userManager.RemoveFromRoleAsync(id, childUserRoleName).Wait();
+
+            entity = await DoGet(id);
+
+            userManager.Delete(entity);
+
+            //await userManager.DeleteAsync(entity);
+
+            // 20160507 Norman 刪除不掉使用者，只好使用 FLAG (Deleted)
+
+            //entity = await DoGet(id);
+            //entity.Deleted = true;
+            //context.Update(entity);
+        }
+
+        /// <summary>
+        /// 使用 [View the Dependencies of a Table] 找出相依的 Table
+        /// https://msdn.microsoft.com/en-us/library/ms190624.aspx
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        protected async Task DoRemove_20160425_BAD(string id)
+        {
+            ApplicationUser entity = await DoGet(id);
+
+            if(entity == null)
+            {
+                string error = string.Format("找不到使用者【{0}】", id);
+                throw new Exception(error);
+            }
+
+            // 刪除指定帳號必須確保該帳號所建立的所有使用者都已經刪除
+
+            var childUsers = this.apiControllerHelper.GetDescendingUsers(entity.Id);
+            if (childUsers.Count() != 0)
+            {
+                string error = string.Format("使用者【{0}】下還有 {1} 位使用者，分別是 {2}，請先刪除該此使用者下所有使用者，之後再刪除此使用者",
+                    entity.UserName,
+                    childUsers.Count(),
+                    string.Join("、", childUsers.Select(p => p.UserName)));
+                throw new Exception(error);
+            }
+
+            // (1)
+            await context.DeleteAsync<AllotSetting>(p => p.Owner != null && p.Owner.Id == id);
+            // (2)
+            // AspNetUserClaims
+            // (3)
+            // AspNetUserLogins
+            // (4)
+            // AspNetUserRoles
+            // (5)
+            await context.DeleteAsync<CommonMessage>(p => p.CreatedUserId == id);
+
+            var contactIds = context.Set<Contact>().Where(p => p.CreatedUserId == id).Select(p => p.Id);
+            var groupIds = context.Set<Group>().Where(p => p.CreatedUserId == id).Select(p => p.Id);
+
+            // (6)
+            await context.DeleteAsync<GroupContact>(p => contactIds.Contains(p.ContactId));
+            await context.DeleteAsync<GroupContact>(p => groupIds.Contains(p.GroupId));
+            await context.DeleteAsync<Contact>(p => p.CreatedUserId == id);
+
+            // (7)
+            await context.DeleteAsync<CreditWarning>(p => p.Owner.Id == id);
+            
+            var departmentIds = context.Set<Department>().Where(p => p.CreatedUserId == id).Select(p => p.Id).ToList();
+            if(departmentIds.Count != 0)
+            {
+                var users = context.Set<ApplicationUser>().Where(p => p.Department != null && departmentIds.Contains(p.Department.Id)).ToList();
+                foreach (var user in users)
+                {
+                    user.Department = null;
+                    await context.UpdateAsync(user);
+                }
+            }
+            await context.DeleteAsync<Department>(p => p.CreatedUserId == id);
+
+            // (8)
+            await context.DeleteAsync<SharedGroupContact>(p => p.ShareToUserId == id);
+            await context.DeleteAsync<Group>(p => p.CreatedUserId == id);
+
+            // (9)
+            await context.DeleteAsync<ReplyCc>(p => p.Owner.Id == id);
+
+            // (10)
+            var sendMessageRules = context.Set<SendMessageRule>().Where(p => p.CreatedUserId == id).ToList();
+
+            if (sendMessageRules.Count != 0)
+            {
+                // 刪除 SendMessageRule 之前必須回補點數
+                sendMessageRules.ForEach(p => this.tradeService.DeleteSendMessageRule(p));
+
+                var sendMessageRuleIds = sendMessageRules.Select(p => p.Id).ToList();
+
+                // 刪除與 SendMessageRule 相依的 SendMessageQueue
+                await context.DeleteAsync<SendMessageQueue>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+
+                await context.DeleteAsync<MessageReceiver>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+                await context.DeleteAsync<RecipientFromCommonContact>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+                await context.DeleteAsync<RecipientFromFileUpload>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+                await context.DeleteAsync<RecipientFromGroupContact>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+                await context.DeleteAsync<RecipientFromManualInput>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+                await context.DeleteAsync<SendCycleEveryDay>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+                await context.DeleteAsync<SendCycleEveryMonth>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+                await context.DeleteAsync<SendCycleEveryWeek>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+                await context.DeleteAsync<SendCycleEveryYear>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+                await context.DeleteAsync<SendDeliver>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
+            }
+
+            // 刪除 SendMessageRule
+            await context.DeleteAsync<SendMessageRule>(p => p.CreatedUserId == id);
+
+            // (11)
+            await context.DeleteAsync<Signature>(p => p.CreatedUserId == id);
+
+            // (12)
+            await context.DeleteAsync<SystemAnnouncement>(p => p.CreatedUserId == id);
+
+            // (13)
+            await context.DeleteAsync<Blacklist>(p => p.CreatedUserId == id);
+            await context.DeleteAsync<UploadedMessageReceiver>(p => p.CreatedUserId == id);
+            await context.DeleteAsync<UploadedFile>(p => p.CreatedUserId == id);
+
+
+            //this.unitOfWork.Repository<TradeDetail>().Delete(p => p.OwnerId == childUser.Id); // 不確定是否需要刪除交易明細
+            await context.DeleteAsync<SendMessageHistory>(p => p.CreatedUserId == id);
+            await context.DeleteAsync<SendMessageStatistic>(p => p.CreatedUserId == id);
+
+            this.tradeService.DeleteUser(entity);
+
+            context.SaveChanges();
+
+            var logins = entity.Logins.ToList();
+            var claims = entity.Claims.ToList();
+            foreach (var login in logins) entity.Logins.Remove(login);
+            foreach (var claim in claims) entity.Claims.Remove(claim);
+
+            //是否有修改角色
+            var childUserRoleId = GetIdentityRole(id).Id;
+            var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
+
+            string childUserRoleName = GetRoleName(childUserRoleId);
+            if (!string.IsNullOrEmpty(childUserRoleName))
+                userManager.RemoveFromRoleAsync(id, childUserRoleName).Wait();
+
+            //entity = await DoGet(id);
+
+            try
+            {
+                userManager.Delete(entity);
+            }
+            catch (DbEntityValidationException ex)
+            {
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
+
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage =
+                          string.Concat(ex.Message, " The validation errors are: ", fullErrorMessage);
+
+                // Throw a new DbEntityValidationException with the improved exception message.
+                throw new DbEntityValidationException(exceptionMessage, ex.EntityValidationErrors);
+            }
+
+            await userManager.DeleteAsync(entity);
+        }
+
+        protected async Task DoRemove_20160425(string id)
+        {
             // TODO: 移除使用者功能尚未修復
             ApplicationUser entity = await DoGet(id);
 
@@ -322,7 +615,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 throw new Exception(error);
             }
 
-            
+
 
             // 移除使用者相關資料
 
@@ -356,7 +649,7 @@ namespace EFunTech.Sms.Portal.Controllers
             await context.DeleteAsync<SendMessageRule>(p => p.CreatedUserId == id);
 
 
-            
+
             await context.DeleteAsync<RecipientFromCommonContact>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
             await context.DeleteAsync<RecipientFromFileUpload>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
             await context.DeleteAsync<RecipientFromGroupContact>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
@@ -369,13 +662,13 @@ namespace EFunTech.Sms.Portal.Controllers
 
             await context.DeleteAsync<MessageReceiver>(p => sendMessageRuleIds.Contains(p.SendMessageRuleId));
 
-            
 
-            
+
+
 
             // this.unitOfWork.Repository<TradeDetail>().Delete(p => p.OwnerId == childUser.Id); // 不確定是否需要刪除交易明細
 
-            
+
 
             await context.DeleteAsync<AllotSetting>(p => p.Owner.Id == id);
             await context.DeleteAsync<CreditWarning>(p => p.Owner.Id == id);
@@ -430,8 +723,8 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 model.Activatable = !isCurrentUser; // 是否可以啟用或關閉
                 model.Maintainable = true; // 是否可以修改帳號設定
-                //model.Deletable = !isCurrentUser; // 是否可以刪除帳號
-                model.Deletable = false; // TODO: 20160331 Norman, 目前尚未解決刪除使用者會拋出例外的問題，先將刪除按鈕影藏
+                model.Deletable = !isCurrentUser; // 是否可以刪除帳號
+                //model.Deletable = false; // TODO: 20160331 Norman, 目前尚未解決刪除使用者會拋出例外的問題，先將刪除按鈕影藏
                 model.DepartmentId = model.Department != null ? model.Department.Id : 0;
                 model.RoleId = GetIdentityRole(model.Id).Id;
                 model.NewPassword = string.Empty;

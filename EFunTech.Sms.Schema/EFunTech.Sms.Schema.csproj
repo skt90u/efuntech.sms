@@ -136,14 +136,6 @@
     <Compile Include="Extensions\SendMessageRuleExtensions.cs" />
     <Compile Include="Extensions\MenuItemExtensions.cs" />
     <Compile Include="IdentityModels.cs" />
-    <Compile Include="Migrations\201602210650036_RetrySMS_step01.cs" />
-    <Compile Include="Migrations\201602210650036_RetrySMS_step01.Designer.cs">
-      <DependentUpon>201602210650036_RetrySMS_step01.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201602210659426_RetrySMS_step02.cs" />
-    <Compile Include="Migrations\201602210659426_RetrySMS_step02.Designer.cs">
-      <DependentUpon>201602210659426_RetrySMS_step02.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tables\SendMessageHistory`.cs" />
@@ -215,14 +207,6 @@
       <Project>{a09d076f-e369-48e2-9bc6-72f5f57dcaff}</Project>
       <Name>EFunTech.Sms.Core</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201602210650036_RetrySMS_step01.resx">
-      <DependentUpon>201602210650036_RetrySMS_step01.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201602210659426_RetrySMS_step02.resx">
-      <DependentUpon>201602210659426_RetrySMS_step02.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

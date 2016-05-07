@@ -84,5 +84,65 @@ namespace EFunTech.Sms.Portal
                 throw new DbEntityValidationException(exceptionMessage, ex.EntityValidationErrors);
             }
         }
+
+        //------------------------------------------------------------------------
+
+
+        public static TEntity Insert<TEntity>(this DbContext context, TEntity entity)
+            where TEntity : class
+        {
+            var newEntry = context.Set<TEntity>().Add(entity);
+            context.MySaveChanges();
+            return newEntry;
+        }
+
+        public static int Update<TEntity>(this DbContext context, TEntity entity)
+            where TEntity : class
+        {
+            var entry = context.Entry(entity);
+            context.Set<TEntity>().Attach(entity);
+            entry.State = EntityState.Modified;
+
+            return context.MySaveChanges();
+        }
+
+        public static int Delete<TEntity>(this DbContext context, TEntity entity)
+            where TEntity : class
+        {
+            context.Set<TEntity>().Remove(entity);
+            return context.MySaveChanges();
+        }
+
+        public static int Delete<TEntity>(this DbContext context, Expression<Func<TEntity, bool>> predicate)
+            where TEntity : class
+        {
+            context.Set<TEntity>().Where(predicate).Delete();
+            return context.MySaveChanges();
+        }
+
+        public static int MySaveChanges(this DbContext context)
+        {
+            try
+            {
+                return context.SaveChanges();
+            }
+            catch (DbEntityValidationException ex)
+            {
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
+
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage =
+                          string.Concat(ex.Message, " The validation errors are: ", fullErrorMessage);
+
+                // Throw a new DbEntityValidationException with the improved exception message.
+                throw new DbEntityValidationException(exceptionMessage, ex.EntityValidationErrors);
+            }
+        }
     }
 }

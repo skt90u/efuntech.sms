@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using EFunTech.Sms.Portal.Controllers;
+using System.Data.Entity.Validation;
 
 namespace EFunTech.Sms.ConsoleApplication
 {
@@ -16,10 +17,30 @@ namespace EFunTech.Sms.ConsoleApplication
     {
         static void Main(string[] args)
         {
-            Program pg = new Program();
+            try
+            {
+                Program pg = new Program();
 
-            pg.SendEmail();
-            //pg.RemoveUser();
+                //pg.SendEmail();
+                pg.RemoveUser();
+            }
+            catch (DbEntityValidationException ex)
+            {
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
+
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage =
+                          string.Concat(ex.Message, " The validation errors are: ", fullErrorMessage);
+
+                // Throw a new DbEntityValidationException with the improved exception message.
+                throw new DbEntityValidationException(exceptionMessage, ex.EntityValidationErrors);
+            }
         }
 
         protected DbContext context;
@@ -39,7 +60,7 @@ namespace EFunTech.Sms.ConsoleApplication
         {
             var controller = new DepartmentManagerController(systemParameters, context, logService);
 
-            controller.Delete("da5227aa-290f-4a8d-8279-b158f6588db0").Wait();
+            controller.Delete("0389379c-6792-4a10-a543-1f6733525cee").Wait();
         }
 
         public void RetrySMS()

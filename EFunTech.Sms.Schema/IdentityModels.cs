@@ -31,6 +31,8 @@ namespace EFunTech.Sms.Schema
 
         public int Level { get; set; }
 
+        // public bool Deleted { get; set; }
+
         [MaxLength(128), ForeignKey("Parent")]
         public string ParentId { get; set; }
 
