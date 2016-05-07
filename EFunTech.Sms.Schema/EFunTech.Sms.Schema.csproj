@@ -136,6 +136,10 @@
     <Compile Include="Extensions\SendMessageRuleExtensions.cs" />
     <Compile Include="Extensions\MenuItemExtensions.cs" />
     <Compile Include="IdentityModels.cs" />
+    <Compile Include="Migrations\201605071236587_v0507_1.cs" />
+    <Compile Include="Migrations\201605071236587_v0507_1.Designer.cs">
+      <DependentUpon>201605071236587_v0507_1.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tables\SendMessageHistory`.cs" />
@@ -207,6 +211,11 @@
       <Project>{a09d076f-e369-48e2-9bc6-72f5f57dcaff}</Project>
       <Name>EFunTech.Sms.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201605071236587_v0507_1.resx">
+      <DependentUpon>201605071236587_v0507_1.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

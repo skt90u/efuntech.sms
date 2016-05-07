@@ -1047,7 +1047,7 @@ namespace EFunTech.Sms.Portal
             // (1) 只能更新自己所建立的簡訊規則
             ////////////////////////////////////////
 
-            if (!user.SendMessageRules.Any(p => p.Id == model.Id))
+            if (!this.repository.Any(p => p.CreatedUserId == user.Id && p.Id == model.Id))
                 throw new Exception(string.Format("使用者{0}，沒有指定簡訊規則({1})", user.UserName, model.Id));
 
             SendMessageRule entity = this.repository.GetById(model.Id); // 函式傳遞過來的 entity 是透過 AutoMapper 轉換的，我要的是來自資料庫的資料
@@ -1161,7 +1161,7 @@ namespace EFunTech.Sms.Portal
             // (1) 只能刪除自己所建立的簡訊規則
             ////////////////////////////////////////
 
-            if (!user.SendMessageRules.Any(p => p.Id == id))
+            if (!this.repository.Any(p => p.CreatedUserId == user.Id && p.Id == id))
                 throw new Exception(string.Format("使用者{0}，沒有指定簡訊規則({1})", user.UserName, id));
 
             SendMessageRule entity = this.repository.GetById(id);

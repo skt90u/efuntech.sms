@@ -54,7 +54,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 HttpResponseMessage returnVal = null;
 
-                SendMessageRule sendMessageRule = CurrentUser.SendMessageRules.Where(p => p.Id == sendMessageRuleId).FirstOrDefault();
+                SendMessageRule sendMessageRule = context.Set<SendMessageRule>().Where(p => p.CreatedUserId == CurrentUser.Id && p.Id == sendMessageRuleId).FirstOrDefault();
 
                 if (sendMessageRule == null)
                     throw new Exception(string.Format("無法取得簡訊派送報表，目前使用者 {0} 沒有對應的簡訊識別碼 {1}",

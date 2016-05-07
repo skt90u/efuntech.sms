@@ -95,13 +95,13 @@ namespace EFunTech.Sms.Schema
         [ColumnDescription("啟用/關閉")]
         public bool Enabled { get; set; }
 
-        public virtual ICollection<Blacklist> Blacklists { get; set; }
-        public virtual ICollection<CommonMessage> CommonMessages { get; set; }
-        public virtual ICollection<UploadedFile> UploadedFiles { get; set; }
-        public virtual ICollection<Signature> Signatures { get; set; }
-        public virtual ICollection<SendMessageRule> SendMessageRules { get; set; }
-        public virtual ICollection<Contact> Contacts { get; set; }
-        public virtual ICollection<Group> Groups { get; set; }
+        //public virtual ICollection<Blacklist> Blacklists { get; set; }
+        //public virtual ICollection<CommonMessage> CommonMessages { get; set; }
+        //public virtual ICollection<UploadedFile> UploadedFiles { get; set; }
+        //public virtual ICollection<Signature> Signatures { get; set; }
+        //public virtual ICollection<SendMessageRule> SendMessageRules { get; set; }
+        //public virtual ICollection<Contact> Contacts { get; set; }
+        //public virtual ICollection<Group> Groups { get; set; }
 
         //public virtual ICollection<TradeDetail> TradeDetails { get; set; }
 

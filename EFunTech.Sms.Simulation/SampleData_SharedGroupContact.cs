@@ -45,7 +45,8 @@ namespace EFunTech.Sms.Simulation
         protected override void SeedEntity(ApplicationDbContext context, ApplicationUser user)
         {
             // 目前使用者所有的聯絡人群組(排除常用聯絡人)
-            var groupIds = user.Groups.Where(x => x.Name != Group.CommonContactGroupName).Select(x => x.Id).ToList();
+            var groupIds = context.Set<Group>().Where(x => x.CreatedUserId == user.Id && x.Name != Group.CommonContactGroupName).Select(x => x.Id).ToList();
+
             // 已經有測試資料
             if (context.SharedGroupContacts.Any(x => groupIds.Contains(x.GroupId))) return;
 

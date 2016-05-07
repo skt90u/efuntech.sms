@@ -67,7 +67,7 @@ namespace EFunTech.Sms.Portal.Controllers
                 {
                     //int sendMessageRuleId = id;
 
-                    SendMessageRule sendMessageRule = CurrentUser.SendMessageRules.Where(p => p.Id == sendMessageRuleId).FirstOrDefault();
+                    SendMessageRule sendMessageRule = context.Set<SendMessageRule>().Where(p => p.CreatedUserId == CurrentUser.Id && p.Id == sendMessageRuleId).FirstOrDefault();
 
                     if (sendMessageRule == null)
                         throw new Exception(string.Format("無法刪除預約簡訊，目前使用者 {0} 沒有對應的簡訊識別碼 {1}",
