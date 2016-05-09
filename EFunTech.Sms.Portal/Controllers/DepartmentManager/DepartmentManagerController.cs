@@ -382,6 +382,8 @@ namespace EFunTech.Sms.Portal.Controllers
 
         private void HandleDeletedUserQueue()
         {
+            if (DeletedUserIds.Count == 0) return;
+
             using (TransactionScope scope = context.CreateTransactionScope())
             {
                 while (DeletedUserIds.Count != 0)
@@ -397,9 +399,9 @@ namespace EFunTech.Sms.Portal.Controllers
             }
         }
 
-        private void DeleteUserById(string id)
+        private async void DeleteUserById(string id)
         {
-            ApplicationUser entity = DoGet(id).GetAwaiter().GetResult();
+            ApplicationUser entity = await DoGet(id);
 
             var logins = entity.Logins.ToList();
             var claims = entity.Claims.ToList();
