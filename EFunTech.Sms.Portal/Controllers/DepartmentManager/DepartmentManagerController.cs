@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using JUtilSharp.Database;
 using EFunTech.Sms.Core;
 using System.Data.Entity.Validation;
+using System.Collections.Concurrent;
+using System.Transactions;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -58,6 +60,8 @@ namespace EFunTech.Sms.Portal.Controllers
         /// <returns></returns>
         protected override IQueryable<ApplicationUser> DoGetList(DepartmentManagerCriteriaModel criteria)
         {
+            HandleDeletedUserQueue();
+
             // 尋找目前使用者以及目前使用者的子帳號或孫帳號
             IEnumerable<ApplicationUser> users = this.apiControllerHelper.GetDescendingUsersAndUser(CurrentUserId);
 
@@ -170,65 +174,6 @@ namespace EFunTech.Sms.Portal.Controllers
 
             return entity;
         }
-
-        //protected override async Task DoUpdate(ApplicationUserModel model, string id, ApplicationUser entity)
-        //{
-        //    // 當角色是 DepartmentHead 或者 Employee，必須指定部門
-        //    var roleName = GetRoleName(model.RoleId);
-        //    Role role = (Role)Enum.Parse(typeof(Role), roleName);
-        //    if (role == Role.DepartmentHead || role == Role.Employee)
-        //    {
-        //        if (model.DepartmentId == 0)
-        //            throw new Exception("當角色為部門主管或員工時，必須指定部門");
-        //    }
-
-        //    //設定部門
-        //    entity.Department = model.DepartmentId == 0 ? null : context.Set<Department>().FirstOrDefault(p => p.Id == model.DepartmentId);
-
-        //    //是否有修改角色
-        //    var newRoleId = model.RoleId;
-        //    var oldRoleId = GetIdentityRole(model.Id).Id;
-        //    if (newRoleId != oldRoleId)
-        //    {
-        //        var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
-        //        var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
-
-        //        string oldRoleName = GetRoleName(oldRoleId);
-        //        if (!string.IsNullOrEmpty(oldRoleName))
-        //            userManager.RemoveFromRoleAsync(model.Id, oldRoleName).Wait();
-
-        //        userManager.AddToRoleAsync(model.Id, GetRoleName(newRoleId)).Wait();
-        //    }
-
-        //    //是否有修改密碼
-        //    if (!string.IsNullOrEmpty(model.NewPassword))
-        //    {
-        //        // http://stackoverflow.com/questions/19524111/asp-net-identity-reset-password
-        //        var store = new UserStore<ApplicationUser>(context);
-        //        var userManager = new UserManager<ApplicationUser>(store);
-        //        var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
-
-        //        String hashedNewPassword = userManager.PasswordHasher.HashPassword(model.NewPassword);
-        //        var user = await DoGet(model.Id);
-
-        //        store.SetPasswordHashAsync(user, hashedNewPassword).Wait();
-        //        store.UpdateAsync(user).Wait();
-        //    }
-
-        //    if (entity.Enabled)
-        //    {
-        //        entity.LockoutEnabled = false;
-        //        entity.LockoutEndDateUtc = null;
-        //    }
-        //    else
-        //    {
-        //        entity.LockoutEnabled = true;
-        //        entity.LockoutEndDateUtc = DateTime.MaxValue;
-        //    }
-
-        //    await context.UpdateAsync(entity);
-        //}
-
 
         protected override async Task DoUpdate(ApplicationUserModel model, string id, ApplicationUser entity)
         {
@@ -414,6 +359,48 @@ namespace EFunTech.Sms.Portal.Controllers
 
             this.tradeService.DeleteUser(entity);
 
+            EnqueueDeletedUser(id);
+        }
+
+        // 20160509 Norman, 
+        //  目前沒辦法直接在 DoRemove, 完整刪除使用者, 估計是因為 CreateTransactionScope 所造成的
+        //
+        // 解決方式, 分兩階段才能夠真正刪除資料
+        //  - (1) DoRemove
+        //      step 1: 刪除相依的資料
+        //      step 2: EnqueueDeletedUser(id)
+        //  - (2) DoGetList
+        //      step 1: 刪除使用者 -> 透過 HandleDeletedUserQueue
+        //      step 2: 查詢使用者資料
+
+        private static ConcurrentQueue<string> DeletedUserIds = new ConcurrentQueue<string>();
+
+        private void EnqueueDeletedUser(string id)
+        {
+            DeletedUserIds.Enqueue(id);
+        }
+
+        private void HandleDeletedUserQueue()
+        {
+            using (TransactionScope scope = context.CreateTransactionScope())
+            {
+                while (DeletedUserIds.Count != 0)
+                {
+                    string id = null;
+                    if (DeletedUserIds.TryDequeue(out id))
+                    {
+                        DeleteUserById(id);
+                    }
+                }
+
+                scope.Complete();
+            }
+        }
+
+        private void DeleteUserById(string id)
+        {
+            ApplicationUser entity = DoGet(id).GetAwaiter().GetResult();
+
             var logins = entity.Logins.ToList();
             var claims = entity.Claims.ToList();
             foreach (var login in logins) entity.Logins.Remove(login);
@@ -427,15 +414,9 @@ namespace EFunTech.Sms.Portal.Controllers
             if (!string.IsNullOrEmpty(childUserRoleName))
                 userManager.RemoveFromRoles(id, childUserRoleName);
 
-            entity = await DoGet(id);
-
             userManager.Delete(entity);
-            // 20160507 Norman 刪除不掉使用者，只好使用 FLAG (Deleted)
-
-            //entity = await DoGet(id);
-            //entity.Deleted = true;
-            //context.Update(entity);
         }
+
 
         protected override async Task DoRemove(string[] ids) 
         {
