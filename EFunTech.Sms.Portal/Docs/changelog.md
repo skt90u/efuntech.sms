@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Fixed - 2016-05-09
+- 修復無法刪除使用者的問題(Workaround)
+
 ## Fixed - 2016-03-31
 - 檢核簡訊規則的重要參數 UseParam 判斷錯誤，目前改成以下方式進行判斷。
 	UseParam = -1 != window.location.hash.trim().toUpperCase().indexOf('SendParamMessage'.toUpperCase());
