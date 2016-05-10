@@ -359,6 +359,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
             this.tradeService.DeleteUser(entity);
 
+            //DeleteUserById(id); // DbValidationException
             EnqueueDeletedUser(id);
         }
 
@@ -399,9 +400,9 @@ namespace EFunTech.Sms.Portal.Controllers
             }
         }
 
-        private async void DeleteUserById(string id)
+        private void DeleteUserById(string id)
         {
-            ApplicationUser entity = await DoGet(id);
+            ApplicationUser entity = GetUser(id); // not use "await DoGet(id);" in synchronized function
 
             var logins = entity.Logins.ToList();
             var claims = entity.Claims.ToList();
