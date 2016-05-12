@@ -310,6 +310,7 @@ namespace EFunTech.Sms.Portal.Controllers
 
             // (8)
             context.Delete<SharedGroupContact>(p => p.ShareToUserId == id);
+            context.Delete<SharedGroupContact>(p => groupIds.Contains(p.GroupId));
             context.Delete<Group>(p => p.CreatedUserId == id);
 
             // (9)
