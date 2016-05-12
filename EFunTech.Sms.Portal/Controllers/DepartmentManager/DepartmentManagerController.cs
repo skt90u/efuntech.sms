@@ -439,7 +439,6 @@ namespace EFunTech.Sms.Portal.Controllers
                 model.Activatable = !isCurrentUser; // 是否可以啟用或關閉
                 model.Maintainable = true; // 是否可以修改帳號設定
                 model.Deletable = !isCurrentUser; // 是否可以刪除帳號
-                //model.Deletable = false; // TODO: 20160331 Norman, 目前尚未解決刪除使用者會拋出例外的問題，先將刪除按鈕影藏
                 model.DepartmentId = model.Department != null ? model.Department.Id : 0;
                 model.RoleId = GetIdentityRole(model.Id).Id;
                 model.NewPassword = string.Empty;
