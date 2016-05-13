@@ -285,7 +285,7 @@ namespace EFunTech.Sms.Portal
 
                         sendMessageQueue = this.unitOfWork.Repository<SendMessageQueue>().Insert(sendMessageQueue);
 
-                        provider.SendSMS(sendMessageQueue.Id); // TODO: EVA 測試, 先 mark 調
+                        provider.SendSMS(sendMessageQueue.Id); // TODO: 在 EVA 測試, 要先註解這一行，避免發送簡訊
 
                     } // foreach (var sendBody in sendBodies)
 

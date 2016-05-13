@@ -603,8 +603,6 @@ namespace EFunTech.Sms.Portal
             {
                 case RecipientFromType.FileUpload:
                     {
-                        var _repository = this.unitOfWork.Repository<MessageReceiver>();
-
                         var uploadedMessageReceiverRepository = this.unitOfWork.Repository<UploadedMessageReceiver>();
 
                         //IQueryable<UploadedMessageReceiver> result = uploadedMessageReceiverRepository.GetMany(p => p.UploadedSessionId == entity.RecipientFromFileUpload.UploadedFileId); 
@@ -645,6 +643,8 @@ namespace EFunTech.Sms.Portal
 
                         if (entity.RecipientFromFileUpload.AddSelfToMessageReceiverList)
                         {
+                            var _repository = this.unitOfWork.Repository<MessageReceiver>();
+
                             var messageCostInfo = new MessageCostInfo(entity.SendBody, user.PhoneNumber);
 
                             var _entity = new MessageReceiver();
@@ -687,37 +687,37 @@ namespace EFunTech.Sms.Portal
                         // 解決方式：http://readily-notes.blogspot.tw/2014/01/aspnet-mvc-4-webapi-command-datareader.html
                         var result = contactRepository.GetMany(p => contactIds.Contains(p.Id)).ToList();
 
-                        int rowNo = 0;
-                        foreach (var item in result)
+                        var messageCostInfos = result.Select(item => new MessageCostInfo(entity.SendBody, item.Mobile)).ToList();
+
+                        var _entities = result.Select((item, i) => new MessageReceiver
                         {
-                            var messageCostInfo = new MessageCostInfo(entity.SendBody, item.Mobile);
+                            SendMessageRuleId = entity.Id,
+                            RowNo = i + 1,
+                            Name = item.Name,
+                            Mobile = item.Mobile,
+                            E164Mobile = MobileUtil.GetE164PhoneNumber(item.Mobile, throwException: true),
+                            Region = MobileUtil.GetRegionName(item.Mobile),
+                            Email = item.Email,
+                            SendTime = null,
 
-                            var _entity = new MessageReceiver();
+                            SendTitle = entity.SendTitle,
+                            SendBody = messageCostInfos[i].SendBody,
+                            SendMessageType = entity.SendMessageType,
+                            RecipientFromType = entity.RecipientFromType,
+                            CreatedUserId = user.Id,
+                            CreatedTime = utcNow,
+                            UpdatedTime = utcNow,
 
-                            _entity.SendMessageRuleId = entity.Id;
-                            _entity.RowNo = ++rowNo;
-                            _entity.Name = item.Name;
-                            _entity.Mobile = item.Mobile;
-                            _entity.E164Mobile = MobileUtil.GetE164PhoneNumber(item.Mobile, throwException: true);
-                            _entity.Region = MobileUtil.GetRegionName(item.Mobile);
-                            _entity.Email = item.Email;
-                            _entity.SendTime = null;
+                            MessageLength = messageCostInfos[i].MessageLength,
+                            MessageNum = messageCostInfos[i].MessageNum,
+                            MessageCost = messageCostInfos[i].MessageCost,
+                            MessageFormatError = messageCostInfos[i].MessageFormatError,
+                        }).ToList();
 
-                            _entity.SendTitle = entity.SendTitle;
-                            _entity.SendBody = entity.SendBody;
-                            _entity.SendMessageType = entity.SendMessageType;
-                            _entity.RecipientFromType = entity.RecipientFromType;
-                            _entity.CreatedUserId = user.Id;
-                            _entity.CreatedTime = utcNow;
-                            _entity.UpdatedTime = utcNow;
-
-                            _entity.MessageLength = messageCostInfo.MessageLength;
-                            _entity.MessageNum = messageCostInfo.MessageNum;
-                            _entity.MessageCost = messageCostInfo.MessageCost;
-                            _entity.MessageFormatError = messageCostInfo.MessageFormatError;
-
-                            _entity = _repository.Insert(_entity);
-                        }
+                        DbContext context = this.unitOfWork.DbContext;
+                        context.BulkInsert(_entities);
+                        context.MySaveChanges();
+                        
                     } break;
 
                 case RecipientFromType.GroupContact:
@@ -731,37 +731,36 @@ namespace EFunTech.Sms.Portal
                         // 解決方式：http://readily-notes.blogspot.tw/2014/01/aspnet-mvc-4-webapi-command-datareader.html
                         var result = contactRepository.GetMany(p => contactIds.Contains(p.Id)).ToList();
 
-                        int rowNo = 0;
-                        foreach (var item in result)
+                        var messageCostInfos = result.Select(item => new MessageCostInfo(entity.SendBody, item.Mobile)).ToList();
+
+                        var _entities = result.Select((item, i) => new MessageReceiver
                         {
-                            var messageCostInfo = new MessageCostInfo(entity.SendBody, item.Mobile);
+                            SendMessageRuleId = entity.Id,
+                            RowNo = i + 1,
+                            Name = item.Name,
+                            Mobile = item.Mobile,
+                            E164Mobile = MobileUtil.GetE164PhoneNumber(item.Mobile, throwException: true),
+                            Region = MobileUtil.GetRegionName(item.Mobile),
+                            Email = item.Email,
+                            SendTime = null,
 
-                            var _entity = new MessageReceiver();
+                            SendTitle = entity.SendTitle,
+                            SendBody = messageCostInfos[i].SendBody,
+                            SendMessageType = entity.SendMessageType,
+                            RecipientFromType = entity.RecipientFromType,
+                            CreatedUserId = user.Id,
+                            CreatedTime = utcNow,
+                            UpdatedTime = utcNow,
 
-                            _entity.SendMessageRuleId = entity.Id;
-                            _entity.RowNo = ++rowNo;
-                            _entity.Name = item.Name;
-                            _entity.Mobile = item.Mobile;
-                            _entity.E164Mobile = MobileUtil.GetE164PhoneNumber(item.Mobile, throwException: true);
-                            _entity.Region = MobileUtil.GetRegionName(item.Mobile);
-                            _entity.Email = item.Email;
-                            _entity.SendTime = null;
+                            MessageLength = messageCostInfos[i].MessageLength,
+                            MessageNum = messageCostInfos[i].MessageNum,
+                            MessageCost = messageCostInfos[i].MessageCost,
+                            MessageFormatError = messageCostInfos[i].MessageFormatError,
+                        }).ToList();
 
-                            _entity.SendTitle = entity.SendTitle;
-                            _entity.SendBody = entity.SendBody;
-                            _entity.SendMessageType = entity.SendMessageType;
-                            _entity.RecipientFromType = entity.RecipientFromType;
-                            _entity.CreatedUserId = user.Id;
-                            _entity.CreatedTime = utcNow;
-                            _entity.UpdatedTime = utcNow;
-
-                            _entity.MessageLength = messageCostInfo.MessageLength;
-                            _entity.MessageNum = messageCostInfo.MessageNum;
-                            _entity.MessageCost = messageCostInfo.MessageCost;
-                            _entity.MessageFormatError = messageCostInfo.MessageFormatError;
-
-                            _entity = _repository.Insert(_entity);
-                        }
+                        DbContext context = this.unitOfWork.DbContext;
+                        context.BulkInsert(_entities);
+                        context.MySaveChanges();
                     } break;
 
                 case RecipientFromType.ManualInput:
@@ -770,37 +769,37 @@ namespace EFunTech.Sms.Portal
 
                         var phoneNumbers = entity.RecipientFromManualInput.PhoneNumbers.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
 
-                        int rowNo = 0;
-                        foreach (var phoneNumber in phoneNumbers)
+                        var messageCostInfos = phoneNumbers.Select(phoneNumber => new MessageCostInfo(entity.SendBody, phoneNumber)).ToList();
+
+                        var _entities = phoneNumbers.Select((phoneNumber, i) => new MessageReceiver
                         {
-                            var messageCostInfo = new MessageCostInfo(entity.SendBody, phoneNumber);
+                            SendMessageRuleId = entity.Id,
+                            RowNo = i + 1,
+                            Name = string.Empty,
+                            Mobile = phoneNumber,
+                            E164Mobile = MobileUtil.GetE164PhoneNumber(phoneNumber, throwException: true),
+                            Region = MobileUtil.GetRegionName(phoneNumber),
+                            Email = string.Empty,
+                            SendTime = null,
 
-                            var _entity = new MessageReceiver();
+                            SendTitle = entity.SendTitle,
+                            SendBody = messageCostInfos[i].SendBody,
+                            SendMessageType = entity.SendMessageType,
+                            RecipientFromType = entity.RecipientFromType,
+                            CreatedUserId = user.Id,
+                            CreatedTime = utcNow,
+                            UpdatedTime = utcNow,
 
-                            _entity.SendMessageRuleId = entity.Id;
-                            _entity.RowNo = ++rowNo;
-                            _entity.Name = string.Empty;
-                            _entity.Mobile = phoneNumber;
-                            _entity.E164Mobile = MobileUtil.GetE164PhoneNumber(phoneNumber, throwException: true);
-                            _entity.Region = MobileUtil.GetRegionName(phoneNumber);
-                            _entity.Email = string.Empty;
-                            _entity.SendTime = null;
+                            MessageLength = messageCostInfos[i].MessageLength,
+                            MessageNum = messageCostInfos[i].MessageNum,
+                            MessageCost = messageCostInfos[i].MessageCost,
+                            MessageFormatError = messageCostInfos[i].MessageFormatError,
+                        }).ToList();
 
-                            _entity.SendTitle = entity.SendTitle;
-                            _entity.SendBody = entity.SendBody;
-                            _entity.SendMessageType = entity.SendMessageType;
-                            _entity.RecipientFromType = entity.RecipientFromType;
-                            _entity.CreatedUserId = user.Id;
-                            _entity.CreatedTime = utcNow;
-                            _entity.UpdatedTime = utcNow;
+                        DbContext context = this.unitOfWork.DbContext;
+                        context.BulkInsert(_entities);
+                        context.MySaveChanges();
 
-                            _entity.MessageLength = messageCostInfo.MessageLength;
-                            _entity.MessageNum = messageCostInfo.MessageNum;
-                            _entity.MessageCost = messageCostInfo.MessageCost;
-                            _entity.MessageFormatError = messageCostInfo.MessageFormatError;
-
-                            _entity = _repository.Insert(_entity);
-                        }
                     } break;
                 default:
                     {
