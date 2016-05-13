@@ -133,6 +133,8 @@ namespace EFunTech.Sms.Portal.Controllers
 
                     // Simulate Insert UploadedMessageReceivers
 
+                    var blacklists = context.Set<Blacklist>().Where(p => p.CreatedUserId == CurrentUserId).ToList();
+
                     for (int i = 0; i < messageReceivers.Count; i++)
                     {
                         var _model = messageReceivers[i];
@@ -167,7 +169,7 @@ namespace EFunTech.Sms.Portal.Controllers
                         entity.UploadedSessionId = entityUploadedFile.Id;
 
                         var error = string.Empty;
-                        var isValid = this.validationService.Validate(entity, out error);
+                        var isValid = this.validationService.Validate(entity, blacklists, out error);
 
                         if (!isValid)
                             ErrorMessages.Add(string.Format("{0}: {1}", entity.Mobile, error));

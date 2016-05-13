@@ -14,6 +14,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Web;
+using EntityFramework.BulkInsert.Extensions;
+using System.Data.Entity;
 
 namespace EFunTech.Sms.Portal
 {
@@ -198,38 +200,37 @@ namespace EFunTech.Sms.Portal
             entityUploadedFile = uploadedFileRepository.Insert(entityUploadedFile);
 
             // Simulate HandleUploadedFile
-            var uploadedMessageReceivers = uploadedMessageReceiverRepository.GetMany(p => 
-                p.IsValid == true &&
-                p.UploadedSessionId == recipientFromFileUpload.UploadedFileId && 
-                p.SendTime == sendTime).ToList();
+            var entities = uploadedMessageReceiverRepository
+                .GetMany(p => p.IsValid == true &&
+                              p.UploadedSessionId == recipientFromFileUpload.UploadedFileId &&
+                              p.SendTime == sendTime)
+                .ToList()
+                .Select((uploadedMessageReceiver, i) => new UploadedMessageReceiver
+                {
+                    RowNo = i + 1,
+                    Name = uploadedMessageReceiver.Name,
+                    Mobile = uploadedMessageReceiver.Mobile,
+                    Email = uploadedMessageReceiver.Email,
 
-            for (int i = 0; i < uploadedMessageReceivers.Count; i++)
-            {
-                var uploadedMessageReceiver = uploadedMessageReceivers[i];
-                var entityUploadedMessageReceiver = new UploadedMessageReceiver(); // (UploadedMessageReceiver)uploadedMessageReceiver.DeepCopy(); // Entity 使用 DeepCopy 會失敗
+                    SendTime = uploadedMessageReceiver.SendTime,
+                    ClientTimezoneOffset = uploadedMessageReceiver.ClientTimezoneOffset,
+                    SendTimeString = uploadedMessageReceiver.SendTimeString,
+                    UseParam = uploadedMessageReceiver.UseParam,
+                    Param1 = uploadedMessageReceiver.Param1,
+                    Param2 = uploadedMessageReceiver.Param2,
+                    Param3 = uploadedMessageReceiver.Param3,
+                    Param4 = uploadedMessageReceiver.Param4,
+                    Param5 = uploadedMessageReceiver.Param5,
+                    CreatedUserId = uploadedMessageReceiver.CreatedUserId,
+                    CreatedTime = uploadedMessageReceiver.CreatedTime,
+                    UploadedFile = entityUploadedFile,
+                    UploadedSessionId = entityUploadedFile.Id,
+                    IsValid = true,
+                }).ToList();
 
-                entityUploadedMessageReceiver.RowNo = i + 1;
-                entityUploadedMessageReceiver.Name = uploadedMessageReceiver.Name;
-                entityUploadedMessageReceiver.Mobile = uploadedMessageReceiver.Mobile;
-                entityUploadedMessageReceiver.Email = uploadedMessageReceiver.Email;
-
-                entityUploadedMessageReceiver.SendTime = uploadedMessageReceiver.SendTime;
-                entityUploadedMessageReceiver.ClientTimezoneOffset = uploadedMessageReceiver.ClientTimezoneOffset;
-                entityUploadedMessageReceiver.SendTimeString = uploadedMessageReceiver.SendTimeString;
-                entityUploadedMessageReceiver.UseParam = uploadedMessageReceiver.UseParam;
-                entityUploadedMessageReceiver.Param1 = uploadedMessageReceiver.Param1;
-                entityUploadedMessageReceiver.Param2 = uploadedMessageReceiver.Param2;
-                entityUploadedMessageReceiver.Param3 = uploadedMessageReceiver.Param3;
-                entityUploadedMessageReceiver.Param4 = uploadedMessageReceiver.Param4;
-                entityUploadedMessageReceiver.Param5 = uploadedMessageReceiver.Param5;
-                entityUploadedMessageReceiver.CreatedUser = uploadedMessageReceiver.CreatedUser;
-                entityUploadedMessageReceiver.CreatedTime = uploadedMessageReceiver.CreatedTime;
-                entityUploadedMessageReceiver.UploadedFile = entityUploadedFile;
-                entityUploadedMessageReceiver.UploadedSessionId = entityUploadedFile.Id;
-                entityUploadedMessageReceiver.IsValid = true;
-
-                entityUploadedMessageReceiver = uploadedMessageReceiverRepository.Insert(entityUploadedMessageReceiver);
-            }
+            DbContext context = this.unitOfWork.DbContext;
+            context.BulkInsert(entities);
+            context.MySaveChanges();
 
             var result = new RecipientFromFileUploadModel();
 
@@ -579,6 +580,21 @@ namespace EFunTech.Sms.Portal
 
         #endregion // 避免產生過長訊息，造成輸入Excel發生問題
 
+        private MessageCostInfo GetMessageCostInfo(SendMessageRule entity, UploadedMessageReceiver item)
+        {
+            MessageCostInfo messageCostInfo = entity.UseParam
+                                ? new MessageCostInfo(entity.SendBody, item.Mobile, new Dictionary<string, string>{
+                                    {"@space1@", item.Param1},
+                                    {"@space2@", item.Param2},
+                                    {"@space3@", item.Param3},
+                                    {"@space4@", item.Param4},
+                                    {"@space5@", item.Param5},
+                                })
+                                : new MessageCostInfo(entity.SendBody, item.Mobile);
+
+            return messageCostInfo;
+        }
+
         private void CreateMessageReceivers(ApplicationUser user, SendMessageRule entity)
         {
             DateTime utcNow = DateTime.UtcNow;
@@ -595,45 +611,37 @@ namespace EFunTech.Sms.Portal
                         // 發生錯誤：已經開啟一個與這個 Command 相關的 DataReader，必須先將它關閉
                         // 解決方式：http://readily-notes.blogspot.tw/2014/01/aspnet-mvc-4-webapi-command-datareader.html
                         var result = uploadedMessageReceiverRepository.GetMany(p => p.IsValid == true && p.UploadedSessionId == entity.RecipientFromFileUpload.UploadedFileId).ToList();
-                            
-                        foreach (var item in result)
+
+                        var messageCostInfos = result.Select(item => GetMessageCostInfo(entity, item)).ToList();
+
+                        var _entities = result.Select((item, i) => new MessageReceiver
                         {
-                            MessageCostInfo messageCostInfo = entity.UseParam
-                                ? new MessageCostInfo(entity.SendBody, item.Mobile, new Dictionary<string, string>{
-                                    {"@space1@", item.Param1},
-                                    {"@space2@", item.Param2},
-                                    {"@space3@", item.Param3},
-                                    {"@space4@", item.Param4},
-                                    {"@space5@", item.Param5},
-                                })
-                                : new MessageCostInfo(entity.SendBody, item.Mobile);
+                            SendMessageRuleId = entity.Id,
+                            RowNo = item.RowNo,
+                            Name = item.Name,
+                            Mobile = item.Mobile,
+                            E164Mobile = MobileUtil.GetE164PhoneNumber(item.Mobile, throwException: true),
+                            Region = MobileUtil.GetRegionName(item.Mobile),
+                            Email = item.Email,
+                            SendTime = item.SendTime,
 
-                            var _entity = new MessageReceiver();
+                            SendTitle = entity.SendTitle,
+                            SendBody = messageCostInfos[i].SendBody,
+                            SendMessageType = entity.SendMessageType,
+                            RecipientFromType = entity.RecipientFromType,
+                            CreatedUserId = user.Id,
+                            CreatedTime = utcNow,
+                            UpdatedTime = utcNow,
 
-                            _entity.SendMessageRuleId = entity.Id;
-                            _entity.RowNo = item.RowNo;
-                            _entity.Name = item.Name;
-                            _entity.Mobile = item.Mobile;
-                            _entity.E164Mobile = MobileUtil.GetE164PhoneNumber(item.Mobile, throwException: true);
-                            _entity.Region = MobileUtil.GetRegionName(item.Mobile);
-                            _entity.Email = item.Email;
-                            _entity.SendTime = item.SendTime;
+                            MessageLength = messageCostInfos[i].MessageLength,
+                            MessageNum = messageCostInfos[i].MessageNum,
+                            MessageCost = messageCostInfos[i].MessageCost,
+                            MessageFormatError = messageCostInfos[i].MessageFormatError,
+                        }).ToList();
 
-                            _entity.SendTitle = entity.SendTitle;
-                            _entity.SendBody = messageCostInfo.SendBody;
-                            _entity.SendMessageType = entity.SendMessageType;
-                            _entity.RecipientFromType = entity.RecipientFromType;
-                            _entity.CreatedUserId = user.Id;
-                            _entity.CreatedTime = utcNow;
-                            _entity.UpdatedTime = utcNow;
-
-                            _entity.MessageLength = messageCostInfo.MessageLength;
-                            _entity.MessageNum = messageCostInfo.MessageNum;
-                            _entity.MessageCost = messageCostInfo.MessageCost;
-                            _entity.MessageFormatError = messageCostInfo.MessageFormatError;
-
-                            _entity = _repository.Insert(_entity);
-                        }
+                        DbContext context = this.unitOfWork.DbContext;
+                        context.BulkInsert(_entities);
+                        context.MySaveChanges();
 
                         if (entity.RecipientFromFileUpload.AddSelfToMessageReceiverList)
                         {

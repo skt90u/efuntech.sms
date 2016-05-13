@@ -22,12 +22,29 @@ namespace EFunTech.Sms.ConsoleApplication
                 Program pg = new Program();
 
                 //pg.SendEmail();
-                pg.RemoveUser();
+                //pg.RemoveUser();
+
+                pg.GetProvider();
+
             }
             catch (DbEntityValidationException ex)
             {
                 throw Repository.GetRealException(ex);
             }
+        }
+
+        private void GetProvider()
+        {
+            //CommonSmsService svc = new CommonSmsService(systemParameters, logService, unitOfWork);
+
+            //try { svc.GetProvider(SmsProviderType.InfobipNormalQuality, 10000); }
+            //catch { }
+
+            //try { svc.GetProvider(SmsProviderType.InfobipHighQuality, 10000); }
+            //catch { }
+
+            //try { svc.GetProvider(SmsProviderType.Every8d, 10000); }
+            //catch { }
         }
 
         protected DbContext context;

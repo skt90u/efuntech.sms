@@ -89,7 +89,8 @@ namespace EFunTech.Sms.Portal.Controllers
             entity.UploadedSessionId = model.UploadedSessionId;
 
             var error = string.Empty;
-            var isValid = this.validationService.Validate(entity, out error);
+            var blacklists = context.Set<Blacklist>().Where(p => p.CreatedUserId == CurrentUserId).ToList();
+            var isValid = this.validationService.Validate(entity, blacklists, out error);
             // 目前就算驗證不過也沒關係，仍然可以存檔
             entity = await context.InsertAsync(entity);
 
@@ -113,7 +114,8 @@ namespace EFunTech.Sms.Portal.Controllers
             entity.CreatedUserId = entity.CreatedUserId;
 
             var error = string.Empty;
-            var isValid = this.validationService.Validate(entity, out error);
+            var blacklists = context.Set<Blacklist>().Where(p => p.CreatedUserId == CurrentUserId).ToList();
+            var isValid = this.validationService.Validate(entity, blacklists, out error);
            
             // 目前就算驗證不過也沒關係，仍然可以存檔
             await context.UpdateAsync(entity);

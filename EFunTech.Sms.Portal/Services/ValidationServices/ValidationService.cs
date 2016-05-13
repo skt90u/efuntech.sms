@@ -3,6 +3,7 @@ using JUtilSharp.Database;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace EFunTech.Sms.Portal
 {
@@ -17,7 +18,7 @@ namespace EFunTech.Sms.Portal
             this.logService = logService;
         }
 
-        public bool Validate(MessageReceiver entity, out string error)
+        public bool Validate(MessageReceiver entity, IEnumerable<Blacklist> blacklists, out string error)
         {
             var errors = new List<string>();
 
@@ -35,7 +36,7 @@ namespace EFunTech.Sms.Portal
                 else
                 {
                     // 檢驗是否為黑名單
-                    if (this.unitOfWork.Repository<Blacklist>().Any(p => p.Mobile == entity.Mobile))
+                    if (blacklists.Any(p => p.Mobile == entity.Mobile))
                     {
                         errors.Add("黑名單");
                     }
@@ -58,7 +59,7 @@ namespace EFunTech.Sms.Portal
             return string.IsNullOrEmpty(error);
         }
 
-        public bool Validate(UploadedMessageReceiver entity, out string error)
+        public bool Validate(UploadedMessageReceiver entity, IEnumerable<Blacklist> blacklists, out string error)
         {
             var errors = new List<string>();
 
@@ -76,7 +77,7 @@ namespace EFunTech.Sms.Portal
                 else
                 {
                     // 檢驗是否為黑名單
-                    if (this.unitOfWork.Repository<Blacklist>().Any(p => p.Mobile == entity.Mobile))
+                    if (blacklists.Any(p => p.Mobile == entity.Mobile))
                     {
                         errors.Add("黑名單");
                     }

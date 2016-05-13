@@ -16,7 +16,7 @@ using System.Web.Hosting;
 using EFunTech.Sms.Core;
 using Ionic.Zip;
 using System.Text;
-
+using EntityFramework.BulkInsert.Extensions;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -131,52 +131,39 @@ namespace EFunTech.Sms.Portal.Controllers
         {
             using (var scope = this.unitOfWork.CreateTransactionScope())
             {
-                var repository = this.unitOfWork.Repository<UploadedMessageReceiver>();
 
-                var successCnt = 0;
-
-                // 清空目前使用者上傳的所有收訊人名單 // 20150913 Norman, 暫時不可以清空
-                // this.unitOfWork.Repository<UploadedMessageReceiver>().Delete(p => p.CreatedUser.Id == CurrentUser.Id);
-
-                //foreach (var model in list)
-                for (int i = 0; i < list.Count; i++)
+                var entities = list.Select((model, i) => new UploadedMessageReceiver
                 {
-                    var model = list[i];
+                    RowNo = i + 1,
+                    Name = model.Name,
+                    Mobile = model.Mobile,
+                    E164Mobile = MobileUtil.GetE164PhoneNumber(model.Mobile),
+                    Region = MobileUtil.GetRegionName(model.Mobile),
+                    Email = model.Email,
 
-                    if (string.IsNullOrEmpty(model.Mobile)) continue;
+                    SendTime = Converter.ToUniversalTime(model.SendTime, Converter.yyyyMMddHHmm, ClientTimezoneOffset),
+                    ClientTimezoneOffset = ClientTimezoneOffset,
+                    SendTimeString = model.SendTime,
+                    UseParam = useParam,
+                    Param1 = model.Param1,
+                    Param2 = model.Param2,
+                    Param3 = model.Param3,
+                    Param4 = model.Param4,
+                    Param5 = model.Param5,
+                    CreatedUserId = CurrentUserId,
+                    CreatedTime = uploadedFile.CreatedTime,
+                    UploadedFile = uploadedFile,
+                    UploadedSessionId = uploadedFile.Id,
+                }).ToList(); // 要加上 ToList，否則會檢驗呈無效名單，目前不知道為什麼
 
-                    var entity = new UploadedMessageReceiver();
-                    entity.RowNo = i+1;
-                    entity.Name = model.Name;
-                    entity.Mobile = model.Mobile;
-                    entity.E164Mobile = MobileUtil.GetE164PhoneNumber(model.Mobile);
-                    entity.Region = MobileUtil.GetRegionName(model.Mobile);
-                    entity.Email = model.Email;
+                var error = string.Empty;
+                var blacklists = context.Set<Blacklist>().Where(p => p.CreatedUserId == CurrentUserId).ToList();
+                foreach (var entity in entities) this.validationService.Validate(entity, blacklists, out error);
 
-                    entity.SendTime = Converter.ToUniversalTime(model.SendTime, Converter.yyyyMMddHHmm, ClientTimezoneOffset);
-                    entity.ClientTimezoneOffset = ClientTimezoneOffset;
-                    entity.SendTimeString = model.SendTime;
-                    entity.UseParam = useParam;
-                    entity.Param1 = model.Param1;
-                    entity.Param2 = model.Param2;
-                    entity.Param3 = model.Param3;
-                    entity.Param4 = model.Param4;
-                    entity.Param5 = model.Param5;
-                    entity.CreatedUserId = CurrentUserId;
-                    entity.CreatedTime = uploadedFile.CreatedTime;
-                    entity.UploadedFile = uploadedFile;
-                    entity.UploadedSessionId = uploadedFile.Id;
-                    
+                var successCnt = entities.Count(entity => entity.IsValid);
 
-                    var error = string.Empty;
-                    var isValid = this.validationService.Validate(entity, out error);
-
-                    if (isValid)
-                        successCnt++;
-
-                    // 目前就算驗證不過也沒關係，仍然可以存檔
-                    entity = repository.Insert(entity);
-                }
+                context.BulkInsert(entities);
+                context.MySaveChanges();
 
                 scope.Complete();
 
@@ -233,10 +220,54 @@ namespace EFunTech.Sms.Portal.Controllers
 
         private ActionResult HandleUploadedFile(List<UploadedBlacklist> list, UploadedFile uploadedFile)
         {
+            // TODO: 尚未測試
+
             using(var scope = this.unitOfWork.CreateTransactionScope())
             {
-                var repository = this.unitOfWork.Repository<Blacklist>();
+                var entities = list.Select((model, i) => new Blacklist
+                {
+                    Name = model.Name,
+                    Mobile = model.Mobile,
+                    E164Mobile = MobileUtil.GetE164PhoneNumber(model.Mobile),
+                    Region = MobileUtil.GetRegionName(model.Mobile),
+                    Enabled = true,
+                    Remark = model.Remark,
+                    UpdatedTime = uploadedFile.CreatedTime,
+                    CreatedUserId = CurrentUserId,
+                    UpdatedUserName = CurrentUserName,
+                    UploadedFile = uploadedFile,
+                }).ToList(); // 要加上 ToList，否則會檢驗呈無效名單，目前不知道為什麼
+
+                var error = string.Empty;
+                entities = entities.Where(entity => this.validationService.Validate(entity, out error)).ToList();
                 
+                var successCnt = entities.Count;
+
+                context.BulkInsert(entities);
+                context.MySaveChanges();
+
+                scope.Complete();
+
+                string message = successCnt == list.Count
+                    ? string.Format("上傳黑名單成功，總共上傳{0}筆資料", list.Count)
+                    : string.Format("上傳黑名單成功，總共上傳{0}筆資料({1}筆成功，{2}筆失敗)", list.Count, successCnt, list.Count - successCnt);
+
+                var result = new FileUploadResult
+                {
+                    FileName = uploadedFile.FileName,
+                    Message = message,
+                };
+
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        private ActionResult HandleUploadedFile_20160513(List<UploadedBlacklist> list, UploadedFile uploadedFile)
+        {
+            using (var scope = this.unitOfWork.CreateTransactionScope())
+            {
+                var repository = this.unitOfWork.Repository<Blacklist>();
+
                 var successCnt = 0;
 
                 foreach (var model in list)
@@ -308,6 +339,84 @@ namespace EFunTech.Sms.Portal.Controllers
             public string Group { get; set; }
         }
 
+        private ActionResult HandleUploadedFile_TODO(List<UploadedContact> list, UploadedFile uploadedFile)
+        {
+            // TODO: 需要改成使用 BulkInsert，並測試
+
+            using (var scope = this.unitOfWork.CreateTransactionScope())
+            {
+                var repository = this.unitOfWork.Repository<Contact>();
+
+                var successCnt = 0;
+
+                var entities = list.Where(model => !string.IsNullOrEmpty(model.Name) && !string.IsNullOrEmpty(model.Mobile)).Select((model, i) => new Contact
+                {
+                    Name = model.Name,
+                    Mobile = model.Mobile,
+                    E164Mobile = MobileUtil.GetE164PhoneNumber(model.Mobile),
+                    Region = MobileUtil.GetRegionName(model.Mobile),
+                    HomePhone = model.HomePhone,
+                    CompanyPhone = model.CompanyPhone,
+                    Email = model.Email,
+                    Msn = model.Msn,
+                    Description = model.Description,
+                    Birthday = model.Birthday,
+                    ImportantDay = model.ImportantDay,
+                    Gender = model.Gender == "2" ? Gender.Female :
+                             model.Gender == "1" ? Gender.Male : Gender.Unknown,
+                    CreatedUserId = CurrentUserId,
+                }).ToList(); // 要加上 ToList，否則會檢驗呈無效名單，目前不知道為什麼
+
+                var error = string.Empty;
+                // 只取有效資料
+                entities = entities.Where(entity => this.validationService.Validate(entity, out error)).ToList();
+
+                // TODO: 存檔
+                // TODO: 新增 group
+
+                //foreach (var model in list)
+                //{
+                //    // 姓名以及行動電話必填
+
+                //    if (isValid)
+                //    {
+                //        entity = repository.Insert(entity);
+
+                //        string groupDescription = model.Group.Trim();
+                //        if (!string.IsNullOrEmpty(groupDescription))
+                //        {
+                //            var group = this.unitOfWork.Repository<Group>().DbSet
+                //                            .Where(p => p.CreatedUserId == CurrentUserId && p.Name == model.Group.Trim())
+                //                            .FirstOrDefault();
+                //            if (group != null)
+                //            {
+                //                this.unitOfWork.Repository<GroupContact>().Insert(new GroupContact { 
+                //                    GroupId = group.Id,
+                //                    ContactId = entity.Id
+                //                });
+                //            }
+                //        }
+
+                //        successCnt++;
+                //    }
+                //}
+
+                scope.Complete();
+
+                string message = successCnt == list.Count
+                    ? string.Format("上傳聯絡人成功，總共上傳{0}筆資料", list.Count)
+                    : string.Format("上傳聯絡人成功，總共上傳{0}筆資料({1}筆成功，{2}筆失敗)", list.Count, successCnt, list.Count - successCnt);
+
+                var result = new FileUploadResult
+                {
+                    FileName = uploadedFile.FileName,
+                    Message = message,
+                };
+
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         private ActionResult HandleUploadedFile(List<UploadedContact> list, UploadedFile uploadedFile)
         {
             using (var scope = this.unitOfWork.CreateTransactionScope())
@@ -353,7 +462,8 @@ namespace EFunTech.Sms.Portal.Controllers
                                             .FirstOrDefault();
                             if (group != null)
                             {
-                                this.unitOfWork.Repository<GroupContact>().Insert(new GroupContact { 
+                                this.unitOfWork.Repository<GroupContact>().Insert(new GroupContact
+                                {
                                     GroupId = group.Id,
                                     ContactId = entity.Id
                                 });
