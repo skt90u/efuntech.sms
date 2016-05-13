@@ -220,8 +220,6 @@ namespace EFunTech.Sms.Portal.Controllers
 
         private ActionResult HandleUploadedFile(List<UploadedBlacklist> list, UploadedFile uploadedFile)
         {
-            // TODO: 尚未測試
-
             using(var scope = this.unitOfWork.CreateTransactionScope())
             {
                 var entities = list.Select((model, i) => new Blacklist
@@ -339,86 +337,10 @@ namespace EFunTech.Sms.Portal.Controllers
             public string Group { get; set; }
         }
 
-        private ActionResult HandleUploadedFile_TODO(List<UploadedContact> list, UploadedFile uploadedFile)
-        {
-            // TODO: 需要改成使用 BulkInsert，並測試
-
-            using (var scope = this.unitOfWork.CreateTransactionScope())
-            {
-                var repository = this.unitOfWork.Repository<Contact>();
-
-                var successCnt = 0;
-
-                var entities = list.Where(model => !string.IsNullOrEmpty(model.Name) && !string.IsNullOrEmpty(model.Mobile)).Select((model, i) => new Contact
-                {
-                    Name = model.Name,
-                    Mobile = model.Mobile,
-                    E164Mobile = MobileUtil.GetE164PhoneNumber(model.Mobile),
-                    Region = MobileUtil.GetRegionName(model.Mobile),
-                    HomePhone = model.HomePhone,
-                    CompanyPhone = model.CompanyPhone,
-                    Email = model.Email,
-                    Msn = model.Msn,
-                    Description = model.Description,
-                    Birthday = model.Birthday,
-                    ImportantDay = model.ImportantDay,
-                    Gender = model.Gender == "2" ? Gender.Female :
-                             model.Gender == "1" ? Gender.Male : Gender.Unknown,
-                    CreatedUserId = CurrentUserId,
-                }).ToList(); // 要加上 ToList，否則會檢驗呈無效名單，目前不知道為什麼
-
-                var error = string.Empty;
-                // 只取有效資料
-                entities = entities.Where(entity => this.validationService.Validate(entity, out error)).ToList();
-
-                // TODO: 存檔
-                // TODO: 新增 group
-
-                //foreach (var model in list)
-                //{
-                //    // 姓名以及行動電話必填
-
-                //    if (isValid)
-                //    {
-                //        entity = repository.Insert(entity);
-
-                //        string groupDescription = model.Group.Trim();
-                //        if (!string.IsNullOrEmpty(groupDescription))
-                //        {
-                //            var group = this.unitOfWork.Repository<Group>().DbSet
-                //                            .Where(p => p.CreatedUserId == CurrentUserId && p.Name == model.Group.Trim())
-                //                            .FirstOrDefault();
-                //            if (group != null)
-                //            {
-                //                this.unitOfWork.Repository<GroupContact>().Insert(new GroupContact { 
-                //                    GroupId = group.Id,
-                //                    ContactId = entity.Id
-                //                });
-                //            }
-                //        }
-
-                //        successCnt++;
-                //    }
-                //}
-
-                scope.Complete();
-
-                string message = successCnt == list.Count
-                    ? string.Format("上傳聯絡人成功，總共上傳{0}筆資料", list.Count)
-                    : string.Format("上傳聯絡人成功，總共上傳{0}筆資料({1}筆成功，{2}筆失敗)", list.Count, successCnt, list.Count - successCnt);
-
-                var result = new FileUploadResult
-                {
-                    FileName = uploadedFile.FileName,
-                    Message = message,
-                };
-
-                return Json(result, JsonRequestBehavior.AllowGet);
-            }
-        }
-
         private ActionResult HandleUploadedFile(List<UploadedContact> list, UploadedFile uploadedFile)
         {
+            // TODO: 批次新增
+
             using (var scope = this.unitOfWork.CreateTransactionScope())
             {
                 var repository = this.unitOfWork.Repository<Contact>();
