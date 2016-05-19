@@ -107,46 +107,50 @@ namespace EFunTech.Sms.Portal
                     CONTENT = message,
                 }).ToList();
 
-                this.logService.Debug("Every8dSmsProvider(smsProviderType = {0})，發送簡訊(簡訊編號：{1}，簡訊序列編號：{2}，發送內容：{3}，發送名單：[{4}])",
+                this.logService.Debug("Every8dSmsProvider(smsProviderType = {0})，發送簡訊(簡訊編號：{1}，簡訊序列編號：{2}，發送內容：{3}，發送名單(共{4}筆)：[{5}])", 
                     smsProviderType.ToString(),
                     sendMessageQueue.SendMessageRuleId,
                     sendMessageQueue.Id,
                     message,
+                    every8dMessageReceiver.Count,
                     string.Join("、", every8dMessageReceiver.Select(p => p.MOBILE)));
 
-                SEND_SMS_RESULT sendMessageResult = smsClient.SendParamSMS(sendTime, subject, every8dMessageReceiver);
-
-                this.logService.Debug("Every8dSmsProvider(smsProviderType = {0})，發送簡訊(簡訊編號：{1}，簡訊序列編號：{2}，回傳簡訊發送識別碼：{3}，回傳結果：{4})",
-                    smsProviderType.ToString(),
-                    sendMessageQueue.SendMessageRuleId,
-                    sendMessageQueue.Id,
-                    sendMessageResult.BATCH_ID,
-                    sendMessageResult.ToString());
-
-                // Send Email
-                string body = message;
-                string[] emails = messageReceiver.Where(p => !string.IsNullOrEmpty(p.Email)).Select(p => p.Email).ToArray();
-                if (emails.Any())
+                if (systemParameters.AllowSendMessage)
                 {
-                    this.logService.Debug("Every8dSmsProvider(smsProviderType = {0})，發送Email(簡訊編號：{1}，簡訊序列編號：{2}，主旨：{3}，內容：{4}，發送名單：[{5}])",
+                    SEND_SMS_RESULT sendMessageResult = smsClient.SendParamSMS(sendTime, subject, every8dMessageReceiver);
+
+                    this.logService.Debug("Every8dSmsProvider(smsProviderType = {0})，發送簡訊(簡訊編號：{1}，簡訊序列編號：{2}，回傳簡訊發送識別碼：{3}，回傳結果：{4})",
                         smsProviderType.ToString(),
                         sendMessageQueue.SendMessageRuleId,
                         sendMessageQueue.Id,
-                        subject,
-                        body,
-                        string.Join("、", emails));
+                        sendMessageResult.BATCH_ID,
+                        sendMessageResult.ToString());
 
-                    BackgroundJob.Enqueue<CommonMailService>(x => x.Send(subject, body, emails));
-                }
-                else
-                {
-                    this.logService.Debug("Every8dSmsProvider(smsProviderType = {0})，無須發送Email(簡訊編號：{1}，簡訊序列編號：{2})",
-                                            smsProviderType.ToString(),
-                                            sendMessageQueue.SendMessageRuleId,
-                                            sendMessageQueue.Id);
-                }
+                    // Send Email
+                    string body = message;
+                    string[] emails = messageReceiver.Where(p => !string.IsNullOrEmpty(p.Email)).Select(p => p.Email).ToArray();
+                    if (emails.Any())
+                    {
+                        this.logService.Debug("Every8dSmsProvider(smsProviderType = {0})，發送Email(簡訊編號：{1}，簡訊序列編號：{2}，主旨：{3}，內容：{4}，發送名單：[{5}])",
+                            smsProviderType.ToString(),
+                            sendMessageQueue.SendMessageRuleId,
+                            sendMessageQueue.Id,
+                            subject,
+                            body,
+                            string.Join("、", emails));
 
-                UpdateDb(sendMessageQueue, sendMessageResult);
+                        BackgroundJob.Enqueue<CommonMailService>(x => x.Send(subject, body, emails));
+                    }
+                    else
+                    {
+                        this.logService.Debug("Every8dSmsProvider(smsProviderType = {0})，無須發送Email(簡訊編號：{1}，簡訊序列編號：{2})",
+                                                smsProviderType.ToString(),
+                                                sendMessageQueue.SendMessageRuleId,
+                                                sendMessageQueue.Id);
+                    }
+
+                    UpdateDb(sendMessageQueue, sendMessageResult);
+                }
             }
         }
 
@@ -519,15 +523,18 @@ namespace EFunTech.Sms.Portal
                     message,
                     string.Join("、", every8dMessageReceiver.Select(p => p.MOBILE)));
 
-                SEND_SMS_RESULT sendMessageResult = smsClient.SendParamSMS(sendTime, subject, every8dMessageReceiver);
+                if (systemParameters.AllowSendMessage)
+                {
+                    SEND_SMS_RESULT sendMessageResult = smsClient.SendParamSMS(sendTime, subject, every8dMessageReceiver);
 
-                this.logService.Debug("Every8dSmsProvider(smsProviderType = {0})，重試簡訊(簡訊發送結果歷史紀錄編號：{1}，回傳簡訊發送識別碼：{2}，回傳結果：{3})",
-                    smsProviderType.ToString(),
-                    sendMessageHistory.Id,
-                    sendMessageResult.BATCH_ID,
-                    sendMessageResult.ToString());
+                    this.logService.Debug("Every8dSmsProvider(smsProviderType = {0})，重試簡訊(簡訊發送結果歷史紀錄編號：{1}，回傳簡訊發送識別碼：{2}，回傳結果：{3})",
+                        smsProviderType.ToString(),
+                        sendMessageHistory.Id,
+                        sendMessageResult.BATCH_ID,
+                        sendMessageResult.ToString());
 
-                UpdateDb(sendMessageHistory, sendMessageResult);
+                    UpdateDb(sendMessageHistory, sendMessageResult);
+                }
             }
         }
 

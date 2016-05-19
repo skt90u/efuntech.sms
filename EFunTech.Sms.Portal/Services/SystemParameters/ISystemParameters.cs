@@ -33,5 +33,7 @@ namespace EFunTech.Sms.Portal
 
         // 聯絡人只能對應至一個群組
         bool ContactAtMostOneGroup { get; set; }
+
+        bool AllowSendMessage { get; set; }
     }
 }

@@ -133,56 +133,60 @@ namespace EFunTech.Sms.Portal
 
             string[] recipientAddress = messageReceivers.Select(p => p.E164Mobile).ToArray();
 
-            this.logService.Debug("InfobipSmsProvider(smsProviderType = {0})，發送簡訊(簡訊編號：{1}，簡訊序列編號：{2}，發送內容：{3}，發送名單：[{4}])", 
+            this.logService.Debug("InfobipSmsProvider(smsProviderType = {0})，發送簡訊(簡訊編號：{1}，簡訊序列編號：{2}，發送內容：{3}，發送名單(共{4}筆)：[{5}])", 
                 smsProviderType.ToString(),
                 sendMessageQueue.SendMessageRuleId,
                 sendMessageQueue.Id,
                 message,
+                recipientAddress.Length,
                 string.Join("、", recipientAddress));
 
-            var smsRequest = new SMSRequest(senderAddress, message, recipientAddress);
-            // 還是不知道怎麼使用
-            // http://dev.infobip.com/v1/docs/logs-vs-delivery-reports
-            // http://dev.infobip.com/docs/notify-url
-            // 還是不知道怎麼使用 smsRequest.NotifyURL = "";
-            //smsRequest.NotifyURL = @"http://zutech-sms.azurewebsites.net/api/InfobipNotification";
-
-            SendMessageResult sendMessageResult = this.smsClient.SmsMessagingClient.SendSMS(smsRequest);
-
-            this.logService.Debug("InfobipSmsProvider(smsProviderType = {0})，發送簡訊(簡訊編號：{1}，簡訊序列編號：{2}，回傳簡訊發送識別碼：{3}，回傳結果：{4})",
-                smsProviderType.ToString(),
-                sendMessageQueue.SendMessageRuleId,
-                sendMessageQueue.Id,
-                sendMessageResult.ClientCorrelator,
-                sendMessageResult.ToString());
-
-            // Send Email
-            string subject = sendMessageQueue.SendTitle;
-            string body = message;
-            string[] emails = messageReceivers.Where(p => !string.IsNullOrEmpty(p.Email)).Select(p => p.Email).ToArray();
-            if (emails.Any())
+            if (systemParameters.AllowSendMessage)
             {
-                this.logService.Debug("InfobipSmsProvider(smsProviderType = {0})，發送Email(簡訊編號：{1}，簡訊序列編號：{2}，主旨：{3}，內容：{4}，發送名單：[{5}])",
+                var smsRequest = new SMSRequest(senderAddress, message, recipientAddress);
+                // 還是不知道怎麼使用
+                // http://dev.infobip.com/v1/docs/logs-vs-delivery-reports
+                // http://dev.infobip.com/docs/notify-url
+                // 還是不知道怎麼使用 smsRequest.NotifyURL = "";
+                //smsRequest.NotifyURL = @"http://zutech-sms.azurewebsites.net/api/InfobipNotification";
+
+                SendMessageResult sendMessageResult = this.smsClient.SmsMessagingClient.SendSMS(smsRequest);
+
+                this.logService.Debug("InfobipSmsProvider(smsProviderType = {0})，發送簡訊(簡訊編號：{1}，簡訊序列編號：{2}，回傳簡訊發送識別碼：{3}，回傳結果：{4})",
                     smsProviderType.ToString(),
                     sendMessageQueue.SendMessageRuleId,
                     sendMessageQueue.Id,
-                    subject,
-                    body,
-                    string.Join("、", emails));
+                    sendMessageResult.ClientCorrelator,
+                    sendMessageResult.ToString());
 
-                BackgroundJob.Enqueue<CommonMailService>(x => x.Send(subject, body, emails));
-            }
-            else
-            {
-                this.logService.Debug("InfobipSmsProvider(smsProviderType = {0})，無須發送Email(簡訊編號：{1}，簡訊序列編號：{2})",
-                                        smsProviderType.ToString(),
-                                        sendMessageQueue.SendMessageRuleId,
-                                        sendMessageQueue.Id);
-            }
-            
-            string requestId = sendMessageResult.ClientCorrelator; // you can use this to get deliveryReportList later.
+                // Send Email
+                string subject = sendMessageQueue.SendTitle;
+                string body = message;
+                string[] emails = messageReceivers.Where(p => !string.IsNullOrEmpty(p.Email)).Select(p => p.Email).ToArray();
+                if (emails.Any())
+                {
+                    this.logService.Debug("InfobipSmsProvider(smsProviderType = {0})，發送Email(簡訊編號：{1}，簡訊序列編號：{2}，主旨：{3}，內容：{4}，發送名單：[{5}])",
+                        smsProviderType.ToString(),
+                        sendMessageQueue.SendMessageRuleId,
+                        sendMessageQueue.Id,
+                        subject,
+                        body,
+                        string.Join("、", emails));
 
-            UpdateDb(sendMessageQueue, messageReceivers, sendMessageResult);
+                    BackgroundJob.Enqueue<CommonMailService>(x => x.Send(subject, body, emails));
+                }
+                else
+                {
+                    this.logService.Debug("InfobipSmsProvider(smsProviderType = {0})，無須發送Email(簡訊編號：{1}，簡訊序列編號：{2})",
+                                            smsProviderType.ToString(),
+                                            sendMessageQueue.SendMessageRuleId,
+                                            sendMessageQueue.Id);
+                }
+
+                string requestId = sendMessageResult.ClientCorrelator; // you can use this to get deliveryReportList later.
+
+                UpdateDb(sendMessageQueue, messageReceivers, sendMessageResult);
+            }
         }
 
         private void UpdateDb(SendMessageQueue sendMessageQueue, List<MessageReceiver> messageReceivers, SendMessageResult sendMessageResult)
@@ -615,24 +619,27 @@ namespace EFunTech.Sms.Portal
                 message,
                 string.Join("、", recipientAddress));
 
-            var smsRequest = new SMSRequest(senderAddress, message, recipientAddress);
-            // 還是不知道怎麼使用
-            // http://dev.infobip.com/v1/docs/logs-vs-delivery-reports
-            // http://dev.infobip.com/docs/notify-url
-            // 還是不知道怎麼使用 smsRequest.NotifyURL = "";
-            //smsRequest.NotifyURL = @"http://zutech-sms.azurewebsites.net/api/InfobipNotification";
+            if (systemParameters.AllowSendMessage)
+            {
+                var smsRequest = new SMSRequest(senderAddress, message, recipientAddress);
+                // 還是不知道怎麼使用
+                // http://dev.infobip.com/v1/docs/logs-vs-delivery-reports
+                // http://dev.infobip.com/docs/notify-url
+                // 還是不知道怎麼使用 smsRequest.NotifyURL = "";
+                //smsRequest.NotifyURL = @"http://zutech-sms.azurewebsites.net/api/InfobipNotification";
 
-            SendMessageResult sendMessageResult = this.smsClient.SmsMessagingClient.SendSMS(smsRequest);
+                SendMessageResult sendMessageResult = this.smsClient.SmsMessagingClient.SendSMS(smsRequest);
 
-            this.logService.Debug("InfobipSmsProvider(smsProviderType = {0})，重試簡訊(簡訊發送結果歷史紀錄編號：{1}，回傳簡訊發送識別碼：{2}，回傳結果：{3})",
-                smsProviderType.ToString(),
-                sendMessageHistory.Id,
-                sendMessageResult.ClientCorrelator,
-                sendMessageResult.ToString());
+                this.logService.Debug("InfobipSmsProvider(smsProviderType = {0})，重試簡訊(簡訊發送結果歷史紀錄編號：{1}，回傳簡訊發送識別碼：{2}，回傳結果：{3})",
+                    smsProviderType.ToString(),
+                    sendMessageHistory.Id,
+                    sendMessageResult.ClientCorrelator,
+                    sendMessageResult.ToString());
 
-            string requestId = sendMessageResult.ClientCorrelator; // you can use this to get deliveryReportList later.
+                string requestId = sendMessageResult.ClientCorrelator; // you can use this to get deliveryReportList later.
 
-            UpdateDb(sendMessageHistory, sendMessageResult);
+                UpdateDb(sendMessageHistory, sendMessageResult);
+            }
         }
 
         private void UpdateDb(SendMessageHistory sendMessageHistory, SendMessageResult sendMessageResult)

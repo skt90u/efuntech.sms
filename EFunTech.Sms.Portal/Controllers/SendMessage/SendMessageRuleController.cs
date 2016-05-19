@@ -17,11 +17,13 @@ namespace EFunTech.Sms.Portal.Controllers
 	public class SendMessageRuleController : CrudApiController<SendMessageRuleCriteriaModel, SendMessageRuleModel, SendMessageRule, int>
 	{
         private SendMessageRuleService sendMessageRuleService;
+        private ISystemParameters systemParameters;
 
-        public SendMessageRuleController(DbContext context, ILogService logService)
+        public SendMessageRuleController(DbContext context, ILogService logService, ISystemParameters systemParameters)
             : base(context, logService)
         {
             this.sendMessageRuleService = new SendMessageRuleService(new UnitOfWork(context), logService);
+            this.systemParameters = systemParameters;
         }
 
 		protected override IQueryable<SendMessageRule> DoGetList(SendMessageRuleCriteriaModel criteria)
@@ -56,6 +58,10 @@ namespace EFunTech.Sms.Portal.Controllers
 
         protected override Task<SendMessageRule> DoCreate(SendMessageRuleModel model, SendMessageRule entity)
 		{
+            // systemParameters.AllowSendMessage: 避免測試的時候，誤發大量簡訊；請在正式上線的時候才打開
+            // 測試設定簡訊的時候，請將以下這一行註解掉，測試完畢，請恢復
+            if (!systemParameters.AllowSendMessage)throw new Exception("測試環境不允許發送簡訊。");
+
             model.UpdateClientTimezoneOffset(ClientTimezoneOffset);
 
             var rules = this.sendMessageRuleService.CreateSendMessageRuleFromWeb(CurrentUser, model);

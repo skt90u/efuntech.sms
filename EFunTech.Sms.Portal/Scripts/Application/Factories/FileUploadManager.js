@@ -1,8 +1,8 @@
 (function (window, document) {
     'use strict';
 
-    angular.module('app').factory('FileUploadManager', ['$modal', 'Converter', 'CrudApi', 'SchemaFormFactory', 'GlobalSettings', 'dialogs', 'FileManagerApi',
-        function ($modal, Converter, CrudApi, SchemaFormFactory, GlobalSettings, dialogs, FileManagerApi) {
+    angular.module('app').factory('FileUploadManager', ['$modal', 'Converter', 'CrudApi', 'SchemaFormFactory', 'GlobalSettings', 'dialogs', 'FileManagerApi', '$log',
+        function ($modal, Converter, CrudApi, SchemaFormFactory, GlobalSettings, dialogs, FileManagerApi, $log) {
 
             return function() {
                 
@@ -42,6 +42,9 @@
                             return false;
                         }
 
+                        var dateStart = moment();
+                        $log.log('上傳開始: ' + dateStart.format('YYYY/MM/DD HH:mm:ss'));
+                        
                         $scope.uploading = true;
                         FileManagerApi.uploadFile(url, $file, extraParameters)
                         .then(function (result) {
@@ -51,6 +54,10 @@
                         .finally(function () {
                             $scope.uploading = false;
                             $file.val(""); // 清空 input[type=file]，避免對同一個檔案上傳無法觸發onchange事件
+
+                            var dateEnd = moment();
+                            $log.log('上傳結束: ' + dateEnd.format('YYYY/MM/DD HH:mm:ss'));
+                            $log.log('上傳費時: ' + (dateEnd - dateStart) / 1000 + ' (秒)');
                         });
                     });
                 };

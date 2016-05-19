@@ -23,6 +23,7 @@ namespace EFunTech.Sms.Portal
             this.ValidateInterval = Convert.ToInt32(ConfigurationManager.AppSettings["ValidateInterval"]);
 
             this.ContactAtMostOneGroup = true;
+            this.AllowSendMessage = Convert.ToBoolean(ConfigurationManager.AppSettings["AllowSendMessage"]);
         }
 
         public string EMailUserName { get; set; }
@@ -42,5 +43,8 @@ namespace EFunTech.Sms.Portal
         public int ExpireTimeSpan { get; set; }
         public int ValidateInterval { get; set; }
         public bool ContactAtMostOneGroup { get; set; }
+
+
+        public bool AllowSendMessage { get; set; }
     }
 }
