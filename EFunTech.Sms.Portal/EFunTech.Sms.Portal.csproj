@@ -627,6 +627,7 @@
     <Content Include="partials\SendMessage.html" />
     <Content Include="partials\SendParamMessage.html" />
     <Content Include="partials\SMS_Setting.html" />
+    <Content Include="partials\Terminal.html" />
     <Content Include="Scripts\Application\app.js" />
     <Content Include="Scripts\Application\Configs\configDialogs.js" />
     <Content Include="Scripts\Application\Configs\configLogProvider.js" />
@@ -3540,6 +3541,32 @@
     <Content Include="Scripts\bower_components\nanoScrollerJS\javascripts\main.js" />
     <Content Include="Scripts\bower_components\nanoScrollerJS\javascripts\overthrow.min.js" />
     <Content Include="Scripts\bower_components\nanoScrollerJS\readme.html" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\example\content\angular.png" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\example\content\capture.png" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\example\content\example.css" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\example\content\start.wav" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\example\content\terminalservercapture.png" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\example\content\type.wav" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\example\example.command.filesystem.js" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\example\example.command.implementations.js" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\example\example.command.tools.js" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\example\example.js" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\favicon.ico" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\index.html" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\src\vtortola.ng-terminal.css" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\src\vtortola.ng-terminal.js" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\tests\index.html" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\tests\jasmine-2.0.1\angular-mocks.js" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\tests\jasmine-2.0.1\boot.js" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\tests\jasmine-2.0.1\console.js" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\tests\jasmine-2.0.1\jasmine-html.js" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\tests\jasmine-2.0.1\jasmine.css" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\tests\jasmine-2.0.1\jasmine.js" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\tests\jasmine-2.0.1\jasmine_favicon.png" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\tests\spec\example.command.filesystem.spec.js" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\tests\spec\example.command.implementations.spec.js" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\tests\spec\example.command.tools.spec.js" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\tests\spec\vtortola.ng-terminal.spec.js" />
     <Content Include="Scripts\bower_components\ngUpload\ng-upload.js" />
     <Content Include="Scripts\bower_components\ngUpload\ng-upload.min.js" />
     <Content Include="Scripts\bower_components\objectpath\.bower.json" />
@@ -3975,7 +4002,8 @@
     <Content Include="Scripts\bower_components\angular-route\package.json" />
     <Content Include="Scripts\bower_components\angular-route\README.md" />
     <Content Include="Views\Shared\_LayoutOrigin.cshtml" />
-    <Content Include="Views\Home\Terminal.cshtml" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\LICENSE" />
+    <Content Include="Scripts\bower_components\ng-terminal-emulator\README.md" />
     <None Include="Web.Azure.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
