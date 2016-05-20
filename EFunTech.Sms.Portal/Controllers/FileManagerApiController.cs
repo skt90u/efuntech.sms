@@ -30,10 +30,12 @@ namespace EFunTech.Sms.Portal.Controllers
     /// </summary>
     public class FileManagerApiController : MvcControllerBase
     {
-        public FileManagerApiController(IUnitOfWork unitOfWork, ILogService logService)
+        private ISystemParameters systemParameters;
+
+        public FileManagerApiController(IUnitOfWork unitOfWork, ILogService logService, ISystemParameters systemParameters)
             :base(unitOfWork, logService)
         {
-            
+            this.systemParameters = systemParameters;
         }
 
 
@@ -56,6 +58,9 @@ namespace EFunTech.Sms.Portal.Controllers
                 UploadedFile uploadedFile = SaveUploadedFile(attachment, useParam ? UploadedFileType.SendParamMessage : UploadedFileType.SendMessage);
 
                 List<UploadedMessageReceiverList> list = LoadFile<UploadedMessageReceiverList>(attachment);
+
+                if (list.Count > systemParameters.MaxUploadedMessageReceiver)
+                    throw new Exception(string.Format("總共上傳 {0} 筆資料，超過允許上限 {1} 筆。", list.Count, systemParameters.MaxUploadedMessageReceiver));
 
                 return HandleUploadedFile(list, uploadedFile, useParam);
             }

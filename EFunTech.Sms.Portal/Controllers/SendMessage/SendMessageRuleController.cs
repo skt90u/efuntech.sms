@@ -58,18 +58,30 @@ namespace EFunTech.Sms.Portal.Controllers
 
         protected override Task<SendMessageRule> DoCreate(SendMessageRuleModel model, SendMessageRule entity)
 		{
-            // systemParameters.AllowSendMessage: 避免測試的時候，誤發大量簡訊；請在正式上線的時候才打開
-            // 測試設定簡訊的時候，請將以下這一行註解掉，測試完畢，請恢復
-            if (!systemParameters.AllowSendMessage)throw new Exception("測試環境不允許發送簡訊。");
+            try
+            {
+                // systemParameters.AllowSendMessage: 避免測試的時候，誤發大量簡訊；請在正式上線的時候才打開
+                // 測試設定簡訊的時候，請將以下這一行註解掉，測試完畢，請恢復
+                //if (!systemParameters.AllowSendMessage)throw new Exception("測試環境不允許發送簡訊。");
 
-            model.UpdateClientTimezoneOffset(ClientTimezoneOffset);
+                model.UpdateClientTimezoneOffset(ClientTimezoneOffset);
 
-            var rules = this.sendMessageRuleService.CreateSendMessageRuleFromWeb(CurrentUser, model);
+                var rules = this.sendMessageRuleService.CreateSendMessageRuleFromWeb(CurrentUser, model);
 
-            entity = rules.FirstOrDefault();
-            
-            return Task.FromResult(entity);
-		}
+                entity = rules.FirstOrDefault();
+
+                return Task.FromResult(entity);
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+                GC.Collect();
+                //GC.WaitForPendingFinalizers(); // WaitForPendingFinalizers doesn't necessarily give "better performance": it simply blocks until all objects in the finalisation queue have been finalised
+            }
+        }
 
         #endregion
 

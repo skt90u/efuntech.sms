@@ -336,7 +336,11 @@ namespace EFunTech.Sms.Portal
                     {
                         RecipientFromFileUpload _entity = Mapper.Map<RecipientFromFileUploadModel, RecipientFromFileUpload>(model.RecipientFromFileUpload);
                         _entity.SendMessageRuleId = entity.Id;
-                        _entity.UploadedFile = this.unitOfWork.Repository<UploadedFile>().GetById(model.RecipientFromFileUpload.UploadedFileId);
+                        
+                        // 20160520 Norman, 嘗試解決發送 10 萬筆資料會失敗的問題
+                        //_entity.UploadedFile = this.unitOfWork.Repository<UploadedFile>().GetById(model.RecipientFromFileUpload.UploadedFileId);
+                        _entity.UploadedFileId = model.RecipientFromFileUpload.UploadedFileId;
+
                         _entity = this.unitOfWork.Repository<RecipientFromFileUpload>().Insert(_entity);
                         entity.RecipientFromFileUpload = _entity;
 

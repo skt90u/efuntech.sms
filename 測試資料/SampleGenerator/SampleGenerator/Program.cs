@@ -50,7 +50,7 @@ namespace SampleGenerator
 
         static void Main(string[] args)
         {
-            string filepath = GenerateFile(10);
+            string filepath = GenerateFile(1000 * 60);
         }
     }
 }

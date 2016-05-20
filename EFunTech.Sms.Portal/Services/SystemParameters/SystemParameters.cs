@@ -24,6 +24,9 @@ namespace EFunTech.Sms.Portal
 
             this.ContactAtMostOneGroup = true;
             this.AllowSendMessage = Convert.ToBoolean(ConfigurationManager.AppSettings["AllowSendMessage"]);
+            this.InsufficientBalanceNotifiee = ConfigurationManager.AppSettings["InsufficientBalanceNotifiee"];
+
+            this.MaxUploadedMessageReceiver = Convert.ToInt32(ConfigurationManager.AppSettings["MaxUploadedMessageReceiver"]);
         }
 
         public string EMailUserName { get; set; }
@@ -44,7 +47,10 @@ namespace EFunTech.Sms.Portal
         public int ValidateInterval { get; set; }
         public bool ContactAtMostOneGroup { get; set; }
 
-
         public bool AllowSendMessage { get; set; }
+
+        public string InsufficientBalanceNotifiee  { get; set; }
+
+        public int MaxUploadedMessageReceiver { get; set; }
     }
 }

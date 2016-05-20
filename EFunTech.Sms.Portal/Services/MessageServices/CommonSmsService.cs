@@ -84,6 +84,8 @@ namespace EFunTech.Sms.Portal
 
             var providerTypesInOrder = GetSmsProviderTypes(currentProviderType);
 
+            List<string> errors = new List<string>();
+
             foreach (var providerType in providerTypesInOrder)
             {
                 Type instanceType = ToInstanceType(providerType);
@@ -92,23 +94,33 @@ namespace EFunTech.Sms.Portal
                 if (_provider != null &&
                     _provider.IsAvailable)
                 {
-                    if (_provider.Balance >= _provider.ToProviderBalance(requiredBalance))
+                    decimal balance = _provider.Balance;
+                    decimal toProviderBalance = _provider.ToProviderBalance(requiredBalance);
+
+                    if (balance >= toProviderBalance)
                     {
                         provider = _provider;
                         break;
                     }
+                    else
+                    {
+                        errors.Add(string.Format("簡訊供應商({0})：目前點數 {1}，發送所需點數 {2}。", providerType, balance, toProviderBalance));
+                    }
+
+                    // 20160520 Norman, 測試發送大量簡訊，測試完後請移除
+                    //provider = _provider;
                 }
             }
 
             if (provider == null)
             {
-                string subject = string.Format("目前無任何簡訊供應商可扣除點數 {0}", requiredBalance);
-                string body = subject;
+                string subject = string.Format("點數不足，無法發送簡訊(所需點數 {0})", requiredBalance);
+                string body = string.Join("\n", errors);
+                string[] destinations = new string[] { systemParameters.InsufficientBalanceNotifiee };
                 //string[] destinations = this.unitOfWork.Repository<ApplicationUser>().GetMany(p => p.Roles.Contains(Role.Administrator)).Select(p => p.Email).ToArray();
-                //BackgroundJob.Enqueue<GMailService>(x => x.Send(subject, body, destinations));
-
-                this.logService.Error(body);
-                throw new Exception(body);
+                BackgroundJob.Enqueue<CommonMailService>(x => x.Send(subject, body, destinations));
+                this.logService.Error(subject);
+                throw new Exception(subject);
             }
 
             return provider;

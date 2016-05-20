@@ -35,5 +35,9 @@ namespace EFunTech.Sms.Portal
         bool ContactAtMostOneGroup { get; set; }
 
         bool AllowSendMessage { get; set; }
+        string InsufficientBalanceNotifiee { get; set; }
+
+        // 最大上傳筆數
+        int MaxUploadedMessageReceiver { get; set; }
     }
 }

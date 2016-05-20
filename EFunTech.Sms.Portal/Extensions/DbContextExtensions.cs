@@ -16,7 +16,18 @@ namespace EFunTech.Sms.Portal
     {
         public static TransactionScope CreateTransactionScope(this DbContext context)
         {
-            return new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            // http://www.dedicatedsqlserver.com/HowTo/SynAttackProtect.aspx
+
+            // http://openhome.cc/Gossip/HibernateGossip/IsolationLevel.html
+
+            // http://stackoverflow.com/questions/193154/the-operation-is-not-valid-for-the-state-of-the-transaction-error-and-transact
+            TransactionOptions options = new TransactionOptions();
+            //options.IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted;
+            options.IsolationLevel = System.Transactions.IsolationLevel.ReadUncommitted;
+            options.Timeout = new TimeSpan(0, 30, 0);
+            return new TransactionScope(TransactionScopeOption.Required, options, TransactionScopeAsyncFlowOption.Enabled);
+
+            //return new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             //return new TransactionScope(
             //    // a new transaction will always be created

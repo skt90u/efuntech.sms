@@ -127,6 +127,7 @@ namespace EFunTech.Sms.Schema
             // (2) 打開輸入視窗(顯示輸出來源選擇[偵錯])
             // (3) 觀察輸入訊息，應該就可以找到問題發生原因
             this.Database.Log = (message) => { System.Diagnostics.Debug.WriteLine(message); }; // 20151122 Norman 測試效能，暫時關閉
+            this.SetCommandTimeOut(600); // 600 seconds
 
             // http://stackoverflow.com/questions/4648540/entity-framework-datetime-and-utc
             ((IObjectContextAdapter)this).ObjectContext.ObjectMaterialized +=
@@ -136,6 +137,13 @@ namespace EFunTech.Sms.Schema
             //query.MergeOption = MergeOption.NoTracking;
 
             // this.Blacklists.MergeOption
+
+        }
+
+        public void SetCommandTimeOut(int Timeout)
+        {
+            var objectContext = (this as IObjectContextAdapter).ObjectContext;
+            objectContext.CommandTimeout = Timeout;
         }
 
         public static ApplicationDbContext Create()
