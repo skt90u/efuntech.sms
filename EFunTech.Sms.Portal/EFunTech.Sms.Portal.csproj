@@ -3975,6 +3975,7 @@
     <Content Include="Scripts\bower_components\angular-route\package.json" />
     <Content Include="Scripts\bower_components\angular-route\README.md" />
     <Content Include="Views\Shared\_LayoutOrigin.cshtml" />
+    <Content Include="Views\Home\Terminal.cshtml" />
     <None Include="Web.Azure.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

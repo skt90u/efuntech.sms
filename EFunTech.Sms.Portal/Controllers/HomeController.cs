@@ -117,7 +117,6 @@ namespace EFunTech.Sms.Portal.Controllers
             return View();
         }
 
-        
         public ActionResult SectorStatistics()
         {
             if (GetMenuItems().Count == 0)
@@ -133,7 +132,13 @@ namespace EFunTech.Sms.Portal.Controllers
 
             return View();
         }
-        
-        
+
+        public ActionResult Terminal()
+        {
+            if (GetMenuItems().Count == 0)
+                return RedirectToAction("Login", "Account", new { ReturnUrl = "Terminal" });
+
+            return View();
+        }
     }
 }
