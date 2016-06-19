@@ -50,23 +50,31 @@ namespace EFunTech.Sms.Portal.Controllers
         {
             return await Task.Run(() => {
 
-                ApplicationUserModel model = Mapper.Map<ApplicationUser, ApplicationUserModel>(CurrentUser);
-
-                model.CanEditDepartment = false;
-                model.CanEditSmsProviderType = false;
-
-                switch (CurrentUserRole)
+                try
                 {
-                    case Role.Administrator:
-                        model.CanEditDepartment = true;
-                        model.CanEditSmsProviderType = true;
-                        break;
-                    case Role.Supervisor:
-                        model.CanEditDepartment = true;
-                        break;
-                }
+                    ApplicationUserModel model = Mapper.Map<ApplicationUser, ApplicationUserModel>(CurrentUser);
 
-                return model;
+                    model.CanEditDepartment = false;
+                    model.CanEditSmsProviderType = false;
+
+                    switch (CurrentUserRole)
+                    {
+                        case Role.Administrator:
+                            model.CanEditDepartment = true;
+                            model.CanEditSmsProviderType = true;
+                            break;
+                        case Role.Supervisor:
+                            model.CanEditDepartment = true;
+                            break;
+                    }
+
+                    return model;
+                }
+                catch(Exception ex)
+                {
+                    logService.Error(ex);
+                    return null;
+                }
             });
         }
         
