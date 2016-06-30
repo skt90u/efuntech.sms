@@ -31,35 +31,45 @@ namespace EFunTech.Sms.Portal.Controllers
 
         }
 
-        #region 檢視 Post Body 資料
-        /// <summary>
-        /// https://dev.infobip.com/docs/notify-url
-        /// https://weblog.west-wind.com/posts/2013/dec/13/accepting-raw-request-body-content-with-aspnet-web-api
-        /// http://blog.darkthread.net/post-2015-07-03-streamreader-and-inputstream.aspx
-        /// http://stackoverflow.com/questions/10127803/cannot-read-request-content-in-asp-net-webapi-controller
-        /// </summary>
-        //[HttpPost]
-        //public HttpResponseMessage Post()
-        //{
-        //    try
-        //    {
-        //        string body = Request.Content.ReadAsStringAsync().Result;
 
-        //        logService.Debug("{0}", body);
+        [HttpPost]
+        public HttpResponseMessage Post(deliveryreport deliveryreport)
+        {
+            try
+            {
+                var body = JsonConvert.SerializeObject(deliveryreport);
 
-        //        return this.Request.CreateResponse(HttpStatusCode.OK, body);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        this.logService.Error(ex);
+                logService.Debug("{0}", body);
 
-        //        return this.Request.CreateResponse(HttpStatusCode.InternalServerError, new
-        //        {
-        //            ErrorMessage = ex.Message,
-        //        });
-        //    }
-        //}
-        #endregion
+                return this.Request.CreateResponse(HttpStatusCode.OK, body);
+            }
+            catch (Exception ex)
+            {
+                this.logService.Error(ex);
+
+                return this.Request.CreateResponse(HttpStatusCode.InternalServerError, new
+                {
+                    ErrorMessage = ex.Message,
+                });
+            }
+        }
+
+        public class deliveryreport
+        {
+            //{  
+            //   "deliveryInfoNotification":{  
+            //      "deliveryInfo":{  
+            //         "address":"886921859698", // 發送門號
+            //         "messageId":"1673019360160545114",
+            //         "deliveryStatus":"DeliveredToTerminal", // 狀態
+            //         "clientCorrelator":"1673019360160545112", // sendMessageResult.ClientCorrelator
+            //         "price":61.9048
+            //      },
+            //      "callbackData":"I_AM_CallbackData"
+            //   }
+            //}
+            public deliveryInfoNotification deliveryInfoNotification { get; set; }
+        }
 
         public class deliveryInfoNotification
         {
@@ -77,44 +87,6 @@ namespace EFunTech.Sms.Portal.Controllers
 
         }
 
-        /// <summary>
-        /// 20160701 測試好像跑不到這裡，可能要用 Post() <--- 沒有參數的版本
-        /// </summary>
-        /// <param name="deliveryInfoNotification"></param>
-        /// <returns></returns>
-        [HttpPost]
-        public HttpResponseMessage Post(deliveryInfoNotification deliveryInfoNotification)
-        {
-            //{  
-            //   "deliveryInfoNotification":{  
-            //      "deliveryInfo":{  
-            //         "address":"886921859698", // 發送門號
-            //         "messageId":"1673019360160545114",
-            //         "deliveryStatus":"DeliveredToTerminal", // 狀態
-            //         "clientCorrelator":"1673019360160545112", // sendMessageResult.ClientCorrelator
-            //         "price":61.9048
-            //      },
-            //      "callbackData":"I_AM_CallbackData"
-            //   }
-            //}
 
-            try
-            {
-                var body = JsonConvert.SerializeObject(deliveryInfoNotification);
-
-                logService.Debug("{0}", body);
-
-                return this.Request.CreateResponse(HttpStatusCode.OK, body);
-            }
-            catch (Exception ex)
-            {
-                this.logService.Error(ex);
-
-                return this.Request.CreateResponse(HttpStatusCode.InternalServerError, new
-                {
-                    ErrorMessage = ex.Message,
-                });
-            }
-        }
     }
 }

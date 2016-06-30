@@ -313,6 +313,8 @@
     <Compile Include="App_Start\ApplicationDbContextInitializer.cs" />
     <Compile Include="Controllers\Common\ApiControllerBase.cs" />
     <Compile Include="Controllers\Common\CrudApiController.cs" />
+    <Compile Include="Controllers\Notification\InfobipDeliveryReportSampleController.cs" />
+    <Compile Include="Controllers\Notification\InfobipDeliveryReportRawBodyController.cs" />
     <Compile Include="Controllers\Notification\InfobipDeliveryReportController.cs" />
     <Compile Include="Controllers\Others\DeliveryReportQueueController.cs" />
     <Compile Include="Controllers\BasicAuthApi\SendSmsController.cs" />
