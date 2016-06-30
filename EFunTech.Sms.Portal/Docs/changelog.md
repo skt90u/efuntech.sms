@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Fixed - 2016-06-30
 - 修正【系統設定】按鈕在IE下無法顯示的問題
+- 尚未解決客戶說的重複發送的問題
+select * from LogItems  where (Message like '%972038199%' or Message like '%960624158]%') and Message like '%3121%'
+select * from LogItems  where Method = 'RetrySMS' and (Message like '%972038199%' or Message like '%960624158]%')
 
 ## Fixed - 2016-05-09
 - 修復無法刪除使用者的問題(Workaround)

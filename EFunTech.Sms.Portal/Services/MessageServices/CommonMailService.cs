@@ -6,6 +6,7 @@ using System.Linq;
 using System;
 using System.Text;
 using System.Collections.Generic;
+using Hangfire;
 
 namespace EFunTech.Sms.Portal
 {
@@ -25,6 +26,7 @@ namespace EFunTech.Sms.Portal
             //this.mailProvider = new AliyunMailProvider(systemParameters, logService);
         }
 
+        [AutomaticRetry(Attempts = 0)]
         public void Send(string subject, string body, string[] destinations)
         {
             //this.mailProvider.Send(subject, body, destinations);

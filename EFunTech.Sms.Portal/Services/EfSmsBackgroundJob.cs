@@ -48,6 +48,9 @@ namespace EFunTech.Sms.Portal
         /// <summary>
         /// 每月定期撥入點數給子帳號
         /// </summary>
+        // 20160630 Norman, 不要重試
+        // http://docs.hangfire.io/en/latest/background-processing/dealing-with-exceptions.html
+        [AutomaticRetry(Attempts = 0)]
         public void CheckMonthlyAllotPoint()
         {
             try
@@ -105,6 +108,9 @@ namespace EFunTech.Sms.Portal
         /// <summary>
         /// 派送簡訊工作(預約或者週期簡訊)
         /// </summary>
+        // 20160630 Norman, 不要重試
+        // http://docs.hangfire.io/en/latest/background-processing/dealing-with-exceptions.html
+        [AutomaticRetry(Attempts = 0)]
         public void SendSMS()
         {
             try
@@ -178,6 +184,9 @@ namespace EFunTech.Sms.Portal
         /// <summary>
         /// 定時接收簡訊回傳結果
         /// </summary>
+        // 20160630 Norman, 不要重試
+        // http://docs.hangfire.io/en/latest/background-processing/dealing-with-exceptions.html
+        [AutomaticRetry(Attempts = 0)]
         public void GetDeliveryReport()
         {
             try
@@ -245,6 +254,9 @@ namespace EFunTech.Sms.Portal
         /// 若一天之後，SendMessageHistory 狀態仍然為 MessageAccepted (仍未取得派送結果)，
         /// 則將此筆 SendMessageHistory 狀態改成 DeliveryReportTimeout
         /// </summary>
+        // 20160630 Norman, 不要重試
+        // http://docs.hangfire.io/en/latest/background-processing/dealing-with-exceptions.html
+        [AutomaticRetry(Attempts = 0)]
         public void HandleDeliveryReportTimeout()
         {
             UniqueJob uniqueJob = this.uniqueJobList.AddOrUpdate("HandleDeliveryReportTimeout");
@@ -329,6 +341,9 @@ namespace EFunTech.Sms.Portal
 
         #region 重試發送失敗的簡訊
 
+        // 20160630 Norman, 不要重試
+        // http://docs.hangfire.io/en/latest/background-processing/dealing-with-exceptions.html
+        [AutomaticRetry(Attempts = 0)]
         public void RetrySMS()
         {
             try
@@ -372,6 +387,9 @@ namespace EFunTech.Sms.Portal
         
         #region HouseKeeping
 
+        // 20160630 Norman, 不要重試
+        // http://docs.hangfire.io/en/latest/background-processing/dealing-with-exceptions.html
+        [AutomaticRetry(Attempts = 0)]
         public void HouseKeeping()
         {
             var expiryDate = DateTime.UtcNow.AddMonths(-1);

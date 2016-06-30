@@ -166,6 +166,7 @@ namespace EFunTech.Sms.Portal
             return provider;
         }
 
+        [AutomaticRetry(Attempts = 0)]
         public void SendSMS(int sendMessageRuleId, DateTime sendTime)
         {
             UniqueJob uniqueJob = null;
@@ -339,6 +340,7 @@ namespace EFunTech.Sms.Portal
             }
         }
 
+        [AutomaticRetry(Attempts = 0)]
         public void GetDeliveryReport(string requestId)
         {
             UniqueJob uniqueJob = null;
@@ -380,6 +382,7 @@ namespace EFunTech.Sms.Portal
             }
         }
 
+        [AutomaticRetry(Attempts = 0)]
         public void RetrySMS(int sendMessageHistoryId)
         {
             UniqueJob uniqueJob = null;

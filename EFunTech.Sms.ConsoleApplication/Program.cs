@@ -10,15 +10,38 @@ using System.Text;
 using System.Threading.Tasks;
 using EFunTech.Sms.Portal.Controllers;
 using System.Data.Entity.Validation;
+using OneApi.Model;
+using OneApi.Config;
+using OneApi.Client.Impl;
 
 namespace EFunTech.Sms.ConsoleApplication
 {
     class Program
     {
+        private static void test_notify_url()
+        {
+            var configuration = new Configuration("ENVOTIONS", "Envo6183");
+            
+            var smsClient = new SMSClient(configuration);
+
+            var smsRequest = new SMSRequest("ABC", DateTime.Now.ToShortDateString(), new string[] { "+886921859698" });
+            smsRequest.NotifyURL = "http://zutech-sms.azurewebsites.net/api/InfobipDeliveryReport";
+            
+            SendMessageResult sendMessageResult = smsClient.SmsMessagingClient.SendSMS(smsRequest);
+
+            string requestId = sendMessageResult.ClientCorrelator; // you can use this to get deliveryReportList later.
+
+            Console.WriteLine(requestId);
+        }
+
         static void Main(string[] args)
         {
             try
             {
+                test_notify_url();
+
+                return;
+
                 Program pg = new Program();
 
                 //pg.SendEmail();

@@ -144,11 +144,11 @@ namespace EFunTech.Sms.Portal
             if (systemParameters.AllowSendMessage)
             {
                 var smsRequest = new SMSRequest(senderAddress, message, recipientAddress);
+                //smsRequest.NotifyURL = "http://zutech-sms.azurewebsites.net/api/InfobipDeliveryReport";
                 // 還是不知道怎麼使用
                 // http://dev.infobip.com/v1/docs/logs-vs-delivery-reports
                 // http://dev.infobip.com/docs/notify-url
-                // 還是不知道怎麼使用 smsRequest.NotifyURL = "";
-                //smsRequest.NotifyURL = @"http://zutech-sms.azurewebsites.net/api/InfobipNotification";
+                
 
                 SendMessageResult sendMessageResult = this.smsClient.SmsMessagingClient.SendSMS(smsRequest);
 
