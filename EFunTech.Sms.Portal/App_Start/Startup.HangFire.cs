@@ -135,9 +135,13 @@ namespace EFunTech.Sms.Portal
 
                 RecurringJob.AddOrUpdate<EfSmsBackgroundJob>("CheckMonthlyAllotPoint", x => x.CheckMonthlyAllotPoint(), Cron.Minutely);
                 RecurringJob.AddOrUpdate<EfSmsBackgroundJob>("SendSMS", x => x.SendSMS(), Cron.Minutely);
-                RecurringJob.AddOrUpdate<EfSmsBackgroundJob>("RetrySMS", x => x.RetrySMS(), Cron.Hourly(10)); // every 10 minutes
-                RecurringJob.AddOrUpdate<EfSmsBackgroundJob>("GetDeliveryReport", x => x.GetDeliveryReport(), Cron.Minutely);
-                RecurringJob.AddOrUpdate<EfSmsBackgroundJob>("HandleDeliveryReportTimeout", x => x.HandleDeliveryReportTimeout(), Cron.Minutely);
+                for (var i = 0; i < 6;i++) // every 10 minute
+                {
+                    RecurringJob.AddOrUpdate<EfSmsBackgroundJob>("RetrySMS", x => x.RetrySMS(), Cron.Hourly(i * 10));
+                    RecurringJob.AddOrUpdate<EfSmsBackgroundJob>("GetDeliveryReport", x => x.GetDeliveryReport(), Cron.Hourly(i * 10));
+                    RecurringJob.AddOrUpdate<EfSmsBackgroundJob>("HandleDeliveryReportTimeout", x => x.HandleDeliveryReportTimeout(), Cron.Hourly(i * 10));
+                }
+                
                 RecurringJob.AddOrUpdate<EfSmsBackgroundJob>("HouseKeeping", x => x.HouseKeeping(), Cron.Minutely);
 
                 // 建立Background JobSserver 來處理 Job

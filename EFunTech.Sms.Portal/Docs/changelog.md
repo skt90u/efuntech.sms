@@ -8,6 +8,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 select * from LogItems  where (Message like '%972038199%' or Message like '%960624158]%') and Message like '%3121%'
 select * from LogItems  where Method = 'RetrySMS' and (Message like '%972038199%' or Message like '%960624158]%')
 
+USE [EFunTechSms]
+GO
+
+update [dbo].[DeliveryReportQueues] set [DeliveryReportCount] = [SendMessageResultItemCount] where SendMessageResultItemCount <> DeliveryReportCount and CreatedTime > '2016-06-30' and CreatedTime < '2016-07-01'
+GO
+
+
 ## Fixed - 2016-05-09
 - 修復無法刪除使用者的問題(Workaround)
 

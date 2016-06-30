@@ -25,7 +25,8 @@ namespace EFunTech.Sms.Schema
     [TableDescription("簡訊派送結果等待取回序列")]
     public class DeliveryReportQueue
     {
-        public static readonly TimeSpan QueryInterval = new TimeSpan(1, 0, 0, 0, 0); // 一天
+        //public static readonly TimeSpan QueryInterval = new TimeSpan(1, 0, 0, 0, 0); // 一天
+        public static readonly TimeSpan QueryInterval = new TimeSpan(0, 6, 0, 0, 0); // 一天
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
