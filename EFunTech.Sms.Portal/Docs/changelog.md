@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Fixed - 2016-06-30
+- 修正【系統設定】按鈕在IE下無法顯示的問題
+
 ## Fixed - 2016-05-09
 - 修復無法刪除使用者的問題(Workaround)
 

@@ -242,8 +242,6 @@ namespace EFunTech.Sms.Portal
                     // 找出所有不同的發送內容
                     var sendBodies = ruleReceiversNotInBlackList.Select(p => p.SendBody).Distinct().ToList();
 
-                    this.logService.Debug("CommonSmsService，發送簡訊(簡訊編號：{0}，發送內容：[{1}])", sendMessageRuleId, string.Join("、", sendBodies));
-
                     // 針對沒有執行預扣的簡訊規則，判斷是否有足夠點數進行簡訊發送作業
 
                     decimal totalMessageCost = ruleReceiversNotInBlackList.Sum(p => p.MessageCost);
@@ -296,6 +294,12 @@ namespace EFunTech.Sms.Portal
                         this.tradeService.CreateSendMessageQueue(sendMessageRule, sendMessageQueue);
 
                         sendMessageQueue = this.unitOfWork.Repository<SendMessageQueue>().Insert(sendMessageQueue);
+
+                        this.logService.Debug("CommonSmsService，發送簡訊(簡訊編號：{0}，序列號碼：{1}，發送名單：{2}，發送內容：{3})", 
+                            sendMessageRuleId,
+                            sendMessageQueue.Id,
+                            ExcelBugFix.GetInformation(queueReceivers.Select(p => p.Mobile).ToList()),
+                            sendBody);
 
                         provider.SendSMS(sendMessageQueue.Id); // TODO: 在 EVA 測試, 要先註解這一行，避免發送簡訊
 
