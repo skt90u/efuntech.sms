@@ -24,10 +24,12 @@ namespace EFunTech.Sms.ConsoleApplication
             
             var smsClient = new SMSClient(configuration);
 
-            var smsRequest = new SMSRequest("ABC", DateTime.Now.ToShortDateString(), new string[] { "+886921859698" });
+            var smsRequest = new SMSRequest("ABC", DateTime.Now.ToShortDateString(), new string[] { "+886921859698", "+886928873075", "+886932273210" });
             smsRequest.NotifyURL = "http://zutech-sms.azurewebsites.net/api/InfobipDeliveryReport";
-            
+            smsRequest.CallbackData = "I_AM_CallbackData";
             SendMessageResult sendMessageResult = smsClient.SmsMessagingClient.SendSMS(smsRequest);
+            
+            // requestId = messageId;
 
             string requestId = sendMessageResult.ClientCorrelator; // you can use this to get deliveryReportList later.
 

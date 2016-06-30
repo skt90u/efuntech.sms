@@ -18,6 +18,8 @@ using EFunTech.Sms.Core;
 using System.Data.Entity;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.IO;
+using System.Web;
 
 namespace EFunTech.Sms.Portal.Controllers
 {
@@ -29,21 +31,23 @@ namespace EFunTech.Sms.Portal.Controllers
 
         }
 
+        #region 檢視 Post Body 資料
         /// <summary>
         /// https://dev.infobip.com/docs/notify-url
-        /// 
         /// https://weblog.west-wind.com/posts/2013/dec/13/accepting-raw-request-body-content-with-aspnet-web-api
+        /// http://blog.darkthread.net/post-2015-07-03-streamreader-and-inputstream.aspx
+        /// http://stackoverflow.com/questions/10127803/cannot-read-request-content-in-asp-net-webapi-controller
         /// </summary>
         //[HttpPost]
-        //public HttpResponseMessage Post([FromBody] deliveryreportlist deliveryreportlist)
+        //public HttpResponseMessage Post()
         //{
         //    try
         //    {
-        //        string json = JsonConvert.SerializeObject(deliveryreportlist);
+        //        string body = Request.Content.ReadAsStringAsync().Result;
 
-        //        this.logService.Debug("Notification::InfobipDeliveryReportController，Post({0})", json);
+        //        logService.Debug("{0}", body);
 
-        //        return this.Request.CreateResponse(HttpStatusCode.OK, json);
+        //        return this.Request.CreateResponse(HttpStatusCode.OK, body);
         //    }
         //    catch (Exception ex)
         //    {
@@ -55,55 +59,62 @@ namespace EFunTech.Sms.Portal.Controllers
         //        });
         //    }
         //}
+        #endregion
 
-        [HttpPost]
-        public string PostRawBuffer(string raw)
+        public class deliveryInfoNotification
         {
-            return raw;
-        }
-
-        public class deliveryreportlist
-        {
-            public deliveryreport[] results { get; set; }
-        }
-        public class deliveryreport
-        {
-            public string bulkId { get; set; }
-            public string messageId { get; set; }
-            public string to { get; set; }
-            public string sentAt { get; set; }
-            public string doneAt { get; set; }
-            public int smsCount { get; set; }
-
-            public price price { get; set; }
-            public status status { get; set; }
-            public error error { get; set; }
+            public deliveryInfo deliveryInfo { get; set; }
             public string callbackData { get; set; }
         }
 
-        public class price
+        public class deliveryInfo
         {
-            public decimal pricePerMessage { get; set; }
-            public string EUR { get; set; }
+            public string address { get; set; }
+            public string messageId { get; set; }
+            public string deliveryStatus { get; set; }
+            public string clientCorrelator { get; set; }
+            public decimal price { get; set; }
+
         }
 
-        public class status
+        /// <summary>
+        /// 20160701 測試好像跑不到這裡，可能要用 Post() <--- 沒有參數的版本
+        /// </summary>
+        /// <param name="deliveryInfoNotification"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public HttpResponseMessage Post(deliveryInfoNotification deliveryInfoNotification)
         {
-            public int groupId { get; set; }
-            public string groupName { get; set; }
-            public int id { get; set; }
-            public string name { get; set; }
-            public string description { get; set; }
-        }
+            //{  
+            //   "deliveryInfoNotification":{  
+            //      "deliveryInfo":{  
+            //         "address":"886921859698", // 發送門號
+            //         "messageId":"1673019360160545114",
+            //         "deliveryStatus":"DeliveredToTerminal", // 狀態
+            //         "clientCorrelator":"1673019360160545112", // sendMessageResult.ClientCorrelator
+            //         "price":61.9048
+            //      },
+            //      "callbackData":"I_AM_CallbackData"
+            //   }
+            //}
 
-        public class error
-        {
-            public int groupId { get; set; }
-            public string groupName { get; set; }
-            public int id { get; set; }
-            public string name { get; set; }
-            public string description { get; set; }
-            public bool permanent { get; set; }
+            try
+            {
+                var body = JsonConvert.SerializeObject(deliveryInfoNotification);
+
+                logService.Debug("{0}", body);
+
+                return this.Request.CreateResponse(HttpStatusCode.OK, body);
+            }
+            catch (Exception ex)
+            {
+                this.logService.Error(ex);
+
+                return this.Request.CreateResponse(HttpStatusCode.InternalServerError, new
+                {
+                    ErrorMessage = ex.Message,
+                });
+            }
         }
     }
 }
