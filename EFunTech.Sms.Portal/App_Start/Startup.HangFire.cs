@@ -137,9 +137,11 @@ namespace EFunTech.Sms.Portal
                 RecurringJob.AddOrUpdate<EfSmsBackgroundJob>("SendSMS", x => x.SendSMS(), Cron.Minutely);
                 for (var i = 0; i < 6;i++) // every 10 minute
                 {
-                    RecurringJob.AddOrUpdate<EfSmsBackgroundJob>("RetrySMS", x => x.RetrySMS(), Cron.Hourly(i * 10));
-                    RecurringJob.AddOrUpdate<EfSmsBackgroundJob>("GetDeliveryReport", x => x.GetDeliveryReport(), Cron.Hourly(i * 10));
-                    RecurringJob.AddOrUpdate<EfSmsBackgroundJob>("HandleDeliveryReportTimeout", x => x.HandleDeliveryReportTimeout(), Cron.Hourly(i * 10));
+                    int min = i * 10;
+
+                    RecurringJob.AddOrUpdate<EfSmsBackgroundJob>("RetrySMS" + min.ToString("0:00"), x => x.RetrySMS(), Cron.Hourly(min));
+                    RecurringJob.AddOrUpdate<EfSmsBackgroundJob>("GetDeliveryReport" + min.ToString("0:00"), x => x.GetDeliveryReport(), Cron.Hourly(min));
+                    RecurringJob.AddOrUpdate<EfSmsBackgroundJob>("HandleDeliveryReportTimeout" + min.ToString("0:00"), x => x.HandleDeliveryReportTimeout(), Cron.Hourly(min));
                 }
                 
                 RecurringJob.AddOrUpdate<EfSmsBackgroundJob>("HouseKeeping", x => x.HouseKeeping(), Cron.Minutely);
