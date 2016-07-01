@@ -7,7 +7,6 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 using Hangfire;
-using static EFunTech.Sms.Portal.EfSmsBackgroundJob;
 
 namespace EFunTech.Sms.Portal
 {
@@ -27,7 +26,7 @@ namespace EFunTech.Sms.Portal
             //this.mailProvider = new AliyunMailProvider(systemParameters, logService);
         }
 
-        [Queue(QueueLevel.Low)]
+        [Queue(EFunTech.Sms.Portal.EfSmsBackgroundJob.QueueLevel.Low)]
         [AutomaticRetry(Attempts = 0)]
         public void Send(string subject, string body, string[] destinations)
         {

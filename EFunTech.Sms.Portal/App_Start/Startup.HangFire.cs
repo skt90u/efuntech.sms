@@ -27,7 +27,6 @@ using JUtilSharp.Database;
 using System.Data.Entity;
 using Hangfire.Logging;
 using System.Security.Claims;
-using static EFunTech.Sms.Portal.EfSmsBackgroundJob;
 
 namespace EFunTech.Sms.Portal
 {
@@ -153,7 +152,12 @@ namespace EFunTech.Sms.Portal
                 // http://docs.hangfire.io/en/latest/background-processing/configuring-queues.html
                 var backgroundJobServerOptions = new BackgroundJobServerOptions
                 {
-                    Queues = new[] { QueueLevel.Critical, QueueLevel.High, QueueLevel.Medium, QueueLevel.Low },
+                    Queues = new[] { 
+                        EFunTech.Sms.Portal.EfSmsBackgroundJob.QueueLevel.Critical, 
+                        EFunTech.Sms.Portal.EfSmsBackgroundJob.QueueLevel.High, 
+                        EFunTech.Sms.Portal.EfSmsBackgroundJob.QueueLevel.Medium, 
+                        EFunTech.Sms.Portal.EfSmsBackgroundJob.QueueLevel.Low 
+                    },
                     //WorkerCount = Environment.ProcessorCount * 5, // This is the default value
                     WorkerCount = Environment.ProcessorCount * 50, // (1000 個 GetDeliveryReport Request) * (2.5 秒 - 每個 Request 花費時間) / 60 (每分鐘幾秒)  = 41.66666 (分鐘才能完成工作)
                 };
