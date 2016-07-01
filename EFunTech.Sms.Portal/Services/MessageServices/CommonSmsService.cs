@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Web;
+using static EFunTech.Sms.Portal.EfSmsBackgroundJob;
 
 namespace EFunTech.Sms.Portal
 {
@@ -166,6 +167,7 @@ namespace EFunTech.Sms.Portal
             return provider;
         }
 
+        [Queue(QueueLevel.Critical)]
         [AutomaticRetry(Attempts = 0)]
         public void SendSMS(int sendMessageRuleId, DateTime sendTime)
         {
@@ -340,6 +342,7 @@ namespace EFunTech.Sms.Portal
             }
         }
 
+        [Queue(QueueLevel.Medium)]
         [AutomaticRetry(Attempts = 0)]
         public void GetDeliveryReport(string requestId)
         {
@@ -382,6 +385,7 @@ namespace EFunTech.Sms.Portal
             }
         }
 
+        [Queue(QueueLevel.Critical)]
         [AutomaticRetry(Attempts = 0)]
         public void RetrySMS(int sendMessageHistoryId)
         {

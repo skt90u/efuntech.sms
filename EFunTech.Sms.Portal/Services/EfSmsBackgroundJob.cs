@@ -22,6 +22,27 @@ namespace EFunTech.Sms.Portal
     /// </summary>
     public class EfSmsBackgroundJob
     {
+        public class QueueLevel
+        {
+            public const string Critical = "critical";
+            // CommonSmsService.RetrySMS
+            // CommonSmsService.SendSMS
+
+            public const string High = "high";
+            // EfSmsBackgroundJob.RetrySMS
+            // EfSmsBackgroundJob.SendSMS
+            // EfSmsBackgroundJob.GetDeliveryReport
+
+            public const string Medium = "medium";
+            // CommonSmsService.GetDeliveryReport
+
+            public const string Low = "low";
+            // EfSmsBackgroundJob.HouseKeeping
+            // EfSmsBackgroundJob.CheckMonthlyAllotPoint
+            // EfSmsBackgroundJob.HandleDeliveryReportTimeout
+            // CommonMailService.Send
+        }
+
         private ISystemParameters systemParameters;
         private IUnitOfWork unitOfWork;
         private ILogService logService;
@@ -43,13 +64,15 @@ namespace EFunTech.Sms.Portal
             this.sendMessageStatisticService = new SendMessageStatisticService(logService, unitOfWork);
         }
 
-        #region 每月定期撥入點數給子帳號
         
+        #region 每月定期撥入點數給子帳號
+
         /// <summary>
         /// 每月定期撥入點數給子帳號
         /// </summary>
         // 20160630 Norman, 不要重試
         // http://docs.hangfire.io/en/latest/background-processing/dealing-with-exceptions.html
+        [Queue(QueueLevel.Low)]
         [AutomaticRetry(Attempts = 0)]
         public void CheckMonthlyAllotPoint()
         {
@@ -110,6 +133,7 @@ namespace EFunTech.Sms.Portal
         /// </summary>
         // 20160630 Norman, 不要重試
         // http://docs.hangfire.io/en/latest/background-processing/dealing-with-exceptions.html
+        [Queue(QueueLevel.High)]
         [AutomaticRetry(Attempts = 0)]
         public void SendSMS()
         {
@@ -186,6 +210,7 @@ namespace EFunTech.Sms.Portal
         /// </summary>
         // 20160630 Norman, 不要重試
         // http://docs.hangfire.io/en/latest/background-processing/dealing-with-exceptions.html
+        [Queue(QueueLevel.High)]
         [AutomaticRetry(Attempts = 0)]
         public void GetDeliveryReport()
         {
@@ -234,9 +259,17 @@ namespace EFunTech.Sms.Portal
 
                 this.logService.Debug("等待接收簡訊發送結果序列：{0})", ExcelBugFix.GetInformation(queuesInfos));
 
-                foreach (var queue in queues)
+                // 原本邏輯
+                //foreach (var queue in queues)
+                //{
+                //    BackgroundJob.Enqueue<CommonSmsService>(x => x.GetDeliveryReport(queue.RequestId));
+                //}
+
+                var requestIds = queues.Select(p => p.RequestId).ToList();
+                var unlockedRequestIds = this.uniqueJobList.GetUnlockedJob("GetDeliveryReport", requestIds);
+                foreach (var requestId in unlockedRequestIds)
                 {
-                    BackgroundJob.Enqueue<CommonSmsService>(x => x.GetDeliveryReport(queue.RequestId));
+                    BackgroundJob.Enqueue<CommonSmsService>(x => x.GetDeliveryReport(requestId));
                 }
             }
             catch (Exception ex)
@@ -256,6 +289,7 @@ namespace EFunTech.Sms.Portal
         /// </summary>
         // 20160630 Norman, 不要重試
         // http://docs.hangfire.io/en/latest/background-processing/dealing-with-exceptions.html
+        [Queue(QueueLevel.Low)]
         [AutomaticRetry(Attempts = 0)]
         public void HandleDeliveryReportTimeout()
         {
@@ -343,6 +377,7 @@ namespace EFunTech.Sms.Portal
 
         // 20160630 Norman, 不要重試
         // http://docs.hangfire.io/en/latest/background-processing/dealing-with-exceptions.html
+        [Queue(QueueLevel.High)]
         [AutomaticRetry(Attempts = 0)]
         public void RetrySMS()
         {
@@ -383,12 +418,13 @@ namespace EFunTech.Sms.Portal
         }
 
         #endregion
-    
-        
+
+
         #region HouseKeeping
 
         // 20160630 Norman, 不要重試
         // http://docs.hangfire.io/en/latest/background-processing/dealing-with-exceptions.html
+        [Queue(QueueLevel.Low)]
         [AutomaticRetry(Attempts = 0)]
         public void HouseKeeping()
         {

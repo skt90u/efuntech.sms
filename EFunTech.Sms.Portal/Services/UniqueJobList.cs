@@ -40,6 +40,18 @@ namespace EFunTech.Sms.Portal
         }
 
         /// <summary>
+        /// 取得【未鎖定】的 job signature
+        /// </summary>
+        public List<string> GetUnlockedJob(string methodName, List<string> argumentList)
+        {
+            var signatures = argumentList.Select(p => string.Format("{0}({1})", methodName, p)).ToList();
+            var lockedSignatures = this.repository.GetMany(p => signatures.Contains(p.Signature)).Select(p => p.Signature).ToList();
+            var availableSignatures = signatures.Except(lockedSignatures);
+            var availableArgumentList = availableSignatures.Select(p => p.Replace(methodName, string.Empty).Replace("(", string.Empty).Replace(")", string.Empty)).ToList();
+            return availableArgumentList;
+        }
+
+        /// <summary>
         /// 只有當 signature 不存在於 UniqueJobQueues
         /// 才會建立新的 UniqueJobQueue 物件，並回傳此物件
         /// 否則，將回傳 NULL
@@ -123,5 +135,7 @@ namespace EFunTech.Sms.Portal
                 this.logService.Error(ex);
             }
         }
+
+        
     }
 }

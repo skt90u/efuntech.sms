@@ -27,6 +27,7 @@ using JUtilSharp.Database;
 using System.Data.Entity;
 using Hangfire.Logging;
 using System.Security.Claims;
+using static EFunTech.Sms.Portal.EfSmsBackgroundJob;
 
 namespace EFunTech.Sms.Portal
 {
@@ -102,9 +103,10 @@ namespace EFunTech.Sms.Portal
                 
                 HostingEnvironment.RegisterObject(this);
 
+                // https://github.com/HangfireIO/Hangfire/blob/master/src/Hangfire.SqlServer/SqlServerStorageOptions.cs
                 var options = new SqlServerStorageOptions
                 {
-                    PrepareSchemaIfNecessary = true,
+                    PrepareSchemaIfNecessary = true, // 刪除相關資料表，當重新啟動後也會自動建立相關資料表
 
                     // 每15秒，查詢是否有需要執行的Job
                     // You can adjust the polling interval, but, as always, lower intervals can harm your SQL Server, and higher interval produce too much latency, so be careful.
@@ -127,9 +129,9 @@ namespace EFunTech.Sms.Portal
 
                 // http://docs.hangfire.io/en/latest/background-processing/dealing-with-exceptions.html
                 // 預設重試次數
-                GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 5 });
+                GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 0 }); // 20160701 Norman, 失敗了不要重試，如果失敗，每固定時間系統自行決定需要發送的簡訊，重發的簡訊，或者是 GetDeliveryReport，因此不需要重送。
                 // 手動指定重試次數 
-                // [AutomaticRetry(Attempts = 10000)]
+                // [AutomaticRetry(Attempts = 0)]
 
                 GlobalJobFilters.Filters.Add(new ChildContainerPerJobFilterAttribute(jobActivator));
 
@@ -147,7 +149,24 @@ namespace EFunTech.Sms.Portal
                 RecurringJob.AddOrUpdate<EfSmsBackgroundJob>("HouseKeeping", x => x.HouseKeeping(), Cron.Minutely);
 
                 // 建立Background JobSserver 來處理 Job
-                _backgroundJobServer = new BackgroundJobServer();
+
+                // http://docs.hangfire.io/en/latest/background-processing/configuring-queues.html
+                var backgroundJobServerOptions = new BackgroundJobServerOptions
+                {
+                    Queues = new[] { QueueLevel.Critical, QueueLevel.High, QueueLevel.Medium, QueueLevel.Low },
+                    //WorkerCount = Environment.ProcessorCount * 5, // This is the default value
+                    WorkerCount = Environment.ProcessorCount * 50, // (1000 個 GetDeliveryReport Request) * (2.5 秒 - 每個 Request 花費時間) / 60 (每分鐘幾秒)  = 41.66666 (分鐘才能完成工作)
+                };
+                /*
+        public class QueueLevel
+        {
+            public const string Critical = "critical";
+            public const string High = "high";
+            public const string Medium = "medium";
+            public const string Low = "low";
+        }
+                 */
+                _backgroundJobServer = new BackgroundJobServer(backgroundJobServerOptions);
             }
         }
 
