@@ -35,5 +35,7 @@ namespace EFunTech.Sms.Schema
         public virtual Infobip_DeliveryReport DeliveryReport { get; set; }
 
         public string DestinationName { get; set; }
+
+        public string Email { get; set; }
     }
 }

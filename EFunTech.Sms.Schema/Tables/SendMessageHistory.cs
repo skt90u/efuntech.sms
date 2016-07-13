@@ -267,5 +267,7 @@ namespace EFunTech.Sms.Schema
         public int? SendMessageRetryHistoryId { get; set; }
 
         public virtual SendMessageRetryHistory SendMessageRetryHistory { get; set; }
+
+        public string Email { get; set; }
     }
 }

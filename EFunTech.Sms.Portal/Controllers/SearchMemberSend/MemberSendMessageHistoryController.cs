@@ -64,6 +64,7 @@ namespace EFunTech.Sms.Portal.Controllers
             {
                 收訊者姓名 = p.DestinationName,
                 收訊者門號 = p.DestinationAddress,
+                收訊者信箱 = p.Email,
                 發送地區 = p.Region,
                 收訊內容 = p.SendBody,
                 收訊狀態 = p.DeliveryStatusString,

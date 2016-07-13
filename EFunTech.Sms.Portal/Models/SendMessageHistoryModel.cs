@@ -59,9 +59,9 @@ namespace EFunTech.Sms.Portal.Models
 
         public string DestinationName { get; set; }
 
-        public String Region { get; set; }
+        public string Region { get; set; }
 
-        public String CreatedTime { get; set; }
+        public string CreatedTime { get; set; }
 
         public int RetryMaxTimes { get; set; }
 
@@ -75,5 +75,8 @@ namespace EFunTech.Sms.Portal.Models
         public string FullName { get; set; }
         public string UserName { get; set; }
         public string DeliveryStatusChineseString { get; set; }
-	}
+
+        public string Email { get; set; }
+
+    }
 }

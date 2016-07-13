@@ -15,6 +15,14 @@ using System.Data.Entity.Core.Objects;
 
 namespace EFunTech.Sms.Schema
 {
+    /// <summary>
+    ///  Enable-Migrations
+    ///  
+    /// Add-Migration $(your_migration)
+    /// 
+    /// Update-Database
+    /// </summary>
+
     // 您可以在 ApplicationUser 類別新增更多屬性，為使用者新增設定檔資料，請造訪 http://go.microsoft.com/fwlink/?LinkID=317594 以深入了解。
 
     // 0000,{'Member':'356610','Name':'Dino','Sex':'暫無指定','MobileCountry':'886','Mobile':'','ContactPhone':'','ContactPhoneExt':'','Email':'','AddressZip':'','AddressCity':'','AddressStreet':'','SmsBalance':'36.00','SmsBalanceExpireDate':'2114/02/06 23:59:59'}

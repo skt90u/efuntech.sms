@@ -382,6 +382,10 @@ namespace EFunTech.Sms.Portal
 
             var clientTimezoneOffset = sendMessageRule.ClientTimezoneOffset;
 
+            var messageReceivers = this.unitOfWork.Repository<MessageReceiver>().GetMany(p =>
+                p.SendMessageRuleId == sendMessageQueue.SendMessageRuleId &&
+                p.SendBody == sendMessageQueue.SendBody).ToList();
+
             Every8d_SendMessageResult sendMessageResult = this.unitOfWork.Repository<Every8d_SendMessageResult>().Get(p => p.SourceTable == SourceTable.SendMessageQueue && p.SourceTableId == sendMessageQueueId);
             // if (SendMessageResult == null) return; 不應該為 null
 
@@ -404,8 +408,12 @@ namespace EFunTech.Sms.Portal
 
             List<Every8d_DeliveryReport> DeliveryReports = sendMessageResult.DeliveryReports.ToList();
 
-            foreach (var DeliveryReport in DeliveryReports)
+            //foreach (var DeliveryReport in DeliveryReports)
+            for(var i=0; i<DeliveryReports.Count; i++)
             {
+                var DeliveryReport = DeliveryReports[i];
+                var messageReceiver = (0 <= i && i < messageReceivers.Count) ? messageReceivers[i] : null;
+
                 string DestinationName = DeliveryReport.NAME;
 
                 var entity = new SendMessageHistory();
@@ -473,6 +481,7 @@ namespace EFunTech.Sms.Portal
                 entity.RetryMaxTimes = systemParameters.RetryMaxTimes;
                 entity.RetryTotalTimes = 0;
                 entity.SendMessageRetryHistoryId = null;
+                entity.Email = messageReceiver != null ? messageReceiver.Email : string.Empty;
 
                 entity = sendMessageHistoryRepository.Insert(entity);
 

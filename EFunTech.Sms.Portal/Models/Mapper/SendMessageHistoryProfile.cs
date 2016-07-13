@@ -42,6 +42,7 @@ namespace EFunTech.Sms.Portal.Models.Mapper
                 .ForMember(dst => dst.CreatedTime, opt => opt.MapFrom(src => src.CreatedTime))
                 .ForMember(dst => dst.RetryMaxTimes, opt => opt.MapFrom(src => src.RetryMaxTimes))
                 .ForMember(dst => dst.RetryMaxTimes, opt => opt.MapFrom(src => src.RetryMaxTimes))
+                .ForMember(dst => dst.Email, opt => opt.MapFrom(src => src.Email))
                 ;
 
 			CreateMap<SendMessageHistoryModel, SendMessageHistory>()
@@ -76,6 +77,7 @@ namespace EFunTech.Sms.Portal.Models.Mapper
                 .ForMember(dst => dst.CreatedTime, opt => opt.MapFrom(src => src.CreatedTime))
                 .ForMember(dst => dst.RetryMaxTimes, opt => opt.MapFrom(src => src.RetryMaxTimes))
                 .ForMember(dst => dst.RetryMaxTimes, opt => opt.MapFrom(src => src.RetryMaxTimes))
+                .ForMember(dst => dst.Email, opt => opt.MapFrom(src => src.Email))
                 ;
 		}
 

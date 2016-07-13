@@ -26,6 +26,10 @@
                     displayName: '收訊者門號'
                 },
                 {
+                    name: 'Email',
+                    displayName: '收訊者信箱'
+                },
+                {
                     name: 'Region',
                     displayName: '發送地區'
                 },

@@ -222,7 +222,7 @@ namespace EFunTech.Sms.Portal
                 infobip_SendMessageResultItem.DestinationAddress = sendMessageResultItem.DestinationAddress;
                 infobip_SendMessageResultItem.SendMessageResult = infobip_SendMessageResult;
                 infobip_SendMessageResultItem.DestinationName = messageReceiver.Name;
-
+                infobip_SendMessageResultItem.Email = messageReceiver.Email;
 
                 infobip_SendMessageResultItem = this.unitOfWork.Repository<Infobip_SendMessageResultItem>().Insert(infobip_SendMessageResultItem);
             }
@@ -474,6 +474,7 @@ namespace EFunTech.Sms.Portal
                 entity.RetryMaxTimes = systemParameters.RetryMaxTimes;
                 entity.RetryTotalTimes = 0;
                 entity.SendMessageRetryHistoryId = null;
+                entity.Email = SendMessageResult.Email;
 
                 entity = sendMessageHistoryRepository.Insert(entity);
             }

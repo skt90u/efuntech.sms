@@ -136,9 +136,9 @@
     <Compile Include="Extensions\SendMessageRuleExtensions.cs" />
     <Compile Include="Extensions\MenuItemExtensions.cs" />
     <Compile Include="IdentityModels.cs" />
-    <Compile Include="Migrations\201605071236587_v0507_1.cs" />
-    <Compile Include="Migrations\201605071236587_v0507_1.Designer.cs">
-      <DependentUpon>201605071236587_v0507_1.cs</DependentUpon>
+    <Compile Include="Migrations\201607130723059_20160713.cs" />
+    <Compile Include="Migrations\201607130723059_20160713.Designer.cs">
+      <DependentUpon>201607130723059_20160713.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -213,8 +213,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201605071236587_v0507_1.resx">
-      <DependentUpon>201605071236587_v0507_1.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201607130723059_20160713.resx">
+      <DependentUpon>201607130723059_20160713.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
