@@ -135,6 +135,11 @@ namespace Every8dApi
 
             string contentXML = string.Format("<REPS>{0}</REPS>", string.Join("", messageReceivers.Select(p => p.ToString())));
 
+            // < REPS >
+            //  < USER NAME = "TEST" MOBILE = "+886900000001" EMAIL = "" SENDTIME = "" >< ![CDATA[ok okjava hello <>@#$%^&*()]]></USER>
+            //  < USER NAME = "Eric1" MOBILE = "+886900000002" EMAIL = "service@every8d.com.tw" SENDTIME = "" >< ![CDATA[這是什麼的測試內容喔 <>@#$%^&*()]]></USER>
+            // </ REPS >
+
             // "4.0,1,1.0,0,65408eb7-1df2-449c-9cb9-4a9162c70cda"
             string resultString = this.SMSService.sendParamSMS(
                 this.sessionKey, 
@@ -152,7 +157,7 @@ namespace Every8dApi
              */
             string[] tokens = resultString.Split(',');
             if (tokens.Length != 5)
-                throw new Exception(string.Format("解析錯誤 {0}", resultString));
+                throw new Exception(string.Format("解析錯誤 {0}，contentXML = {1}", resultString, contentXML));
 
             var result = new SEND_SMS_RESULT();
             result.CREDIT = Convert.ToDouble(tokens[0]);
@@ -475,6 +480,16 @@ namespace Every8dApi
 
         public override string ToString()
         {
+            // http://tw.every8d.com/api20/doc/EVERY8D%20Web%20Services%20API%E6%96%87%E4%BB%B6-v2%201-https.pdf
+
+            //messageReceivers[0].NAME
+            //messageReceivers[0].MOBILE
+
+            // < REPS >
+            //  < USER NAME = "TEST" MOBILE = "+886900000001" EMAIL = "" SENDTIME = "" >< ![CDATA[ok okjava hello <>@#$%^&*()]]></USER>
+            //  < USER NAME = "Eric1" MOBILE = "+886900000002" EMAIL = "service@every8d.com.tw" SENDTIME = "" >< ![CDATA[這是什麼的測試內容喔 <>@#$%^&*()]]></USER>
+            // </ REPS >
+
             var sb = new StringBuilder();
 
             sb.AppendFormat("<USER");

@@ -143,7 +143,8 @@ namespace EFunTech.Sms.Portal.Controllers.Common
                     else
                     {
                         var ckTimezoneOffset = HttpContext.Current.Request.Cookies["TimezoneOffset"];
-                        timeZoneString = System.Web.HttpUtility.UrlDecode(ckTimezoneOffset.Value);
+                        if(ckTimezoneOffset != null)
+                            timeZoneString = System.Web.HttpUtility.UrlDecode(ckTimezoneOffset.Value);
                     }
                     
                     return !string.IsNullOrEmpty(timeZoneString)

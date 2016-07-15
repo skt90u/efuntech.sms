@@ -87,7 +87,13 @@ namespace EFunTech.Sms.Portal
             result = result.Union(new List<ApplicationUser> { user });
 
             // 由小到大排列
-            return result.OrderBy(p => p.Level).ThenBy(p => p.Id);
+            //return result.OrderBy(p => p.Level).ThenBy(p => p.Id);
+
+            // 20160715 Norman, 改成以下寫法
+            if (result != null)
+                return result.OrderBy(p => p.Level).ThenBy(p => p.Id); // 由小到大排列
+            else
+                return new List<ApplicationUser>();
         }
 
         private static IEnumerable<ApplicationUser> _GetDescendingUsers(
