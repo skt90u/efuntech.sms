@@ -57,6 +57,7 @@ namespace JUtilSharp.Database
                     
                     // 預設為 30 秒，設為 2 個小時
                     // http://www.expert.idv.tw/Content/Blog/Display/246e0816-8b6e-4264-bb27-6f5433649129
+                    // http://charlesbc.blogspot.tw/2013/06/systemtransactions-timeouts-azure.html
                     Timeout = new TimeSpan(2, 0, 0) 
                 }
             );

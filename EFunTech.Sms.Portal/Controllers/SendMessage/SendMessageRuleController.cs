@@ -72,10 +72,6 @@ namespace EFunTech.Sms.Portal.Controllers
 
                 return Task.FromResult(entity);
             }
-            catch(Exception ex)
-            {
-                throw;
-            }
             finally
             {
                 GC.Collect();

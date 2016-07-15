@@ -167,7 +167,7 @@ namespace EFunTech.Sms.Portal
         }
 
         [Queue(EFunTech.Sms.Portal.EfSmsBackgroundJob.QueueLevel.Critical)]
-        [AutomaticRetry(Attempts = 0)]
+        [AutomaticRetry(Attempts = 5)]
         public void SendSMS(int sendMessageRuleId, DateTime sendTime)
         {
             UniqueJob uniqueJob = null;
@@ -341,7 +341,7 @@ namespace EFunTech.Sms.Portal
             }
         }
 
-        [Queue(EFunTech.Sms.Portal.EfSmsBackgroundJob.QueueLevel.Medium)]
+        [Queue(EFunTech.Sms.Portal.EfSmsBackgroundJob.QueueLevel.Low)]
         [AutomaticRetry(Attempts = 0)]
         public void GetDeliveryReport(string requestId)
         {

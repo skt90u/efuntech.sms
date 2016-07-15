@@ -26,8 +26,8 @@ namespace EFunTech.Sms.Portal
             //this.mailProvider = new AliyunMailProvider(systemParameters, logService);
         }
 
-        [Queue(EFunTech.Sms.Portal.EfSmsBackgroundJob.QueueLevel.Low)]
-        [AutomaticRetry(Attempts = 0)]
+        [Queue(EFunTech.Sms.Portal.EfSmsBackgroundJob.QueueLevel.Medium)]
+        [AutomaticRetry(Attempts = 3)]
         public void Send(string subject, string body, string[] destinations)
         {
             //this.mailProvider.Send(subject, body, destinations);

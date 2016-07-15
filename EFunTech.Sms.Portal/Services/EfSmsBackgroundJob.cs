@@ -72,7 +72,7 @@ namespace EFunTech.Sms.Portal
         /// </summary>
         // 20160630 Norman, 不要重試
         // http://docs.hangfire.io/en/latest/background-processing/dealing-with-exceptions.html
-        [Queue(QueueLevel.Low)]
+        [Queue(QueueLevel.Medium)]
         [AutomaticRetry(Attempts = 0)]
         public void CheckMonthlyAllotPoint()
         {
@@ -289,7 +289,7 @@ namespace EFunTech.Sms.Portal
         /// </summary>
         // 20160630 Norman, 不要重試
         // http://docs.hangfire.io/en/latest/background-processing/dealing-with-exceptions.html
-        [Queue(QueueLevel.Low)]
+        [Queue(QueueLevel.Medium)]
         [AutomaticRetry(Attempts = 0)]
         public void HandleDeliveryReportTimeout()
         {
@@ -424,7 +424,7 @@ namespace EFunTech.Sms.Portal
 
         // 20160630 Norman, 不要重試
         // http://docs.hangfire.io/en/latest/background-processing/dealing-with-exceptions.html
-        [Queue(QueueLevel.Low)]
+        [Queue(QueueLevel.Medium)]
         [AutomaticRetry(Attempts = 0)]
         public void HouseKeeping()
         {
