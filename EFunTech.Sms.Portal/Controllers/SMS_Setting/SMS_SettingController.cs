@@ -24,25 +24,36 @@ namespace EFunTech.Sms.Portal.Controllers
         [System.Web.Http.HttpGet]
         public async Task<ApplicationUserModel> GetCurrentUser()
         {
-            var entity = await context.Set<ApplicationUser>().FindAsync(CurrentUserId);
-
-            var model = Mapper.Map<ApplicationUser, ApplicationUserModel>(entity);
-
-            model.CanEditDepartment = false;
-            model.CanEditSmsProviderType = false;
-
-            switch (CurrentUserRole) // CurrentUserRole 不會被改變，可以使用
+            try
             {
-                case Role.Administrator:
-                    model.CanEditDepartment = true;
-                    model.CanEditSmsProviderType = true;
-                    break;
-                case Role.Supervisor:
-                    model.CanEditDepartment = true;
-                    break;
-            }
+                var entity = await context.Set<ApplicationUser>().FindAsync(CurrentUserId);
 
-            return model;
+                var model = Mapper.Map<ApplicationUser, ApplicationUserModel>(entity);
+
+                if (model != null)
+                {
+                    model.CanEditDepartment = false;
+                    model.CanEditSmsProviderType = false;
+
+                    switch (CurrentUserRole) // CurrentUserRole 不會被改變，可以使用
+                    {
+                        case Role.Administrator:
+                            model.CanEditDepartment = true;
+                            model.CanEditSmsProviderType = true;
+                            break;
+                        case Role.Supervisor:
+                            model.CanEditDepartment = true;
+                            break;
+                    }
+                }
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                logService.Error(ex);
+                return null;
+            }
         }
 
         [System.Web.Http.HttpPut]

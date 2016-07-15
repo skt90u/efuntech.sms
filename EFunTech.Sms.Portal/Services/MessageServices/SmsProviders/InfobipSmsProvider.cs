@@ -655,6 +655,35 @@ namespace EFunTech.Sms.Portal
             infobip_SendMessageResult.Balance = this.Balance;
             infobip_SendMessageResult = this.unitOfWork.Repository<Infobip_SendMessageResult>().Insert(infobip_SendMessageResult);
 
+            //for (var i = 0; i < sendMessageResult.SendMessageResults.Length; i++)
+            //{
+            //    // 一個 messageReceiver 對應一個 sendMessageResult
+            //    //  尚未驗證，是否我傳送的 destinations 順序與 SendMessageResults 順序一致
+            //    //  【目前假設是一致的】
+            //    var sendMessageResultItem = sendMessageResult.SendMessageResults[i];
+
+            //    var infobip_SendMessageResultItem = new Infobip_SendMessageResultItem();
+
+            //    infobip_SendMessageResultItem.MessageId = sendMessageResultItem.MessageId;
+            //    infobip_SendMessageResultItem.MessageStatusString = sendMessageResultItem.MessageStatus;
+
+            //    EFunTech.Sms.Schema.MessageStatus MessageStatus = EFunTech.Sms.Schema.MessageStatus.Unknown;
+            //    Enum.TryParse<EFunTech.Sms.Schema.MessageStatus>(sendMessageResultItem.MessageStatus, out MessageStatus);
+            //    infobip_SendMessageResultItem.MessageStatus = MessageStatus;
+
+            //    infobip_SendMessageResultItem.SenderAddress = sendMessageResultItem.SenderAddress;
+            //    infobip_SendMessageResultItem.DestinationAddress = sendMessageResultItem.DestinationAddress;
+            //    infobip_SendMessageResultItem.SendMessageResult = infobip_SendMessageResult;
+            //    infobip_SendMessageResultItem.DestinationName = sendMessageHistory.DestinationName;
+
+
+            //    infobip_SendMessageResultItem = this.unitOfWork.Repository<Infobip_SendMessageResultItem>().Insert(infobip_SendMessageResultItem);
+
+            //    this.unitOfWork.Repository<Infobip_SendMessageResultItem>().Any
+            //}
+
+            var sendMessageResultItemRepository = this.unitOfWork.Repository<Infobip_SendMessageResultItem>();
+
             for (var i = 0; i < sendMessageResult.SendMessageResults.Length; i++)
             {
                 // 一個 messageReceiver 對應一個 sendMessageResult
@@ -662,22 +691,49 @@ namespace EFunTech.Sms.Portal
                 //  【目前假設是一致的】
                 var sendMessageResultItem = sendMessageResult.SendMessageResults[i];
 
-                var infobip_SendMessageResultItem = new Infobip_SendMessageResultItem();
+                // 20160715 Norman, 改成以下方式，用以解決以下問題
+                // The INSERT statement conflicted with the FOREIGN KEY constraint "FK_dbo.Infobip_DeliveryReport_dbo.Infobip_SendMessageResultItem_MessageId". The conflict occurred in database "EFunTechSms", table "dbo.Infobip_SendMessageResultItem", column 'MessageId'.
 
-                infobip_SendMessageResultItem.MessageId = sendMessageResultItem.MessageId;
-                infobip_SendMessageResultItem.MessageStatusString = sendMessageResultItem.MessageStatus;
+                var infobip_SendMessageResultItem = sendMessageResultItemRepository.Get(p => p.MessageId == sendMessageResultItem.MessageId);
 
-                EFunTech.Sms.Schema.MessageStatus MessageStatus = EFunTech.Sms.Schema.MessageStatus.Unknown;
-                Enum.TryParse<EFunTech.Sms.Schema.MessageStatus>(sendMessageResultItem.MessageStatus, out MessageStatus);
-                infobip_SendMessageResultItem.MessageStatus = MessageStatus;
+                if (infobip_SendMessageResultItem == null)
+                {
+                    // insert
 
-                infobip_SendMessageResultItem.SenderAddress = sendMessageResultItem.SenderAddress;
-                infobip_SendMessageResultItem.DestinationAddress = sendMessageResultItem.DestinationAddress;
-                infobip_SendMessageResultItem.SendMessageResult = infobip_SendMessageResult;
-                infobip_SendMessageResultItem.DestinationName = sendMessageHistory.DestinationName;
+                    infobip_SendMessageResultItem = new Infobip_SendMessageResultItem();
 
+                    infobip_SendMessageResultItem.MessageId = sendMessageResultItem.MessageId;
+                    infobip_SendMessageResultItem.MessageStatusString = sendMessageResultItem.MessageStatus;
 
-                infobip_SendMessageResultItem = this.unitOfWork.Repository<Infobip_SendMessageResultItem>().Insert(infobip_SendMessageResultItem);
+                    EFunTech.Sms.Schema.MessageStatus MessageStatus = EFunTech.Sms.Schema.MessageStatus.Unknown;
+                    Enum.TryParse<EFunTech.Sms.Schema.MessageStatus>(sendMessageResultItem.MessageStatus, out MessageStatus);
+                    infobip_SendMessageResultItem.MessageStatus = MessageStatus;
+
+                    infobip_SendMessageResultItem.SenderAddress = sendMessageResultItem.SenderAddress;
+                    infobip_SendMessageResultItem.DestinationAddress = sendMessageResultItem.DestinationAddress;
+                    infobip_SendMessageResultItem.SendMessageResult = infobip_SendMessageResult;
+                    infobip_SendMessageResultItem.DestinationName = sendMessageHistory.DestinationName;
+
+                    infobip_SendMessageResultItem = sendMessageResultItemRepository.Insert(infobip_SendMessageResultItem);
+                }
+                else
+                {
+                    // update
+
+                    //infobip_SendMessageResultItem.MessageId = sendMessageResultItem.MessageId; // update 不需要這個欄位
+                    infobip_SendMessageResultItem.MessageStatusString = sendMessageResultItem.MessageStatus;
+
+                    EFunTech.Sms.Schema.MessageStatus MessageStatus = EFunTech.Sms.Schema.MessageStatus.Unknown;
+                    Enum.TryParse<EFunTech.Sms.Schema.MessageStatus>(sendMessageResultItem.MessageStatus, out MessageStatus);
+                    infobip_SendMessageResultItem.MessageStatus = MessageStatus;
+
+                    infobip_SendMessageResultItem.SenderAddress = sendMessageResultItem.SenderAddress;
+                    infobip_SendMessageResultItem.DestinationAddress = sendMessageResultItem.DestinationAddress;
+                    infobip_SendMessageResultItem.SendMessageResult = infobip_SendMessageResult;
+                    infobip_SendMessageResultItem.DestinationName = sendMessageHistory.DestinationName;
+
+                    sendMessageResultItemRepository.Update(infobip_SendMessageResultItem);
+                }
             }
 
             var infobip_ResourceReference = new Infobip_ResourceReference();
