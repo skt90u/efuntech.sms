@@ -169,5 +169,7 @@ namespace EFunTech.Sms.Schema
         [DateTimeKind(DateTimeKind.Utc)]
         [Index] // 20151128 Norman, 加上Index看看速度會不會變快
         public DateTime CreatedTime { get; set; }
+
+        public string Email { get; set; }
     }
 }
