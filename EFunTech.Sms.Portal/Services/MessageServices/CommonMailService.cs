@@ -27,7 +27,7 @@ namespace EFunTech.Sms.Portal
         }
 
         [Queue(EFunTech.Sms.Portal.EfSmsBackgroundJob.QueueLevel.Medium)]
-        [AutomaticRetry(Attempts = 3)]
+        [AutomaticRetry(Attempts = 0)]
         public void Send(string subject, string body, string[] destinations)
         {
             //this.mailProvider.Send(subject, body, destinations);
